@@ -7,16 +7,17 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <!-- Tela de Login Inicial -->
     <div id="auth-container" class="auth-box">
         <h2>Entrar no Blueberry</h2>
-        <input type="email" id="auth-email" placeholder="E-mail">
-        <input type="password" id="auth-password" placeholder="Senha">
-        <button id="btn-login">Entrar</button>
-        <button id="btn-register" class="btn-secondary">Criar Nova Conta</button>
+        <input type="email" id="auth-email" placeholder="Seu e-mail">
+        <input type="password" id="auth-password" placeholder="Sua senha">
+        <button id="btn-login" type="button">Entrar</button>
+        <button id="btn-register" type="button" class="btn-secondary">Criar Nova Conta</button>
     </div>
 
-    <!-- Conteúdo Principal (Fica escondido até logar) -->
+    <!-- Conteúdo Principal (Escondido) -->
     <div id="app-container" style="display: none;">
         <header class="header">
             <div class="logo">Blueberry</div>
@@ -29,7 +30,7 @@
                 <div class="file-inputs">
                     <input type="text" id="video-link-input" placeholder="🌐 Cole o link de um vídeo aqui (opcional)">
                 </div>
-                <button id="btn-publish">Publicar</button>
+                <button id="btn-publish" type="button">Publicar</button>
             </section>
 
             <section id="feed" class="feed"></section>
