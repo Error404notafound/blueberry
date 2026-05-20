@@ -14,8 +14,127 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <!-- Adicionar Firebase Storage para foto de perfil -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <style>
+        /* Estilos Globais e do Tema */
+        :root { 
+    --bg-main: #18191a;
+    --bg-card: #242526;
+    --bg-hover: #3a3b3c;
+    --text-main: #e4e6eb;
+    --accent-blue: #2d88ff;
+}
 
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Centraliza a caixa de login na tela */
+.auth-box {
+    max-width: 350px;
+    margin: 100px auto;
+    background-color: var(--bg-card);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.auth-box h2 {
+    color: var(--accent-blue);
+    margin-bottom: 20px;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background-color: var(--bg-hover);
+    border: 1px solid #3e4042;
+    border-radius: 6px;
+    color: white;
+    box-sizing: border-box;
+}
+
+.header {
+    background-color: var(--bg-card);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #3e4042;
+}
+
+.logo {
+    color: var(--accent-blue);
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.main-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 0 10px;
+}
+
+.share-box, .post-card {
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: white;
+    resize: none;
+    height: 60px;
+    font-size: 16px;
+}
+
+textarea:focus { outline: none; }
+
+#video-link-input {
+    width: 100%;
+    padding: 8px;
+    background-color: var(--bg-hover);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: var(--accent-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.btn-secondary {
+    background-color: #42b72a;
+}
+
+video, iframe {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+               }
+
+    
     <link rel="stylesheet" href="style.css">
+</style>
 </head>
 <body>
 
@@ -49,6 +168,129 @@
     </div>
 
     <script type="module" src="script.js"></script>
+<!-- Scripts Firebase e Lógica da Aplicação -->
+<script>
+    // 1. CONFIGURAÇÃO DO FIREBASE (SEUS DADOS DE PROJETO)
+    const firebaseConfig = {
+  apiKey: 'AIzaSyBbcnTj1PxAclN0E0Fc9GlDI_MhCS0hP7Y',
+  authDomain: '://firebaseapp.com',
+  projectId: 'blueberry-c6d6f',
+  storageBucket: 'blueberry-c6d6f.firebasestorage.app',
+  messagingSenderId: '907567492761',
+  appId: '1:907567492761:web:6c9ee873357ceb68b25208'
+};
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const authContainer = document.getElementById('auth-container');
+const appContainer = document.getElementById('app-container');
+const btnLogin = document.getElementById('btn-login');
+const btnRegister = document.getElementById('btn-register');
+const btnLogout = document.getElementById('btn-logout');
+
+// Monitor de Login
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        authContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        carregarFeed();
+    } else {
+        authContainer.style.display = 'block';
+        appContainer.style.display = 'none';
+    }
+});
+
+// Clique Criar Conta
+btnRegister.addEventListener('click', () => {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+    
+    if(!email || !password) {
+        alert('Por favor, preencha o e-mail e a senha!');
+        return;
+    }
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+            alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
+        })
+        .catch(error => alert('Erro ao criar conta: ' + error.message));
+});
+
+// Clique Entrar
+btnLogin.addEventListener('click', () => {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+
+    if(!email || !password) {
+        alert('Por favor, preencha o e-mail e a senha!');
+        return;
+    }
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+            alert('Login realizado!');
+        })
+        .catch(error => alert('Erro ao entrar: ' + error.message));
+});
+
+btnLogout.addEventListener('click', () => signOut(auth));
+
+// Publicar Mensagem
+const btnPublish = document.getElementById('btn-publish');
+btnPublish.addEventListener('click', async () => {
+    const textValue = document.getElementById('post-text').value.trim();
+    const videoUrl = document.getElementById('video-link-input').value.trim();
+
+    if (textValue || videoUrl) {
+        try {
+            await addDoc(collection(db, 'posts'), {
+                text: textValue,
+                video: videoUrl,
+                autor: auth.currentUser.email,
+                createdAt: Date.now()
+            });
+            document.getElementById('post-text').value = '';
+            document.getElementById('video-link-input').value = '';
+        } catch (error) {
+            alert('Erro ao publicar: ' + error.message);
+        }
+    }
+});
+
+function carregarFeed() {
+    const feed = document.getElementById('feed');
+    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, (snapshot) => {
+        feed.innerHTML = '';
+        snapshot.forEach((doc) => {
+            const post = doc.data();
+            const card = document.createElement('div');
+            card.className = 'post-card';
+            
+            let videoHTML = '';
+            if (post.video) {
+                if (post.video.includes('youtube.com') || post.video.includes('youtu.be')) {
+                    let videoId = post.video.split('v=').pop() || post.video.split('/').pop();
+                    if(videoId.includes('&')) videoId = videoId.split('&')[0];
+                    videoHTML = `<iframe width="100%" height="200" src="https://youtube.com{videoId}" frameborder="0" allowfullscreen style="border-radius:8px; margin-top:10px;"></iframe>`;
+                } else {
+                    videoHTML = `<video src="${post.video}" controls style="width:100%; border-radius:8px; margin-top:10px;"></video>`;
+                }
+            }
+            
+            card.innerHTML = `
+                <small style="color:var(--accent-blue); font-weight:bold;">${post.autor || 'Anônimo'}</small>
+                <p style="margin:5px 0 0 0; font-size:16px;">${post.text}</p>
+                ${videoHTML}
+            `;
+            feed.appendChild(card);
+        });
+    });
+}
+</script>
 </body>
 </html>
+        
