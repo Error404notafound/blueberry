@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blueberry</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Blueberry</div>
+        <input type="text" placeholder="Pesquisar no Blueberry" class="search-bar">
+    </header>
+
+    <main class="main-container">
+        <section class="share-box">
+            <textarea id="post-text" placeholder="No que você está pensando?"></textarea>
+            <div class="file-inputs">
+                <label for="video-input">🎬 Adicionar Vídeo</label>
+                <input type="file" id="video-input" accept="video/*">
+            </div>
+            <button id="btn-publish">Publicar</button>
+        </section>
+
+        <section id="feed" class="feed"></section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
