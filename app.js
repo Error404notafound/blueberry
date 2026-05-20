@@ -4,7 +4,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 
 const firebaseConfig = {
   apiKey: "AIzaSyBbcnTj1PxAclN0E0Fc9GlDI_MhCS0hP7Y",
-  authDomain: "://firebaseapp.com",
+  authDomain: "blueberry-c6d6f.firebaseapp.com",
   projectId: "blueberry-c6d6f",
   storageBucket: "blueberry-c6d6f.firebasestorage.app",
   messagingSenderId: "907567492761",
@@ -15,14 +15,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Elementos da Tela
 const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 const btnLogin = document.getElementById('btn-login');
 const btnRegister = document.getElementById('btn-register');
 const btnLogout = document.getElementById('btn-logout');
 
-// Monitor do estado do usuário (Logado ou deslogado)
+// Monitor de Login
 onAuthStateChanged(auth, (user) => {
     if (user) {
         authContainer.style.display = 'none';
@@ -34,23 +33,40 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// Criar conta
+// Criar conta CORRIGIDO
 btnRegister.addEventListener('click', () => {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+    
+    if(!email || !password) {
+        alert("Por favor, preencha o e-mail e a senha!");
+        return;
+    }
+
     createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+            alert("Conta criada com sucesso! Bem-vindo ao Blueberry.");
+        })
         .catch(error => alert("Erro ao criar conta: " + error.message));
 });
 
-// Fazer Login
+// Fazer Login CORRIGIDO
 btnLogin.addEventListener('click', () => {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+
+    if(!email || !password) {
+        alert("Por favor, preencha o e-mail e a senha!");
+        return;
+    }
+
     signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+            alert("Login realizado!");
+        })
         .catch(error => alert("Erro ao entrar: " + error.message));
 });
 
-// Sair da conta
 btnLogout.addEventListener('click', () => signOut(auth));
 
 // Publicar Mensagem
@@ -75,7 +91,6 @@ btnPublish.addEventListener('click', async () => {
     }
 });
 
-// Função para listar as mensagens
 function carregarFeed() {
     const feed = document.getElementById('feed');
     const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
