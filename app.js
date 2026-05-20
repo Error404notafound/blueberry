@@ -1,4 +1,4 @@
-import { initializeApp } from "https://gstatic.com";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://gstatic.com";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://gstatic.com";
 
@@ -15,13 +15,14 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+// Forçar ativação imediata dos botões na tela
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("Blueberry carregado!");
+});
+
 const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
-const btnLogin = document.getElementById('btn-login');
-const btnRegister = document.getElementById('btn-register');
-const btnLogout = document.getElementById('btn-logout');
 
-// Monitor de Login
 onAuthStateChanged(auth, (user) => {
     if (user) {
         authContainer.style.display = 'none';
@@ -33,45 +34,39 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// Criar conta CORRIGIDO
-btnRegister.addEventListener('click', () => {
+// Clique Criar Conta
+document.getElementById('btn-register').addEventListener('click', () => {
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value.trim();
     
     if(!email || !password) {
-        alert("Por favor, preencha o e-mail e a senha!");
+        alert("Preencha o e-mail e a senha antes!");
         return;
     }
 
     createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-            alert("Conta criada com sucesso! Bem-vindo ao Blueberry.");
-        })
-        .catch(error => alert("Erro ao criar conta: " + error.message));
+        .then(() => alert("Conta criada com sucesso!"))
+        .catch(error => alert("Erro: " + error.message));
 });
 
-// Fazer Login CORRIGIDO
-btnLogin.addEventListener('click', () => {
+// Clique Entrar
+document.getElementById('btn-login').addEventListener('click', () => {
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value.trim();
 
     if(!email || !password) {
-        alert("Por favor, preencha o e-mail e a senha!");
+        alert("Preencha o e-mail e a senha antes!");
         return;
     }
 
     signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-            alert("Login realizado!");
-        })
-        .catch(error => alert("Erro ao entrar: " + error.message));
+        .then(() => alert("Entrou!"))
+        .catch(error => alert("Erro: " + error.message));
 });
 
-btnLogout.addEventListener('click', () => signOut(auth));
+document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-// Publicar Mensagem
-const btnPublish = document.getElementById('btn-publish');
-btnPublish.addEventListener('click', async () => {
+document.getElementById('btn-publish').addEventListener('click', async () => {
     const textValue = document.getElementById('post-text').value.trim();
     const videoUrl = document.getElementById('video-link-input').value.trim();
 
@@ -86,7 +81,7 @@ btnPublish.addEventListener('click', async () => {
             document.getElementById('post-text').value = "";
             document.getElementById('video-link-input').value = "";
         } catch (error) {
-            alert("Erro ao publicar: " + error.message);
+            alert("Erro ao postar: " + error.message);
         }
     }
 });
@@ -104,8 +99,8 @@ function carregarFeed() {
             let videoHTML = "";
             if (post.video) {
                 if (post.video.includes("youtube.com") || post.video.includes("youtu.be")) {
-                    let videoId = post.video.split("v=")[1] || post.video.split("/").pop();
-                    if(videoId.includes("&")) videoId = videoId.split("&")[0];
+                    let videoId = post.video.split("v=") || post.video.split("/").pop();
+                    if(videoId.includes("&")) videoId = videoId.split("&");
                     videoHTML = `<iframe width="100%" height="200" src="https://youtube.com{videoId}" frameborder="0" allowfullscreen style="border-radius:8px; margin-top:10px;"></iframe>`;
                 } else {
                     videoHTML = `<video src="${post.video}" controls style="width:100%; border-radius:8px; margin-top:10px;"></video>`;
