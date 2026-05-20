@@ -171,7 +171,11 @@ video, iframe {
 <!-- Scripts Firebase e Lógica da Aplicação -->
 <script>
     // 1. CONFIGURAÇÃO DO FIREBASE (SEUS DADOS DE PROJETO)
-    const firebaseConfig = {
+    import { initializeApp } from 'https://gstatic.com';
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from 'https://gstatic.com';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://gstatic.com';
+
+const firebaseConfig = {
   apiKey: 'AIzaSyBbcnTj1PxAclN0E0Fc9GlDI_MhCS0hP7Y',
   authDomain: '://firebaseapp.com',
   projectId: 'blueberry-c6d6f',
