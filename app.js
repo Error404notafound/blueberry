@@ -1,7 +1,7 @@
 import { initializeApp } from "https://gstatic.com";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://gstatic.com";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://gstatic.com";
 
-// Suas credenciais oficiais do Blueberry
 const firebaseConfig = {
   apiKey: "AIzaSyBbcnTj1PxAclN0E0Fc9GlDI_MhCS0hP7Y",
   authDomain: "://firebaseapp.com",
@@ -11,65 +11,98 @@ const firebaseConfig = {
   appId: "1:907567492761:web:6c9ee873357ceb68b25208"
 };
 
-// Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
+// Elementos da Tela
+const authContainer = document.getElementById('auth-container');
+const appContainer = document.getElementById('app-container');
+const btnLogin = document.getElementById('btn-login');
+const btnRegister = document.getElementById('btn-register');
+const btnLogout = document.getElementById('btn-logout');
+
+// Monitor do estado do usuário (Logado ou deslogado)
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        authContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        carregarFeed();
+    } else {
+        authContainer.style.display = 'block';
+        appContainer.style.display = 'none';
+    }
+});
+
+// Criar conta
+btnRegister.addEventListener('click', () => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    createUserWithEmailAndPassword(auth, email, password)
+        .catch(error => alert("Erro ao criar conta: " + error.message));
+});
+
+// Fazer Login
+btnLogin.addEventListener('click', () => {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    signInWithEmailAndPassword(auth, email, password)
+        .catch(error => alert("Erro ao entrar: " + error.message));
+});
+
+// Sair da conta
+btnLogout.addEventListener('click', () => signOut(auth));
+
+// Publicar Mensagem
 const btnPublish = document.getElementById('btn-publish');
-const postText = document.getElementById('post-text');
-const videoLinkInput = document.getElementById('video-link-input');
-const feed = document.getElementById('feed');
-
-// Enviar postagem (Texto e Link de Vídeo)
 btnPublish.addEventListener('click', async () => {
-    const textValue = postText.value.trim();
-    const videoUrl = videoLinkInput.value.trim();
+    const textValue = document.getElementById('post-text').value.trim();
+    const videoUrl = document.getElementById('video-link-input').value.trim();
 
     if (textValue || videoUrl) {
         try {
             await addDoc(collection(db, "posts"), {
                 text: textValue,
                 video: videoUrl,
+                autor: auth.currentUser.email,
                 createdAt: Date.now()
             });
-            
-            // Limpa os campos após o envio concluído
-            postText.value = "";
-            videoLinkInput.value = "";
+            document.getElementById('post-text').value = "";
+            document.getElementById('video-link-input').value = "";
         } catch (error) {
-            alert("Erro ao salvar publicação: " + error.message);
+            alert("Erro ao publicar: " + error.message);
         }
     }
 });
 
-// Atualiza a linha do tempo em tempo real para todos os usuários
-const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-onSnapshot(q, (snapshot) => {
-    feed.innerHTML = "";
-    snapshot.forEach((doc) => {
-        const post = doc.data();
-        const card = document.createElement('div');
-        card.className = 'post-card';
-        
-        let videoHTML = "";
-        
-        // Verifica se há um link de vídeo e cria a tag certa
-        if (post.video) {
-            if (post.video.includes("youtube.com") || post.video.includes("youtu.be")) {
-                // Se for link do YouTube, converte para formato de incorporar (embed)
-                let videoId = post.video.split("v=")[1] || post.video.split("/").pop();
-                if(videoId.includes("&")) videoId = videoId.split("&")[0];
-                videoHTML = `<iframe width="100%" height="315" src="https://youtube.com{videoId}" frameborder="0" allowfullscreen style="border-radius:8px; margin-top:10px;"></iframe>`;
-            } else {
-                // Se for um link direto de arquivo de vídeo (.mp4, etc)
-                videoHTML = `<video src="${post.video}" controls style="width:100%; border-radius:8px; margin-top:10px;"></video>`;
+// Função para listar as mensagens
+function carregarFeed() {
+    const feed = document.getElementById('feed');
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+        feed.innerHTML = "";
+        snapshot.forEach((doc) => {
+            const post = doc.data();
+            const card = document.createElement('div');
+            card.className = 'post-card';
+            
+            let videoHTML = "";
+            if (post.video) {
+                if (post.video.includes("youtube.com") || post.video.includes("youtu.be")) {
+                    let videoId = post.video.split("v=")[1] || post.video.split("/").pop();
+                    if(videoId.includes("&")) videoId = videoId.split("&")[0];
+                    videoHTML = `<iframe width="100%" height="200" src="https://youtube.com{videoId}" frameborder="0" allowfullscreen style="border-radius:8px; margin-top:10px;"></iframe>`;
+                } else {
+                    videoHTML = `<video src="${post.video}" controls style="width:100%; border-radius:8px; margin-top:10px;"></video>`;
+                }
             }
-        }
-        
-        card.innerHTML = `
-            <p style="margin:0; font-size:16px;">${post.text}</p>
-            ${videoHTML}
-        `;
-        feed.appendChild(card);
+            
+            card.innerHTML = `
+                <small style="color:var(--accent-blue); font-weight:bold;">${post.autor || 'Anônimo'}</small>
+                <p style="margin:5px 0 0 0; font-size:16px;">${post.text}</p>
+                ${videoHTML}
+            `;
+            feed.appendChild(card);
+        });
     });
-});
+}
