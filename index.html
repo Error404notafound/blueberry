@@ -7,22 +7,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="header">
-        <div class="logo">Blueberry</div>
-        <input type="text" placeholder="Pesquisar no Blueberry" class="search-bar">
-    </header>
+    <!-- Tela de Login Inicial -->
+    <div id="auth-container" class="auth-box">
+        <h2>Entrar no Blueberry</h2>
+        <input type="email" id="auth-email" placeholder="E-mail">
+        <input type="password" id="auth-password" placeholder="Senha">
+        <button id="btn-login">Entrar</button>
+        <button id="btn-register" class="btn-secondary">Criar Nova Conta</button>
+    </div>
 
-    <main class="main-container">
-        <section class="share-box">
-            <textarea id="post-text" placeholder="No que você está pensando?"></textarea>
-            <div class="file-inputs">
-                <input type="text" id="video-link-input" placeholder="🌐 Cole o link de um vídeo aqui (opcional)">
-            </div>
-            <button id="btn-publish">Publicar</button>
-        </section>
+    <!-- Conteúdo Principal (Fica escondido até logar) -->
+    <div id="app-container" style="display: none;">
+        <header class="header">
+            <div class="logo">Blueberry</div>
+            <button id="btn-logout" style="width: auto; margin: 0; padding: 5px 10px;">Sair</button>
+        </header>
 
-        <section id="feed" class="feed"></section>
-    </main>
+        <main class="main-container">
+            <section class="share-box">
+                <textarea id="post-text" placeholder="No que você está pensando?"></textarea>
+                <div class="file-inputs">
+                    <input type="text" id="video-link-input" placeholder="🌐 Cole o link de um vídeo aqui (opcional)">
+                </div>
+                <button id="btn-publish">Publicar</button>
+            </section>
+
+            <section id="feed" class="feed"></section>
+        </main>
+    </div>
 
     <script type="module" src="app.js"></script>
 </body>
