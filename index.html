@@ -615,17 +615,22 @@
                 <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
             </div>
             <div class="main-nav-item" id="reels-nav-icon">
-    <svg viewBox="0 0 24 24" width="24" height="24" style="fill: none !important;">
-        <!-- Estrutura externa vazada -->
-        <path d="M7 2h10c2.76 0 5 2.24 5 5v10c0 2.76-2.24 5-5 5H7c-2.76 0-5-2.24-5-5V7c0-2.76 2.24-5 5-5z" stroke="currentColor" stroke-width="2" fill="none"></path>
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="background: transparent;">
+        <!-- Borda externa com cantos arredondados -->
+        <rect x="2" y="2" width="20" height="20" rx="5"></rect>
         
-        <!-- Linhas superiores da claquete -->
-        <path d="M2 7h20M7 2v5M17 2v5M12 2v5" stroke="currentColor" stroke-width="2"></path>
+        <!-- Linha horizontal superior -->
+        <line x1="2" y1="7" x2="22" y2="7"></line>
         
-        <!-- Triângulo do Play (Apenas a borda, sem preenchimento branco) -->
-        <polygon points="10,11 15,14 10,17" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"></polygon>
+        <!-- Cortes inclinados da claquete -->
+        <line x1="7" y1="2" x2="10" y2="7"></line>
+        <line x1="14" y1="2" x2="17" y2="7"></line>
+        
+        <!-- Play centralizado e vazado -->
+        <polygon points="10,11 15,14 10,17"></polygon>
     </svg>
 </div>
+
 
 
             <div class="main-nav-item" id="notifications-icon">
