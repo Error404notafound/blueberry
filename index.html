@@ -293,10 +293,15 @@
             background-color: var(--bg-hover);
         }
 
-        .main-nav-item svg {
+                .main-nav-item svg {
             width: 28px;
             height: 28px;
             fill: var(--accent-blue);
+        }
+
+        .reels-svg-fix {
+            fill: none !important;
+            stroke: var(--accent-blue) !important;
         }
 
         .main-container {
@@ -615,21 +620,15 @@
                 <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
             </div>
             <div class="main-nav-item" id="reels-nav-icon">
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="background: transparent;">
-        <!-- Borda externa com cantos arredondados -->
+    <svg class="reels-svg-fix" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="2" y="2" width="20" height="20" rx="5"></rect>
-        
-        <!-- Linha horizontal superior -->
         <line x1="2" y1="7" x2="22" y2="7"></line>
-        
-        <!-- Cortes inclinados da claquete -->
         <line x1="7" y1="2" x2="10" y2="7"></line>
         <line x1="14" y1="2" x2="17" y2="7"></line>
-        
-        <!-- Play centralizado e vazado -->
-        <polygon points="10,11 15,14 10,17"></polygon>
+        <polygon points="10,11 15,14 10,17" style="fill: var(--accent-blue) !important;"></polygon>
     </svg>
 </div>
+
 
 
 
