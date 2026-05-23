@@ -92,17 +92,18 @@
 
 /* CORREÇÃO: Força um tamanho padrão para os SVGs do topo aparecerem */
 .header-icon svg {
-    width: 24px !important;
-    height: 24px !important;
-    stroke: #a855f7 !important; /* Cor roxa original */
+    width: 24px;
+    height: 24px;
 }
+
 /* Mantém as regras de coloração que você já tinha criado */
 .header-icon svg,
-.main-nav-item svg {
-    fill: none !important;
-    stroke-width: 2px !important;
-    stroke-linecap: round !important;
-    stroke-linejoin: round !important;
+.main-nav-item svg,
+.drawer-item svg,
+.drawer-list-item svg,
+.reels-svg-fix {
+    fill: var(--accent-white) !important;
+    stroke: var(--accent-white) !important;
 }
 
 
@@ -307,23 +308,15 @@
         }
 
                 .main-nav-item svg {
-    width: 28px !important;
-    height: 28px !important;
-    stroke: #3b82f6 !important; /* Cor azul original */
-                }
+            width: 28px;
+            height: 28px;
+            fill: var(--accent-blue);
+        }
 
         .reels-svg-fix {
-    fill: none !important;
-    stroke: #3b82f6 !important;
-}
-
-/* Mantém apenas o triângulo do Play e as rodinhas preenchidos para não deformar o desenho */
-#reels-nav-icon svg polygon,
-.drawer-item svg polygon,
-#market-icon svg circle {
-    fill: #3b82f6 !important;
-    stroke: none !important;
-}
+            fill: none !important;
+            stroke: var(--accent-blue) !important;
+        }
 
         .main-container {
             max-width: 500px;
@@ -975,4 +968,4 @@
         // carregarFeed();
     </script>
 </body>
-            </html>
+</html>
