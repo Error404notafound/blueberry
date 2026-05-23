@@ -68,12 +68,13 @@
             align-items: center;
         }
 
-        .logo {
-            color: var(--accent-purplish-blue); /* Cor atualizada */
+                .logo {
+            color: #ffffff; /* Alterado de var(--accent-purplish-blue) para branco */
             font-weight: bold;
             font-size: 24px;
             margin-left: 10px;
         }
+
 
         .header-icon {
             cursor: pointer;
@@ -272,7 +273,7 @@
              color: var(--accent-blue); /* Ajuste de cor para links */
         }
 
-                /* Nav Bar Principal */
+        /* Nav Bar Principal */
         .main-nav {
             display: flex;
             justify-content: space-around;
@@ -421,7 +422,7 @@
             margin-top: 10px;
         }
 
-        /* Overlay para o Side Drawer */
+                /* Overlay para o Side Drawer */
         .overlay {
             position: fixed;
             top: 0;
@@ -682,7 +683,7 @@
     <script type="module">
         // Importações do Firebase SDK v9 modular
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js'; // Adicionado 'limit', 'startAfter', 'getDocs'
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
         // Se precisar de Storage no futuro:
         // import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js';
@@ -702,11 +703,11 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-                const authContainer = document.getElementById('auth-container');
+        const authContainer = document.getElementById('auth-container');
         const appContainer = document.getElementById('app-container');
         const btnLogin = document.getElementById('btn-login');
         const btnRegister = document.getElementById('btn-register');
-        // const btnLogout = document.getElementById('btn-logout'); // Removido conforme sua indicação anterior
+        const btnLogout = document.getElementById('btn-logout');
 
         // Novos elementos da UI
         const searchIcon = document.getElementById('search-icon');
@@ -727,11 +728,6 @@
         const notificationsIcon = document.getElementById('notifications-icon');
         const marketIcon = document.getElementById('market-icon');
 
-        // Variáveis para Paginação
-        let lastVisible = null; // Para armazenar o último documento visível da consulta anterior
-        const postsPerPage = 5; // Número de posts a carregar por vez
-        let isFetchingPosts = false; // Flag para evitar múltiplas chamadas de fetch
-
         // Monitor de Login
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -739,12 +735,7 @@
                 appContainer.style.display = 'block';
                 // Atualiza o nome do usuário na gaveta lateral
                 drawerUserName.textContent = user.email;
-                
-                // Limpa o feed e reseta a paginação ao fazer login
-                document.getElementById('feed').innerHTML = '';
-                lastVisible = null;
-                isFetchingPosts = false; // Reseta a flag
-                loadMorePosts(); // Carrega os primeiros posts
+                carregarFeed();
             } else {
                 authContainer.style.display = 'block';
                 appContainer.style.display = 'none';
@@ -786,7 +777,9 @@
         });
 
         // Logout
-        drawerLogoutBtn.addEventListener('click', () => signOut(auth));
+// btnLogout.addEventListener('click', () => signOut(auth)); // <-- COMENTE OU REMOVA ESTA LINHA
+drawerLogoutBtn.addEventListener('click', () => signOut(auth));
+// ...
 
         // Funcionalidades da nova UI
 
@@ -812,7 +805,7 @@
             drawerOverlay.classList.remove('active');
         });
 
-        // Simular clique no perfil da gaveta
+                // Simular clique no perfil da gaveta
         drawerProfileBtn.addEventListener('click', () => {
             alert('Visualizando perfil do usuário!');
             // Aqui você pode redirecionar para uma página de perfil real
@@ -827,10 +820,6 @@
         homeIcon.addEventListener('click', () => {
             alert('Retornando ao Feed de Notícias');
             // Implementar rolagem para o topo do feed ou recarregar
-            document.getElementById('feed').innerHTML = ''; // Limpa o feed
-            lastVisible = null; // Reseta o cursor de paginação
-            isFetchingPosts = false; // Reseta a flag
-            loadMorePosts(); // Carrega os primeiros posts novamente
         });
         friendsIcon.addEventListener('click', () => alert('Abrindo página de Amigos e Recomendações'));
         messagesIcon.addEventListener('click', () => alert('Abrindo Histórico de Conversas'));
@@ -839,14 +828,21 @@
         marketIcon.addEventListener('click', () => alert('Abrindo página de Mercado'));
 
 
-        // Publicar Mensagem
-        const postTextInput = document.getElementById('post-text');
+        // Publicar Mensagem (Ajustado para o novo input)
+        const postTextInput = document.getElementById('post-text'); // Usar o novo input
+        // const btnPublish = document.getElementById('btn-publish'); // Este botão não está mais visível no HTML atual
 
+        // Como o botão de publicar original foi removido da área de "create-post-area" no HTML,
+        // vou assumir que a publicação pode ocorrer ao pressionar 'Enter' no campo de texto
+        // ou que um novo botão 'Publicar' será adicionado no HTML.
+        // Para esta versão, se o usuário digitar algo e pressionar Enter, ele publicará.
+        // Se você quiser um botão de Publicar explícito na nova área, por favor, me avise!
+        
         postTextInput.addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && !e.shiftKey) { // Publica ao pressionar Enter, mas permite Shift+Enter para nova linha
                 e.preventDefault(); // Evita quebra de linha padrão do Enter
                 const textValue = postTextInput.value.trim();
-                const videoUrl = document.getElementById('video-link-input')?.value.trim() || '';
+                const videoUrl = document.getElementById('video-link-input')?.value.trim() || ''; // Assume que ainda pode haver um campo para vídeo em algum lugar, mas prioriza o novo input
 
                 if (textValue || videoUrl) {
                     try {
@@ -854,20 +850,12 @@
                             text: textValue,
                             video: videoUrl,
                             autor: auth.currentUser.email,
-                            createdAt: Date.now() // Usar timestamp do servidor é melhor para evitar problemas de sincronização
+                            createdAt: Date.now()
                         });
                         postTextInput.value = ''; // Limpa o campo de texto
                         if (document.getElementById('video-link-input')) {
                              document.getElementById('video-link-input').value = ''; // Limpa o campo de vídeo, se existir
                         }
-                        // O feed será atualizado automaticamente se você adicionar um listener em tempo real para os posts mais recentes.
-                        // Para paginação, geralmente você limpa o feed e recarrega os primeiros posts ou insere o novo post no topo.
-                        // Para simplicidade aqui, vamos limpar e carregar a primeira página novamente após um novo post.
-                        document.getElementById('feed').innerHTML = '';
-                        lastVisible = null;
-                        isFetchingPosts = false;
-                        loadMorePosts();
-
                     } catch (error) {
                         alert('Erro ao publicar: ' + error.message);
                     }
@@ -877,32 +865,13 @@
             }
         });
 
-        // Função para carregar mais posts (com paginação)
-        async function loadMorePosts() {
-            if (isFetchingPosts) return; // Evita múltiplas chamadas simultâneas
-            isFetchingPosts = true;
 
+        function carregarFeed() {
             const feed = document.getElementById('feed');
-            let q;
-
-            if (lastVisible) {
-                // Se já carregamos posts antes, começamos após o último documento
-                q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), startAfter(lastVisible), limit(postsPerPage));
-            } else {
-                // Primeira carga, apenas ordenamos e limitamos
-                q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(postsPerPage));
-            }
-
-            try {
-                const documentSnapshots = await getDocs(q); // Usamos getDocs para carregar uma vez
-                
-                if (documentSnapshots.empty) {
-                    console.log('Não há mais posts para carregar.');
-                    isFetchingPosts = false;
-                    return;
-                }
-
-                documentSnapshots.forEach((doc) => {
+            const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+            onSnapshot(q, (snapshot) => {
+                feed.innerHTML = '';
+                snapshot.forEach((doc) => {
                     const post = doc.data();
                     const card = document.createElement('div');
                     card.className = 'post-card';
@@ -929,28 +898,8 @@
                     `;
                     feed.appendChild(card);
                 });
-
-                // Atualiza lastVisible com o último documento da página atual
-                lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-                isFetchingPosts = false; // Libera para a próxima chamada
-            } catch (error) {
-                console.error("Erro ao carregar posts:", error);
-                isFetchingPosts = false; // Libera em caso de erro
-            }
+            });
         }
-
-        // Lógica para detectar o final da página e carregar mais posts
-        window.addEventListener('scroll', () => {
-            // Verifica se o usuário está perto do final da página
-            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-            if (scrollTop + clientHeight >= scrollHeight - 100) { // 100px do final
-                loadMorePosts();
-            }
-        });
-
-        // Ao carregar a página (após o login ser detectado), a primeira carga já é feita.
-        // Não é necessário chamar carregarFeed() aqui, pois onAuthStateChanged já faz.
-        // carregarFeed();
     </script>
 </body>
 </html>
