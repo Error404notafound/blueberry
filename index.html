@@ -98,12 +98,10 @@
 
 /* Mantém as regras de coloração que você já tinha criado */
 .header-icon svg,
-.main-nav-item svg,
 .drawer-item svg,
-.drawer-list-item svg,
-.reels-svg-fix {
+.drawer-list-item svg {
     fill: var(--accent-white) !important;
-    stroke: var(--accent-white) !important;
+    stroke: none !important;
 }
 
 
@@ -308,15 +306,15 @@
         }
 
                 .main-nav-item svg {
-            width: 28px;
-            height: 28px;
-            fill: var(--accent-blue);
-        }
+    fill: none !important; /* Remove o preenchimento interno */
+    stroke: var(--accent-white) !important; /* Deixa as linhas brancas */
+    stroke-width: 2px !important; /* Garante que as linhas fiquem visíveis */
+}
 
         .reels-svg-fix {
-            fill: none !important;
-            stroke: var(--accent-blue) !important;
-        }
+    fill: none !important;
+    stroke: var(--accent-white) !important;
+}
 
         .main-container {
             max-width: 500px;
