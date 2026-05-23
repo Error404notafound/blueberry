@@ -104,6 +104,13 @@
     stroke: none !important;
 }
 
+/* 2. ÍCONES SÓLIDOS DA NAV BAR (Casinha, Amigos, Mensagens, Notificações) */
+/* Eles precisam de fill ativo senão ficam invisíveis */
+.main-nav-item svg {
+    fill: var(--accent-white) !important;
+    stroke: none !important;
+}
+
 
         .search-bar-container {
             position: absolute;
@@ -305,15 +312,12 @@
             background-color: var(--bg-hover);
         }
 
-                .main-nav-item svg {
-    fill: none !important; /* Remove o preenchimento interno */
-    stroke: var(--accent-white) !important; /* Deixa as linhas brancas */
-    stroke-width: 2px !important; /* Garante que as linhas fiquem visíveis */
-}
-
-        .reels-svg-fix {
+                .main-nav-item svg.reels-svg-fix,
+.reels-svg-fix,
+.reels-svg-fix * {
     fill: none !important;
     stroke: var(--accent-white) !important;
+    stroke-width: 2px !important;
 }
 
         .main-container {
