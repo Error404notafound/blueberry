@@ -98,17 +98,13 @@
 
 /* Mantém as regras de coloração que você já tinha criado */
 .header-icon svg,
+.main-nav-item svg,
 .drawer-item svg,
-.drawer-list-item svg {
-    fill: var(--accent-white) !important;
-    stroke: none !important;
-}
-
-/* 2. ÍCONES SÓLIDOS DA NAV BAR (Casinha, Amigos, Mensagens, Notificações) */
-/* Eles precisam de fill ativo senão ficam invisíveis */
-.main-nav-item svg {
-    fill: var(--accent-white) !important;
-    stroke: none !important;
+.drawer-list-item svg,
+.reels-svg-fix {
+    fill: none !important;
+    stroke: var(--accent-white) !important;
+    stroke-width: 2px; /* Garante que a espessura da linha apareça bem */
 }
 
 
@@ -312,13 +308,16 @@
             background-color: var(--bg-hover);
         }
 
-                .main-nav-item svg.reels-svg-fix,
-.reels-svg-fix,
-.reels-svg-fix * {
-    fill: none !important;
-    stroke: var(--accent-white) !important;
-    stroke-width: 2px !important;
-}
+                .main-nav-item svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--accent-blue);
+        }
+
+        .reels-svg-fix {
+            fill: none !important;
+            stroke: var(--accent-blue) !important;
+        }
 
         .main-container {
             max-width: 500px;
@@ -970,4 +969,4 @@
         // carregarFeed();
     </script>
 </body>
-</html>
+            </html>
