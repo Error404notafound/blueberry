@@ -402,42 +402,32 @@
             appId: '1:907567492761:web:6c9ee873357ceb68b25208'
         };
 
-        const app = initializeApp(firebaseConfig);
+                const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // Elementos da Interface
         const authContainer = document.getElementById('auth-container');
         const appContainer = document.getElementById('app-container');
         const btnLogin = document.getElementById('btn-login');
         const btnRegister = document.getElementById('btn-register');
-        const btnLogout = document.getElementById('btn-logout');
 
-        // Novos elementos da UI
         const searchIcon = document.getElementById('search-icon');
         const searchBarContainer = document.getElementById('search-bar-container');
         const menuHamburguerIcon = document.getElementById('menu-hamburguer-icon');
         const sideDrawer = document.getElementById('side-drawer');
         const closeDrawerBtn = document.getElementById('close-drawer-btn');
         const drawerOverlay = document.getElementById('drawer-overlay');
-        const drawerProfileBtn = document.getElementById('drawer-profile-btn');
         const drawerUserName = document.getElementById('drawer-user-name');
         const drawerLogoutBtn = document.getElementById('drawer-logout-btn');
+        const postTextInput = document.getElementById('post-text');
 
-        const privacySettingsBtn = document.getElementById('privacy-settings-btn');
-        const homeIcon = document.getElementById('home-icon');
-        const friendsIcon = document.getElementById('friends-icon');
-        const messagesIcon = document.getElementById('messages-icon');
-        const reelsNavIcon = document.getElementById('reels-nav-icon');
-        const notificationsIcon = document.getElementById('notifications-icon');
-        const marketIcon = document.getElementById('market-icon');
-
-        // Monitor de Login
+        // Monitor de Estado de Autenticação
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 authContainer.style.display = 'none';
                 appContainer.style.display = 'block';
-                // Atualiza o nome do usuário na gaveta lateral
-                drawerUserName.textContent = user.email;
+                drawerUserName.textContent = user.email.split('@')[0];
                 carregarFeed();
             } else {
                 authContainer.style.display = 'block';
@@ -445,130 +435,56 @@
             }
         });
 
-        // Clique Criar Conta
+        // Lógica de Login e Cadastro
         btnRegister.addEventListener('click', () => {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-            
-            if(!email || !password) {
-                alert('Por favor, preencha o e-mail e a senha!');
-                return;
-            }
-
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
             createUserWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
-                })
-                .catch(error => alert('Erro ao criar conta: ' + error.message));
+                .catch(error => alert('Erro no cadastro: ' + error.message));
         });
 
-        // Clique Entrar
         btnLogin.addEventListener('click', () => {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-
-            if(!email || !password) {
-                alert('Por favor, preencha o e-mail e a senha!');
-                return;
-            }
-
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
             signInWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    alert('Login realizado!');
-                })
                 .catch(error => alert('Erro ao entrar: ' + error.message));
         });
 
-        // Logout
-// btnLogout.addEventListener('click', () => signOut(auth)); // <-- COMENTE OU REMOVA ESTA LINHA
-drawerLogoutBtn.addEventListener('click', () => signOut(auth));
-// ...
+        drawerLogoutBtn.addEventListener('click', () => signOut(auth));
 
-        // Funcionalidades da nova UI
-
-        // Alternar barra de pesquisa
-        searchIcon.addEventListener('click', () => {
-            searchBarContainer.classList.toggle('active');
-        });
-
-        // Abrir gaveta lateral
+        // Controle da Interface (Busca e Menu)
+        searchIcon.addEventListener('click', () => searchBarContainer.classList.toggle('active'));
+        
         menuHamburguerIcon.addEventListener('click', () => {
             sideDrawer.classList.add('open');
             drawerOverlay.classList.add('active');
         });
 
-        // Fechar gaveta lateral
-        closeDrawerBtn.addEventListener('click', () => {
+        const fecharMenu = () => {
             sideDrawer.classList.remove('open');
             drawerOverlay.classList.remove('active');
-        });
+        };
 
-        drawerOverlay.addEventListener('click', () => {
-            sideDrawer.classList.remove('open');
-            drawerOverlay.classList.remove('active');
-        });
+        closeDrawerBtn.addEventListener('click', fecharMenu);
+        drawerOverlay.addEventListener('click', fecharMenu);
 
-                // Simular clique no perfil da gaveta
-        drawerProfileBtn.addEventListener('click', () => {
-            alert('Visualizando perfil do usuário!');
-            // Aqui você pode redirecionar para uma página de perfil real
-        });
-
-        // Funcionalidade de privacidade
-        privacySettingsBtn.addEventListener('click', () => {
-            alert('Página de Privacidade:\n\nQuem pode ver meu perfil: (Amigos, Todos, Seguidores, Ninguém)\nQuem pode ver meus comentários: (Amigos, Todos, Seguidores, Ninguém)\n...');
-        });
-
-        // Navegação principal
-        homeIcon.addEventListener('click', () => {
-            alert('Retornando ao Feed de Notícias');
-            // Implementar rolagem para o topo do feed ou recarregar
-        });
-        friendsIcon.addEventListener('click', () => alert('Abrindo página de Amigos e Recomendações'));
-        messagesIcon.addEventListener('click', () => alert('Abrindo Histórico de Conversas'));
-        reelsNavIcon.addEventListener('click', () => alert('Abrindo página de Reels'));
-        notificationsIcon.addEventListener('click', () => alert('Abrindo página de Notificações'));
-        marketIcon.addEventListener('click', () => alert('Abrindo página de Mercado'));
-
-
-        // Publicar Mensagem (Ajustado para o novo input)
-        const postTextInput = document.getElementById('post-text'); // Usar o novo input
-        // const btnPublish = document.getElementById('btn-publish'); // Este botão não está mais visível no HTML atual
-
-        // Como o botão de publicar original foi removido da área de "create-post-area" no HTML,
-        // vou assumir que a publicação pode ocorrer ao pressionar 'Enter' no campo de texto
-        // ou que um novo botão 'Publicar' será adicionado no HTML.
-        // Para esta versão, se o usuário digitar algo e pressionar Enter, ele publicará.
-        // Se você quiser um botão de Publicar explícito na nova área, por favor, me avise!
-        
+        // Publicar Postagem (ao pressionar Enter)
         postTextInput.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { // Publica ao pressionar Enter, mas permite Shift+Enter para nova linha
-                e.preventDefault(); // Evita quebra de linha padrão do Enter
-                const textValue = postTextInput.value.trim();
-                const videoUrl = document.getElementById('video-link-input')?.value.trim() || ''; // Assume que ainda pode haver um campo para vídeo em algum lugar, mas prioriza o novo input
-
-                if (textValue || videoUrl) {
-                    try {
-                        await addDoc(collection(db, 'posts'), {
-                            text: textValue,
-                            video: videoUrl,
-                            autor: auth.currentUser.email,
-                            createdAt: Date.now()
-                        });
-                        postTextInput.value = ''; // Limpa o campo de texto
-                        if (document.getElementById('video-link-input')) {
-                             document.getElementById('video-link-input').value = ''; // Limpa o campo de vídeo, se existir
-                        }
-                    } catch (error) {
-                        alert('Erro ao publicar: ' + error.message);
-                    }
-                } else {
-                    alert('Por favor, escreva algo ou adicione um link de vídeo para publicar.');
+            if (e.key === 'Enter' && postTextInput.value.trim() !== "") {
+                try {
+                    await addDoc(collection(db, 'posts'), {
+                        text: postTextInput.value,
+                        autor: auth.currentUser.email,
+                        createdAt: Date.now()
+                    });
+                    postTextInput.value = '';
+                } catch (error) {
+                    alert('Erro ao publicar: ' + error.message);
                 }
             }
         });
 
-
+        // Carregar Feed em Tempo Real
         function carregarFeed() {
             const feed = document.getElementById('feed');
             const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
@@ -578,26 +494,12 @@ drawerLogoutBtn.addEventListener('click', () => signOut(auth));
                     const post = doc.data();
                     const card = document.createElement('div');
                     card.className = 'post-card';
-                    
-                    let videoHTML = '';
-                    if (post.video) {
-                        if (post.video.includes('youtube.com') || post.video.includes('youtu.be')) {
-                            let videoId = post.video.split('v=').pop() || post.video.split('/').pop();
-                            if(videoId.includes('&')) videoId = videoId.split('&')[0];
-                            videoHTML = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="border-radius:8px; margin-top:10px;"></iframe>`;
-                        } else {
-                            videoHTML = `<video src="${post.video}" controls style="width:100%; border-radius:8px; margin-top:10px;"></video>`;
-                        }
-                    }
-                    
-                    // Adicionando um avatar de usuário genérico e o autor
                     card.innerHTML = `
-                        <div style="display:flex; align-items:center; margin-bottom: 10px;">
-                            <img src="https://via.placeholder.com/30" alt="Avatar" style="width:30px; height:30px; border-radius:50%; margin-right:10px; border: 1px solid var(--accent-purplish-blue);">
-                            <small style="color:var(--accent-blue); font-weight:bold;">${post.autor || 'Anônimo'}</small>
+                        <div style="display:flex; align-items:center; margin-bottom:10px;">
+                            <img src="https://via.placeholder.com/30" style="border-radius:50%; margin-right:10px; border:1px solid white;">
+                            <small style="font-weight:bold; color:white;">${post.autor.split('@')[0]}</small>
                         </div>
-                        <p style="margin:5px 0 0 0; font-size:16px;">${post.text}</p>
-                        ${videoHTML}
+                        <p style="margin:0; font-size:16px;">${post.text}</p>
                     `;
                     feed.appendChild(card);
                 });
@@ -606,5 +508,4 @@ drawerLogoutBtn.addEventListener('click', () => signOut(auth));
     </script>
 </body>
 </html>
-
 
