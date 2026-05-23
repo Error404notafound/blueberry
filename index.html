@@ -52,48 +52,60 @@
         }
 
         /* Header Principal */
-        .header {
-            background-color: var(--bg-card);
-            display: flex;
-            justify-content: space-between; /* Empurra os grupos para os cantos */
-            align-items: center;
-            padding: 10px 15px;
-            border-bottom: 1px solid #3e4042;
-        }
+        /* Header Principal */
+.header {
+    background-color: var(--bg-card);
+    display: flex;
+    justify-content: space-between; /* Empurra o logo para a esquerda e ícones para a direita */
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #3e4042;
+}
 
-        .header-left, .header-right {
-            display: flex;
-            flex-direction: row-reverse; /* Inverte a ordem para facilitar o alinhamento */
-            align-items: center;
-        }
+/* CORREÇÃO: Removeu-se o row-reverse que quebrava o alinhamento */
+.header-left, .header-right {
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+}
 
-        .logo {
-            color: var(--accent-white);
-            font-weight: bold;
-            font-size: 24px;
-            margin-left: 0; /* Alinhado totalmente à esquerda */
-        }
+.logo {
+    color: var(--accent-white);
+    font-weight: bold;
+    font-size: 24px;
+}
 
-        .header-icon {
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: background-color 0.2s;
-            margin-left: 10px; /* Espaçamento entre os ícones */
-        }
+.header-icon {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+    margin-left: 10px; /* Garante espaçamento lateral entre lupa e menu */
+    display: flex;     /* Garante centralização do SVG interno */
+    align-items: center;
+    justify-content: center;
+}
 
-        .header-icon:hover {
-            background-color: var(--bg-hover);
-        }
+.header-icon:hover {
+    background-color: var(--bg-hover);
+}
 
-        .header-icon svg, 
-        .main-nav-item svg, 
-        .drawer-item svg, 
-        .drawer-list-item svg,
-        .reels-svg-fix {
-            fill: var(--accent-white) !important;
-            stroke: var(--accent-white) !important;
-        }
+/* CORREÇÃO: Força um tamanho padrão para os SVGs do topo aparecerem */
+.header-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Mantém as regras de coloração que você já tinha criado */
+.header-icon svg,
+.main-nav-item svg,
+.drawer-item svg,
+.drawer-list-item svg,
+.reels-svg-fix {
+    fill: var(--accent-white) !important;
+    stroke: var(--accent-white) !important;
+}
+
 
         .search-bar-container {
             position: absolute;
@@ -454,23 +466,24 @@
     <!-- Conteúdo Principal (Escondido) -->
     <div id="app-container" style="display: none;">
                 <header class="header">
-            <!-- Logo sozinho na esquerda -->
-            <div class="logo">Blueberry</div>
+    <!-- Logo sozinho na esquerda -->
+    <div class="logo">Blueberry</div>
+    
+    <!-- Lupa e Menu organizados linearmente na direita -->
+    <div class="header-right">
+        <div class="header-icon" id="search-icon">
+            <svg viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+        </div>
+        <div class="header-icon" id="menu-hamburguer-icon">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            </svg>
+        </div>
+    </div>
+</header>
 
-            <!-- Lupa e Menu na direita -->
-            <div class="header-right">
-                <div class="header-icon" id="menu-hamburguer-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
-                    </svg>
-                </div>
-                <div class="header-icon" id="search-icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
-                </div>
-            </div>
-        </header>
 
 
         <!-- Barra de Pesquisa (Escondida por padrão) -->
