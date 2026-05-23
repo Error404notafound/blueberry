@@ -96,16 +96,24 @@
     height: 24px;
 }
 
-/* Mantém as regras de coloração que você já tinha criado */
+/* 1. Ícones baseados em preenchimento sólido (Lupa, Menu, Amigos, Balão, Sino, etc.) */
 .header-icon svg,
-.main-nav-item svg,
+.main-nav-item:not(#reels-nav-icon):not(#market-icon) svg,
 .drawer-item svg,
-.drawer-list-item svg,
+.drawer-list-item svg {
+    fill: var(--accent-white) !important;
+    stroke: none !important;
+}
+
+/* 2. Ícones baseados apenas em linhas/contornos (Reels e Carrinho de Compras) */
+#reels-nav-icon svg,
+#market-icon svg,
 .reels-svg-fix {
     fill: none !important;
     stroke: var(--accent-white) !important;
-    stroke-width: 2px; /* Garante que a espessura da linha apareça bem */
+    stroke-width: 2px !important;
 }
+
 
 
         .search-bar-container {
@@ -210,9 +218,9 @@
             height: 50px;
             border-radius: 50%;
             object-fit: cover;
-    background-color: var(--bg-hover); /* Fundo cinza caso a imagem suma */
-    text-indent: -10000px; /* Esconde o texto "Avatar" feio se quebrar */
-}
+            margin-right: 15px;
+            border: 1px solid var(--accent-purplish-blue);
+        }
 
         .user-info span {
             display: block;
@@ -347,9 +355,9 @@
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
-    background-color: var(--bg-hover); /* Fundo cinza caso a imagem suma */
-    text-indent: -10000px; /* Esconde o texto "Avatar" feio se quebrar */
-            }
+            margin-right: 10px;
+            border: 1px solid var(--accent-purplish-blue);
+        }
 
         .create-post-area .post-input-wrapper {
             flex-grow: 1;
