@@ -7,14 +7,13 @@
     
     <style>
         /* Estilos Globais e do Tema */
-        :root { 
+         :root { 
             --bg-main: #18191a;
             --bg-card: #242526;
             --bg-hover: #3a3b3c;
             --text-main: #e4e6eb;
-            --accent-blue: #2d88ff;
-            --accent-purplish-blue: #8A2BE2; /* Nova cor */
-            --drawer-bg: #2d2d2d; /* Cor para a gaveta lateral */
+            --accent-white: #ffffff; /* Tudo agora é branco */
+            --drawer-bg: #2d2d2d;
         }
 
         body {
@@ -37,9 +36,8 @@
             text-align: center;
         }
 
-        .auth-box h2 {
-            color: var(--accent-blue);
-            margin-bottom: 20px;
+        .auth-box h2, .drawer-section-title {
+            color: var(--accent-white);
         }
 
         .auth-box input {
@@ -57,9 +55,9 @@
         .header {
             background-color: var(--bg-card);
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* Empurra os grupos para os cantos */
             align-items: center;
-            padding: 10px 15px; /* Ajustado para acomodar ícones */
+            padding: 10px 15px;
             border-bottom: 1px solid #3e4042;
         }
 
@@ -69,10 +67,10 @@
         }
 
         .logo {
-            color: var(--accent-purplish-blue); /* Cor atualizada */
+            color: var(--accent-white);
             font-weight: bold;
             font-size: 24px;
-            margin-left: 10px;
+            margin-left: 0; /* Alinhado totalmente à esquerda */
         }
 
         .header-icon {
@@ -87,10 +85,13 @@
             background-color: var(--bg-hover);
         }
 
-        .header-icon svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--accent-purplish-blue); /* Cor atualizada */
+        .header-icon svg, 
+        .main-nav-item svg, 
+        .drawer-item svg, 
+        .drawer-list-item svg,
+        .reels-svg-fix {
+            fill: var(--accent-white) !important;
+            stroke: var(--accent-white) !important;
         }
 
         .search-bar-container {
@@ -400,7 +401,7 @@
         }
 
         button {
-            background-color: var(--accent-blue);
+            background-color: #444; /* Botão mais neutro para combinar com o branco */
             color: white;
             border: none;
             border-radius: 6px;
