@@ -544,6 +544,51 @@
 }
 .reel-meta h4 { margin: 0 0 5px 0; font-size: 16px; font-weight: bold; }
 .reel-meta p { margin: 0; font-size: 14px; opacity: 0.9; }
+/* Estilo do Modal de Reels */
+.modal-reel {
+    display: none; /* Escondido por padrão */
+    position: fixed;
+    z-index: 3000; /* Fica por cima de tudo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7); /* Fundo escurecido */
+    align-items: center;
+    justify-content: center;
+}
+.modal-reel-content {
+    background-color: var(--bg-card);
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    position: relative;
+    border: 1px solid #3e4042;
+}
+.modal-reel-close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.modal-reel-close:hover { color: white; }
+.modal-reel-content h3 { color: white; margin-top: 0; }
+.modal-reel-content input, .modal-reel-content textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    background-color: var(--bg-hover);
+    border: 1px solid #3e4042;
+    border-radius: 6px;
+    color: white;
+    box-sizing: border-box;
+}
+.modal-reel-content textarea { height: 80px; resize: none; }
 
     </style>
 </head>
@@ -763,7 +808,7 @@
         </nav>
 
         <main class="main-container">
-            <!-- Área de Postagem Aprimorada -->
+                        <!-- Área de Postagem Aprimorada -->
             <section class="create-post-area">
                 <img src="https://via.placeholder.com/40" alt="Avatar do Usuário" class="user-avatar">
                 <div class="post-input-wrapper">
@@ -773,7 +818,16 @@
                     <svg viewBox="0 0 24 24"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3.49 4.67-2.3-2.31L3 18V6l2.97 3.96 2.35-2.36 3.49 4.67z"/></svg>
                     <span>Foto</span>
                 </div>
+
+                <!-- O BOTÃO DE REEL ENTRA BEM AQUI -->
+                <div class="reel-upload-btn" id="btn-abrir-modal-reel" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #e4405f; margin-bottom: 2px;">
+                        <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+                    </svg>
+                    <span>Reel</span>
+                </div>
             </section>
+
 
             <!-- Antiga área de postagem, agora substituída ou ajustada -->
             <!-- <section class="share-box">
@@ -794,6 +848,16 @@
             </div>
         </section>
 
+<!-- Modal para Criar Reel -->
+<div id="reel-modal" class="modal-reel">
+    <div class="modal-reel-content">
+        <span class="modal-reel-close" id="btn-fechar-modal-reel">&times;</span>
+        <h3>Publicar Novo Reel</h3>
+        <input type="text" id="reel-link-input" placeholder="🌐 Cole o link de embed aqui (Ex: https://youtube.com...)">
+        <textarea id="reel-text-input" placeholder="Escreva uma legenda para o seu Reel..."></textarea>
+        <button id="btn-publicar-reel" type="button" style="background-color: #e4405f;">Compartilhar Reel</button>
+    </div>
+</div>
 
     <!-- Scripts Firebase e Lógica da Aplicação -->
     <script type="module">
@@ -972,6 +1036,57 @@
         notificationsIcon.addEventListener('click', () => alert('Abrindo página de Notificações'));
         marketIcon.addEventListener('click', () => alert('Abrindo página de Mercado'));
 
+// Elementos do Modal de Reels
+const reelModal = document.getElementById('reel-modal');
+const btnAbrirModalReel = document.getElementById('btn-abrir-modal-reel');
+const btnFecharModalReel = document.getElementById('btn-fechar-modal-reel');
+const btnPublicarReel = document.getElementById('btn-publicar-reel');
+
+// Abrir o Modal ao clicar no botão "Reel"
+btnAbrirModalReel.addEventListener('click', () => {
+    reelModal.style.display = 'flex';
+});
+
+// Fechar o Modal no "X"
+btnFecharModalReel.addEventListener('click', () => {
+    reelModal.style.display = 'none';
+});
+
+// Fechar se clicar fora da caixinha preta
+window.addEventListener('click', (e) => {
+    if (e.target === reelModal) reelModal.style.display = 'none';
+});
+
+// Enviar o Reel para o Firebase Firestore
+btnPublicarReel.addEventListener('click', async () => {
+    const videoUrl = document.getElementById('reel-link-input').value.trim();
+    const reelText = document.getElementById('reel-text-input').value.trim();
+
+    if (!videoUrl) {
+        alert('Por favor, cole o link de embed do seu vídeo!');
+        return;
+    }
+
+    try {
+        // Adiciona no seu banco com a marcação "isReel: true"
+        await addDoc(collection(db, 'posts'), {
+            text: reelText,
+            video: videoUrl,
+            autor: auth.currentUser.email,
+            createdAt: Date.now(),
+            isReel: true // Identificador para a página de Reels puxar
+        });
+
+        // Limpa os campos e fecha
+        document.getElementById('reel-link-input').value = '';
+        document.getElementById('reel-text-input').value = '';
+        reelModal.style.display = 'none';
+        alert('Reel publicado com sucesso, chefia!');
+        
+    } catch (error) {
+        alert('Erro ao publicar Reel: ' + error.message);
+    }
+});
 
 
         // Publicar Mensagem
@@ -1091,8 +1206,10 @@ async function loadReels() {
     wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Carregando Reels...</p>';
     
     try {
-        // Puxa os posts mais recentes do Firestore do Blueberry
-        const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(15));
+        // CORREÇÃO: Importe o 'where' caso dê erro (adicione o 'where' nas importações do firestore lá no topo se necessário)
+// Puxa apenas documentos onde 'isReel' é igual a true
+const q = query(collection(db, 'posts'), where('isReel', '==', true), orderBy('createdAt', 'desc'), limit(15));
+
         const querySnapshot = await getDocs(q);
         
         wrapper.innerHTML = ''; // Limpa o texto de carregando
