@@ -814,10 +814,14 @@
                 <div class="post-input-wrapper">
                     <input type="text" id="post-text" class="post-input" placeholder="No que você está pensando?">
                 </div>
-                <div class="photo-upload-btn" onclick="alert('Fazer upload de foto/vídeo')">
-                    <svg viewBox="0 0 24 24"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3.49 4.67-2.3-2.31L3 18V6l2.97 3.96 2.35-2.36 3.49 4.67z"/></svg>
-                    <span>Foto</span>
-                </div>
+                <div class="photo-upload-btn" onclick="alert('Fazer upload de foto/vídeo')" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+    <!-- Ícone de Galeria/Foto estilo Facebook -->
+    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #45bd62; margin-bottom: 2px;">
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19zM8.5 9.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
+    </svg>
+    <span>Foto</span>
+</div>
+
 
                 <!-- O BOTÃO DE REEL ENTRA BEM AQUI -->
                 <div class="reel-upload-btn" id="btn-abrir-modal-reel" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
