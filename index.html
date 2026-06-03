@@ -925,20 +925,42 @@
 
 <!-- 1. Tela de Lista de Conversas (WhatsApp Verde) -->
 <!-- Tela de Lista de Conversas (Sem a barra superior do WhatsApp) -->
+<!-- Tela de Lista de Conversas Destravada -->
 <section id="chat-list-container" style="display: none;">
     <div class="whatsapp-header" style="background-color: #1c1e21; border-bottom: 1px solid #3e4042;">
-        <!-- Mantemos apenas as abas conectadas diretamente com o topo -->
-        <div class="whatsapp-tabs" style="margin-top: 0; padding: 5px 0;">
-            <div class="tab-icon" style="display: flex; align-items: center;"><svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: #8696a0;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
-            <div class="tab-item active" style="color: #2f80ed; padding: 10px 0;">CONVERSAS <span class="badge-total" style="background-color: #2f80ed; color: white;">0</span></div>
-            <div class="tab-item" style="color: #8696a0; padding: 10px 0;">ONLINE</div>
-            <div class="tab-item" style="color: #8696a0; padding: 10px 0;">GRUPOS</div>
+        <div class="whatsapp-tabs" style="margin-top: 0; padding: 5px 0; display: flex; width: 100%;">
+            <div class="tab-icon" style="display: flex; align-items: center; width: 10%; justify-content: center;">
+                <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: #8696a0;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </div>
+            <!-- Adicionamos IDs e a classe 'tab-btn' para o JS achar os botões -->
+            <div class="tab-item tab-btn active" id="tab-conversas" style="color: #2f80ed; padding: 10px 0; width: 30%; text-align: center; font-size: 13px; font-weight: bold; cursor: pointer;">CONVERSAS <span class="badge-total" style="background-color: #2f80ed; color: white;">0</span></div>
+            <div class="tab-item tab-btn" id="tab-online" style="color: #8696a0; padding: 10px 0; width: 30%; text-align: center; font-size: 13px; font-weight: bold; cursor: pointer;">ONLINE</div>
+            <div class="tab-item tab-btn" id="tab-grupos" style="color: #8696a0; padding: 10px 0; width: 30%; text-align: center; font-size: 13px; font-weight: bold; cursor: pointer;">GRUPOS</div>
         </div>
     </div>
-    <div class="conversations-list" id="conversations-list-wrapper" style="background-color: #18191a; height: calc(100% - 40px);">
-        <!-- Amigos injetados via JS -->
+
+    <!-- Área de Conteúdo Dinâmico das Abas -->
+    <div class="conversations-list" style="background-color: #18191a; height: calc(100% - 45px); overflow-y: auto;">
+        
+        <!-- Sub-aba 1: Conversas (Fica visível por padrão) -->
+        <div id="content-conversas" class="tab-content">
+            <div id="conversations-list-wrapper"></div>
+        </div>
+
+        <!-- Sub-aba 2: Online (Escondida) -->
+        <div id="content-online" class="tab-content" style="display: none; padding: 20px; color: #8696a0; text-align: center;">
+            <p>Buscando amigos online nas proximidades...</p>
+            <!-- Aqui você pode listar futuramente quem está ativo -->
+        </div>
+
+        <!-- Sub-aba 3: Grupos (Escondida) -->
+        <div id="content-grupos" class="tab-content" style="display: none; padding: 20px; color: #8696a0; text-align: center;">
+            <p>👥 Nenhum grupo Blueberry ativo no momento.</p>
+        </div>
+
     </div>
 </section>
+
 
 
 <!-- 2. Tela de Balões de Chat Privado (WhatsApp Dark) -->
@@ -1165,6 +1187,35 @@
 
         notificationsIcon.addEventListener('click', () => alert('Abrindo página de Notificações'));
         marketIcon.addEventListener('click', () => alert('Abrindo página de Mercado'));
+// Lógica de clique para alternar as abas do Chat (CONVERSAS, ONLINE, GRUPOS)
+const abas = document.querySelectorAll('.tab-btn');
+const conteudos = document.querySelectorAll('.tab-content');
+
+abas.forEach(aba => {
+    aba.addEventListener('click', () => {
+        // 1. Remove o estilo ativo de todas as abas e coloca a cor cinza
+        abas.forEach(a => {
+            a.classList.remove('active');
+            a.style.color = '#8696a0';
+        });
+        
+        // 2. Adiciona o estilo ativo (azul) na aba que recebeu o clique
+        aba.classList.add('active');
+        aba.style.color = '#2f80ed';
+        
+        // 3. Esconde todos os conteúdos das abas
+        conteudos.forEach(c => c.style.display = 'none');
+        
+        // 4. Mostra apenas o conteúdo da aba clicada
+        const targetId = 'content-' + aba.id.replace('tab-', '');
+        document.getElementById(targetId).style.display = 'block';
+        
+        // Se clicar na aba de conversas, recarrega a lista do Firebase para garantir
+        if(aba.id === 'tab-conversas') {
+            loadConversationsList();
+        }
+    });
+});
 
 // Elementos do Modal de Reels
 const reelModal = document.getElementById('reel-modal');
