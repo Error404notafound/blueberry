@@ -770,6 +770,158 @@
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
 }
 /* ==================== FIM DO NOVO LAYOUT DO REELS ==================== */
+/* ==================== LAYOUT DE PERFIL ESTILO FACEBOOK ==================== */
+#profile-container {
+    background-color: #000000;
+    color: var(--text-main);
+    min-height: calc(100vh - 60px);
+    font-family: sans-serif;
+    padding-bottom: 30px;
+}
+.profile-cover-wrapper {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    background-color: #1c1e21;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+.btn-edit-cover {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.profile-avatar-container {
+    position: absolute;
+    left: 50%;
+    bottom: -60px;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 140px;
+    z-index: 5;
+}
+.profile-avatar-img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 4px solid #18191a;
+    object-fit: cover;
+    background-color: #242526;
+}
+.btn-edit-avatar {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    background: #242526;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.profile-info-section {
+    text-align: center;
+    margin-top: 70px;
+    padding: 0 20px;
+}
+.profile-info-section h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+.profile-post-count {
+    font-size: 14px;
+    color: #b0b3b8;
+    margin: 4px 0 12px 0;
+}
+.profile-bio {
+    font-size: 14px;
+    color: #e4e6eb;
+    line-height: 1.4;
+    max-width: 320px;
+    margin: 0 auto 15px auto;
+}
+.profile-meta-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+    color: #b0b3b8;
+    margin-bottom: 20px;
+}
+.profile-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.profile-actions-bar {
+    display: flex;
+    gap: 10px;
+    padding: 0 15px 15px 15px;
+    border-bottom: 1px solid #2f3031;
+}
+.btn-story {
+    flex: 1;
+    background-color: #2374e1;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-edit-p {
+    flex: 1;
+    background-color: #3a3b3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.profile-nav-tabs {
+    display: flex;
+    padding: 5px 10px 0 10px;
+}
+.profile-tab-item {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #b0b3b8;
+    cursor: pointer;
+}
+.profile-tab-item.active {
+    color: #2374e1;
+    border-bottom: 3px solid #2374e1;
+}
 
     </style>
 </head>
@@ -1026,6 +1178,48 @@
 
                         <section id="feed" class="feed"></section>
         </main>
+<!-- TELA DE PERFIL DO USUÁRIO ESTILO FACEBOOK MOBILE -->
+<section id="profile-container" style="display: none;">
+    <div class="profile-cover-wrapper">
+        <button class="btn-edit-cover">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>
+        </button>
+        <div class="profile-avatar-container">
+            <img src="https://placeholder.com" class="profile-avatar-img" id="p-avatar-img" alt="Foto de Perfil">
+            <button class="btn-edit-avatar">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="profile-info-section">
+        <h2 id="p-user-title">Carregando...</h2>
+        <div class="profile-post-count">59 posts</div>
+        <p class="profile-bio">Respire fundo, se concentre.. e sinta o tempo desmembrar as moléculas da sua existência.</p>
+        <div class="profile-meta-details">
+            <div class="profile-meta-item">
+                <span>📍 São Paulo, SP</span> • <span>🎓 University of Waterloo</span> • <span>📸 kalebmouton</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-actions-bar">
+        <button class="btn-story">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Adicionar ao story
+        </button>
+        <button class="btn-edit-p">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            Editar perfil
+        </button>
+    </div>
+
+    <div class="profile-nav-tabs">
+        <div class="profile-tab-item active">Tudo</div>
+        <div class="profile-tab-item">Fotos</div>
+        <div class="profile-tab-item">Reels</div>
+    </div>
+</section>
 
         <!-- TELA DE REELS ESTILO FACEBOOK (COLE ESTE BLOCO AQUI) -->
         <section id="reels-container" style="display: none;">
@@ -1158,6 +1352,9 @@
         const reelsNavIcon = document.getElementById('reels-nav-icon');
         const notificationsIcon = document.getElementById('notifications-icon');
         const marketIcon = document.getElementById('market-icon');
+const profileContainer = document.getElementById('profile-container');
+const pUserTitle = document.getElementById('p-user-title');
+const pAvatarImg = document.getElementById('p-avatar-img');
 
         // Variáveis para Paginação
         let lastVisible = null; // Para armazenar o último documento visível da consulta anterior
@@ -1483,13 +1680,17 @@ btnPublicarReel.addEventListener('click', async () => {
                     
                     // Adicionando um avatar de usuário genérico e o autor
                     card.innerHTML = `
-                        <div style="display:flex; align-items:center; margin-bottom: 10px;">
-                            <img src="https://via.placeholder.com/30" alt="Avatar" style="width:30px; height:30px; border-radius:50%; margin-right:10px; border: 1px solid var(--accent-purplish-blue);">
-                            <small style="color:var(--accent-blue); font-weight:bold;">${post.autor || 'Anônimo'}</small>
-                        </div>
-                        <p style="margin:5px 0 0 0; font-size:16px;">${post.text}</p>
-                        ${videoHTML}
-                    `;
+    <div class="user-feed-header" style="display:flex; align-items:center; margin-bottom: 10px; cursor:pointer;" onclick="window.openUserProfilePage('${post.autor || ''}')">
+        <img src="https://dicebear.com${post.autor ? post.autor.split('@')[0] : 'anonimo'}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; border: 1px solid var(--accent-purplish-blue); object-fit:cover;">
+        <div style="display:flex; flex-direction:column;">
+            <small style="color:var(--accent-blue); font-weight:bold;">${post.autor || 'Anônimo'}</small>
+            <span style="font-size:10px; color:#b0b3b8;">Postado recentemente</span>
+        </div>
+    </div>
+    <p style="margin:5px 0 0 0; font-size:16px;">${post.text}</p>
+    ${videoHTML}
+`;
+
                     feed.appendChild(card);
                 });
 
@@ -1746,9 +1947,45 @@ async function enviarMensagemChat() {
         console.error("Erro ao enviar mensagem para o Firebase:", error);
     }
 }
+        function openUserProfilePage(email) {
+    if (!email) return;
+    
+    // Oculta todas as janelas concorrentes da UI
+    appContainer.querySelector('.main-container').style.display = 'none';
+    if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
+    if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
+    if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
+    
+    // Exibe a nossa nova janela de perfil do Facebook
+    profileContainer.style.display = 'block';
+    
+    // Processamento cirúrgico de strings do e-mail para o Nome
+    const partesEmail = email.split('@');
+    const nomeBase = partesEmail[0];
+    const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
+    
+    pUserTitle.textContent = nomeFormatado;
+    // Vincula o motor do Dicebear para renderizar os avatares idênticos aos do chat
+    pAvatarImg.src = `https://dicebear.com${nomeBase}`;
+}
+
+// Vincula a escuta ao avatar estático da barra "No que você está pensando?"
+document.querySelector('.create-post-area .user-avatar')?.addEventListener('click', () => {
+    if (auth.currentUser) {
+        openUserProfilePage(auth.currentUser.email);
+    }
+});
+
+// Garante o fechamento da tela de perfil caso clique no ícone "Home" no rodapé
+homeIcon.addEventListener('click', () => {
+    profileContainer.style.display = 'none';
+});
+
+// Exporta a função para que cliques gerados dinamicamente no HTML consigam localizá-la
+window.openUserProfilePage = openUserProfilePage;
+
 window.loadReels = loadReels;
 window.loadConversationsList = loadConversationsList;
-
-    </script>
+</script>
 </body>
     </html>
