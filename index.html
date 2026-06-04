@@ -1000,8 +1000,10 @@
             <!-- Scripts Firebase e Lógica da Aplicação -->
     <script type="module">
         // Importações do Firebase SDK v9 modular
-                import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js'; // Adicionado 'limit', 'startAfter', 'getDocs', 'where'
-
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js'; // Adicionado 'limit', 'startAfter', 'getDocs'
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+        // Se precisar de Storage no futuro:
         // import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js';
 
 
