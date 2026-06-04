@@ -997,13 +997,15 @@
     </div>
 </div>
 
-    <!-- Scripts Firebase e Lógica da Aplicação -->
+            <!-- Scripts Firebase e Lógica da Aplicação -->
     <script type="module">
+    // Cole isso logo após definir as funções, no final do script modular (página 35/36):
+window.loadReels = loadReels;
+window.loadConversationsList = loadConversationsList;
+
         // Importações do Firebase SDK v9 modular
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js'; // Adicionado 'limit', 'startAfter', 'getDocs'
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-        // Se precisar de Storage no futuro:
+                import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js'; // Adicionado 'limit', 'startAfter', 'getDocs', 'where'
+
         // import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js';
 
 
@@ -1384,16 +1386,19 @@ btnPublicarReel.addEventListener('click', async () => {
         // Função para carregar os Reels usando o link de embed direto do banco
 async function loadReels() {
     const wrapper = document.getElementById('reels-wrapper');
+    if (!wrapper) return;
+    
     wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Carregando Reels...</p>';
     
     try {
+        // Query blindada com o import correto do 'where'
         const q = query(collection(db, 'posts'), where('isReel', '==', true), orderBy('createdAt', 'desc'), limit(15));
         const querySnapshot = await getDocs(q);
         
         wrapper.innerHTML = ''; 
         
         if (querySnapshot.empty) {
-            wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Nenhum Reel encontrado. Crie um post de Reel primeiro!</p>';
+            wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Nenhum Reel encontrado por aqui, chefia.</p>';
             return;
         }
         
@@ -1401,15 +1406,26 @@ async function loadReels() {
             const post = doc.data();
             
             if (post.video && post.video.trim() !== "") {
+                let videoUrl = post.video.trim();
+                
+                // IGUAL AO ANIMESORACLE: Se o usuário colou o link normal do youtube, nós convertemos para embed na hora!
+                if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
+                    let videoId = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
+                    if(videoId.includes('&')) videoId = videoId.split('&')[0];
+                    videoUrl = `https://youtube.com{videoId}?autoplay=1&mute=1`;
+                }
+
                 const reelCard = document.createElement('div');
                 reelCard.className = 'reel-card';
                 
-                // Adicionado parâmetros extras de liberação de embutidos para navegadores mobile
+                // Iframe montado com os exatos parâmetros de liberação do AnimesOracle
                 reelCard.innerHTML = `
                     <iframe
-                        src="${post.video}"
-                        allow="autoplay; encrypted-media; picture-in-picture; clipboard-write; web-share"
-                        allowfullscreen="true">
+                        src="${videoUrl}"
+                        frameborder="0"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allowfullscreen
+                        style="width: 100%; height: 100%; max-width: 450px; background: #000;">
                     </iframe>
                     
                     <div class="reel-actions">
@@ -1429,10 +1445,11 @@ async function loadReels() {
         });
 
     } catch (error) {
-        console.error("Erro no Reels:", error);
-        wrapper.innerHTML = `<p style="color:red; text-align:center; padding-top:20px;">Erro: ${error.message}</p>`;
+        console.error("Erro ao carregar Reels:", error);
+        wrapper.innerHTML = `<p style="color:red; text-align:center; padding-top:20px; font-size:12px;">Erro de Execução: ${error.message}</p>`;
     }
 }
+
 
 // ==================== LOGICA DE PROCESSAMENTO EM TEMPO REAL ====================
 
