@@ -1186,8 +1186,13 @@
             <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>
         </button>
         <div class="profile-avatar-container">
-            <img src="" class="profile-avatar-img" id="p-avatar-img" alt="Foto de Perfil">
-        </div>
+    <img src="https://dicebear.com" class="profile-avatar-img" id="p-avatar-img" alt="Foto de Perfil">
+    <!-- BOTÃO DA CAMERAZINHA ADICIONADO AQUI -->
+    <button class="btn-edit-avatar" id="btn-open-camera-options" style="position: absolute; right: 5px; bottom: 5px; background: #242526; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm8 3a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>
+    </button>
+</div>
+
     </div>
 <!-- GAVETA INFERIOR DE OPÇÕES DO AVATAR (TELA DO PRINT 2) -->
 <div id="drawer-avatar-options" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#18191a; border-radius:15px 15px 0 0; z-index:4500; box-shadow:0 -5px 15px rgba(0,0,0,0.5); padding:20px; box-sizing:border-box; color:white;">
@@ -2036,51 +2041,60 @@ async function enviarMensagemChat() {
 }
         async function openUserProfilePage(email) {
     if (!email) return;
-    profileViewedEmail = email; // Define de quem é o perfil em exibição
+    profileViewedEmail = email; 
     
-    // 1. Esconde containers antigos
-    appContainer.querySelector('.main-container').style.display = 'none';
+    // 1. Oculta os outros containers de forma segura
+    const mainCont = appContainer.querySelector('.main-container');
+    if (mainCont) mainCont.style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
     if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
     if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
     
-    // 2. Apresenta o perfil principal
+    // 2. Exibe o container do perfil
     profileContainer.style.display = 'block';
     
-    // 3. Monta nome e avatar dinâmico do Dicebear
-    const nomeBase = email.split('@')[0];
+    // 3. Monta o nome tirando o @gmail.com se houver
+    const nomeBase = email.includes('@') ? email.split('@')[0] : email;
     pUserTitle.textContent = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
+    
+    // Define um avatar padrão seguro caso não tenha no banco
     pAvatarImg.src = `https://dicebear.com{nomeBase}`;
     
-    // 4. Segurança de privacidade: Só exibe o botão "Editar Perfil" se o perfil visitado for do próprio usuário logado
+    // 4. Controle do botão de edição do proprietário
     if (auth.currentUser && auth.currentUser.email === email) {
         btnTriggerEditProfile.style.display = 'flex';
     } else {
         btnTriggerEditProfile.style.display = 'none';
     }
     
-        // 5. BANCO DE DADOS: Recupera a Biografia e Foto Personalizada no Firestore
-    pUserBio.textContent = "Carregando biografia...";
-    pAvatarImg.src = `https://dicebear.com{nomeBase}`; // Padrão temporário enquanto carrega
-    
+    // 5. BANCO DE DADOS: Busca protegida para não quebrar a tela se houver erro de permissão
+    pUserBio.textContent = "Nenhuma biografia adicionada ainda.";
     try {
         const userDocRef = doc(db, "usuarios", email);
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
-            // Aplica a biografia salva
             if (userData.biografia) pUserBio.textContent = userData.biografia;
-            else pUserBio.textContent = "Nenhuma biografia adicionada ainda.";
-            
-            // Aplica a URL da foto salva (Se houver no banco)
             if (userData.fotoPerfil) pAvatarImg.src = userData.fotoPerfil;
-        } else {
-            pUserBio.textContent = "Nenhuma biografia adicionada ainda.";
         }
     } catch(err) {
-        console.error("Erro ao ler dados do usuário:", err);
-        pUserBio.textContent = "Erro ao carregar informações.";
+        console.warn("Aviso: Permissão negada ou documento ausente no Firestore. Usando padrão local.", err);
+        // Não altera o texto para 'Erro ao carregar', mantém o padrão limpo para o usuário mexer
     }
+    
+    // 6. BANCO DE DADOS: Contagem de posts protegida
+    pUserPostCount.textContent = "0 posts";
+    try {
+        const postsRef = collection(db, "posts");
+        const q = query(postsRef, where("autor", "==", email));
+        const querySnapshot = await getDocs(q);
+        const totalPosts = querySnapshot.size;
+        pUserPostCount.textContent = `${totalPosts} ${totalPosts === 1 ? 'post' : 'posts'}`;
+    } catch(err) {
+        console.warn("Aviso: Falha ao contar postagens da coleção.", err);
+    }
+}
+
 
     
     // 6. BANCO DE DADOS: Conta em tempo real as publicações existentes deste usuário
@@ -2149,12 +2163,21 @@ document.querySelector('.create-post-area .user-avatar')?.addEventListener('clic
 });
 
 window.openUserProfilePage = openUserProfilePage;
-// Abre a gaveta de opções ao clicar no botão de câmera do Avatar (Se for o próprio dono)
-document.querySelector('.btn-edit-avatar')?.addEventListener('click', () => {
-    if (auth.currentUser && auth.currentUser.email === profileViewedEmail) {
-        drawerAvatarOptions.style.display = 'block';
-    }
-});
+// Captura o botão exato da câmera pelo ID novo
+const btnOpenCameraOptions = document.getElementById('btn-open-camera-options');
+
+if (btnOpenCameraOptions) {
+    btnOpenCameraOptions.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Abre a gaveta de opções estilo Facebook (Print 2 anterior)
+        if (drawerAvatarOptions) {
+            drawerAvatarOptions.style.display = 'block';
+        }
+    });
+}
+
 
 // Fecha a gaveta inferior
 btnCloseAvatarDrawer.addEventListener('click', () => {
