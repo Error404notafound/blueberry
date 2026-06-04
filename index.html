@@ -660,8 +660,120 @@
 .chat-footer input { flex: 1; background-color: #2a3942; border: none; border-radius: 8px; padding: 12px; color: white; outline: none; font-size: 15px; }
 .chat-footer button { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
+/* ==================== NOVO LAYOUT DO FACEBOOK REELS ==================== */
+.reel-actions {
+    position: absolute;
+    right: 15px;
+    bottom: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    z-index: 10;
+    align-items: center;
+}
+
+.action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+.reel-btn {
+    background: transparent;
+    border: none;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    margin-top: 0 !important; /* Corrige conflito com botão global */
+}
+
+.reel-btn svg {
+    width: 32px;
+    height: 32px;
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
+}
+
+.reel-btn:hover {
+    transform: scale(1.1);
+}
+
+.dots-btn {
+    color: #fff;
+    font-size: 20px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+.reel-meta {
+    position: absolute;
+    left: 15px;
+    bottom: 40px;
+    color: #fff;
+    z-index: 10;
+    max-width: 75%;
+}
+
+.creator-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.creator-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #fff;
+}
+
+.creator-name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    text-shadow: 1px 1.5px 3px rgba(0, 0, 0, 0.9);
+}
+
+.btn-seguir {
+    background: transparent;
+    border: 1.5px solid #ffffff !important;
+    color: #ffffff !important;
+    padding: 3px 12px !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    width: auto !important; /* Força reset do botão global de 100% */
+    margin-top: 0 !important; 
+    transition: background 0.2s;
+}
+
+.btn-seguir:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.reel-description {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.95;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+}
+/* ==================== FIM DO NOVO LAYOUT DO REELS ==================== */
+
     </style>
 </head>
+
 <body>
 
     <!-- Tela de Login Inicial -->
@@ -1435,10 +1547,10 @@ if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
 }
 
 
-                const reelCard = document.createElement('div');
+                                const reelCard = document.createElement('div');
                 reelCard.className = 'reel-card';
-                
-                // Iframe montado com os exatos parâmetros de liberação do AnimesOracle
+
+                // CORRIGIDO: Estrutura idêntica ao Facebook Reels com SVGs nativos e botão Seguir
                 reelCard.innerHTML = `
                     <iframe
                         src="${videoUrl}"
@@ -1448,19 +1560,47 @@ if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
                         style="width: 100%; height: 100%; max-width: 450px; background: #000;">
                     </iframe>
                     
+                    <!-- Barra Lateral Direita de Interações -->
                     <div class="reel-actions">
-                        <button class="reel-btn" onclick="alert('Curtiu!')">👍</button>
-                        <button class="reel-btn" onclick="alert('Comentários em breve!')">💬</button>
-                        <button class="reel-btn" onclick="alert('Compartilhado!')">🔄</button>
+                        <div class="action-item" onclick="alert('Curtiu!')">
+                            <button class="reel-btn">
+                                <svg viewBox="0 0 24 24"><path d="M5 21h3a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1Zm15-10a2 2 0 0 0-2-2h-3.35l.49-2.35L15.2 5.2a1 1 0 0 0-1.46.12l-3.38 4.18A1 1 0 0 0 10 10.15V19a2 2 0 0 0 2 2h5.05a3 3 0 0 0 2.9-2.24l1.24-4.94A2 2 0 0 0 20 11Z"/></svg>
+                            </button>
+                            <span>19 mil</span>
+                        </div>
+
+                        <div class="action-item" onclick="alert('Comentários em breve!')">
+                            <button class="reel-btn">
+                                <svg viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0-7.38-3.26L3.11 20.3a1 1 0 0 0 1.21 1.21l1.56-.51A9.93 9.93 0 0 0 12 22Z"/></svg>
+                            </button>
+                            <span>119</span>
+                        </div>
+
+                        <div class="action-item" onclick="alert('Compartilhado!')">
+                            <button class="reel-btn">
+                                <svg viewBox="0 0 24 24"><path d="m21.71 11.29-7-7A1 1 0 0 0 13 5v3c-5 0-9 4-10 9a1 1 0 0 0 1.76.74C7.05 15.14 10 14 13 14v3a1 1 0 0 0 1.71.71l7-7a1 1 0 0 0 0-1.42Z"/></svg>
+                            </button>
+                            <span>1,1 mil</span>
+                        </div>
+
+                        <div class="action-item">
+                            <button class="reel-btn dots-btn">•••</button>
+                        </div>
                     </div>
                     
+                    <!-- Meta Dados do Criador (Inferior Esquerdo) -->
                     <div class="reel-meta">
-                        <h4>@${post.autor ? post.autor.split('@')[0] : 'anonimo'}</h4>
-                        <p>${post.text || ''}</p>
+                        <div class="creator-info">
+                            <img src="https://dicebear.com{post.autor}" class="creator-avatar">
+                            <h4 class="creator-name">@${post.autor ? post.autor.split('@')[0] : 'anonimo'}</h4>
+                            <button class="btn-seguir" onclick="alert('Seguindo!')">Seguir</button>
+                        </div>
+                        <p class="reel-description">${post.text || 'Rest your mind, heal your soul 🌿'}</p>
                     </div>
                 `;
                 
                 wrapper.appendChild(reelCard);
+
             }
         });
 
