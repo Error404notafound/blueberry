@@ -1520,37 +1520,42 @@ async function loadReels() {
     
     wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Carregando Reels...</p>';
     
-    try {
-        // Query blindada com o import correto do 'where'
-        const q = query(collection(db, 'posts'), where('isReel', '==', true), orderBy('createdAt', 'desc'), limit(15));
-        const querySnapshot = await getDocs(q);
+    const q = query(collection(db, 'posts'), where('isReel', '==', true), orderBy('createdAt', 'desc'), limit(15));
+    
+    // Escuta ativa no banco de dados
+    onSnapshot(q, (snapshot) => {
+        wrapper.innerHTML = '';
         
-        wrapper.innerHTML = ''; 
-        
-        if (querySnapshot.empty) {
+        if (snapshot.empty) {
             wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Nenhum Reel encontrado por aqui, chefia.</p>';
             return;
         }
         
-        querySnapshot.forEach((doc) => {
-            const post = doc.data();
+        snapshot.forEach((docSnap) => {
+            const post = docSnap.data();
+            const postId = docSnap.id;
+            const meuEmail = auth.currentUser ? auth.currentUser.email : '';
             
+            // Puxa a lista de e-mails que curtiram o post. Se não houver, inicia array vazio
+            const curtidas = post.likedBy || [];
+            const totalLikes = curtidas.length;
+            
+            // Verifica se o usuário logado está dentro da lista de curtidas
+            const jaCurti = curtidas.includes(meuEmail);
+            const corDoBotao = jaCurti ? '#2f80ed' : '#ffffff'; 
+
             if (post.video && post.video.trim() !== "") {
                 let videoUrl = post.video.trim();
                 
-                // IGUAL AO ANIMESORACLE: Se o usuário colou o link normal do youtube, nós convertemos para embed na hora!
-                // Procure por esse "if (videoUrl.includes..." dentro da função loadReels e cole isso por cima:
-if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
-    let videoId = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
-    if(videoId.includes('&')) videoId = videoId.split('&')[0];
-    videoUrl = `https://youtube.com{videoId}?autoplay=1&mute=1`;
-}
+                if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
+                    let videoId = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
+                    if(videoId.includes('&')) videoId = videoId.split('&');
+                    videoUrl = `https://youtube.com{videoId}?autoplay=1&mute=1`;
+                }
 
-
-                                const reelCard = document.createElement('div');
+                const reelCard = document.createElement('div');
                 reelCard.className = 'reel-card';
-
-                // CORRIGIDO: Estrutura idêntica ao Facebook Reels com SVGs nativos e botão Seguir
+                
                 reelCard.innerHTML = `
                     <iframe
                         src="${videoUrl}"
@@ -1560,27 +1565,29 @@ if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
                         style="width: 100%; height: 100%; max-width: 450px; background: #000;">
                     </iframe>
                     
-                    <!-- Barra Lateral Direita de Interações -->
                     <div class="reel-actions">
-                        <div class="action-item" onclick="alert('Curtiu!')">
-                            <button class="reel-btn">
-                                <svg viewBox="0 0 24 24"><path d="M5 21h3a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1Zm15-10a2 2 0 0 0-2-2h-3.35l.49-2.35L15.2 5.2a1 1 0 0 0-1.46.12l-3.38 4.18A1 1 0 0 0 10 10.15V19a2 2 0 0 0 2 2h5.05a3 3 0 0 0 2.9-2.24l1.24-4.94A2 2 0 0 0 20 11Z"/></svg>
+                        <div class="action-item">
+                            <!-- Envia o ID do documento e a lista atual de curtidas convertida em texto seguro -->
+                            <button class="reel-btn" onclick="curtirReel('${postId}', ${JSON.stringify(curtidas).replace(/"/g, '&quot;')})">
+                                <svg viewBox="0 0 24 24" style="stroke: ${corDoBotao}; fill: ${jaCurti ? corDoBotao : 'none'};">
+                                    <path d="M5 21h3a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1Zm15-10a2 2 0 0 0-2-2h-3.35l.49-2.35L15.2 5.2a1 1 0 0 0-1.46.12l-3.38 4.18A1 1 0 0 0 10 10.15V19a2 2 0 0 0 2 2h5.05a3 3 0 0 0 2.9-2.24l1.24-4.94A2 2 0 0 0 20 11Z"/>
+                                </svg>
                             </button>
-                            <span>19 mil</span>
+                            <span style="color: ${corDoBotao};">${totalLikes}</span>
                         </div>
 
                         <div class="action-item" onclick="alert('Comentários em breve!')">
                             <button class="reel-btn">
                                 <svg viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0-7.38-3.26L3.11 20.3a1 1 0 0 0 1.21 1.21l1.56-.51A9.93 9.93 0 0 0 12 22Z"/></svg>
                             </button>
-                            <span>119</span>
+                            <span>0</span>
                         </div>
 
                         <div class="action-item" onclick="alert('Compartilhado!')">
                             <button class="reel-btn">
                                 <svg viewBox="0 0 24 24"><path d="m21.71 11.29-7-7A1 1 0 0 0 13 5v3c-5 0-9 4-10 9a1 1 0 0 0 1.76.74C7.05 15.14 10 14 13 14v3a1 1 0 0 0 1.71.71l7-7a1 1 0 0 0 0-1.42Z"/></svg>
                             </button>
-                            <span>1,1 mil</span>
+                            <span>0</span>
                         </div>
 
                         <div class="action-item">
@@ -1588,27 +1595,22 @@ if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
                         </div>
                     </div>
                     
-                    <!-- Meta Dados do Criador (Inferior Esquerdo) -->
                     <div class="reel-meta">
                         <div class="creator-info">
                             <img src="https://dicebear.com{post.autor}" class="creator-avatar">
                             <h4 class="creator-name">@${post.autor ? post.autor.split('@')[0] : 'anonimo'}</h4>
                             <button class="btn-seguir" onclick="alert('Seguindo!')">Seguir</button>
                         </div>
-                        <p class="reel-description">${post.text || 'Rest your mind, heal your soul 🌿'}</p>
+                        <p class="reel-description">${post.text || 'Sem descrição.'}</p>
                     </div>
                 `;
                 
                 wrapper.appendChild(reelCard);
-
             }
         });
-
-    } catch (error) {
-        console.error("Erro ao carregar Reels:", error);
-        wrapper.innerHTML = `<p style="color:red; text-align:center; padding-top:20px; font-size:12px;">Erro de Execução: ${error.message}</p>`;
-    }
+    });
 }
+
 
 
 // ==================== LOGICA DE PROCESSAMENTO EM TEMPO REAL ====================
