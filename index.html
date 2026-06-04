@@ -1189,6 +1189,43 @@
             <img src="" class="profile-avatar-img" id="p-avatar-img" alt="Foto de Perfil">
         </div>
     </div>
+<!-- GAVETA INFERIOR DE OPÇÕES DO AVATAR (TELA DO PRINT 2) -->
+<div id="drawer-avatar-options" style="display:none; position:fixed; bottom:0; left:0; width:100%; background:#18191a; border-radius:15px 15px 0 0; z-index:4500; box-shadow:0 -5px 15px rgba(0,0,0,0.5); padding:20px; box-sizing:border-box; color:white;">
+    <div style="width:40px; height:4px; background:#3a3b3c; border-radius:2px; margin:0 auto 20px auto;"></div>
+    
+    <div id="opt-add-story" style="display:flex; align-items:center; gap:15px; padding:15px 0; cursor:pointer; border-bottom:1px solid #242526;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#b0b3b8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-6H5v-2h6V5h2v6h6v2h-6v6z"/></svg>
+        <span style="font-size:16px;">Adicionar ao story</span>
+    </div>
+    
+    <div id="opt-upload-photo" style="display:flex; align-items:center; gap:15px; padding:15px 0; cursor:pointer; border-bottom:1px solid #242526;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#b0b3b8"><path d="M20 6h-3.17L15 4H9L7.17 6H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 14H4V8h4.05l1.83-2h4.24l1.83 2H20v12zM12 10c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
+        <span style="font-size:16px; font-weight:bold;">Carregar foto</span>
+    </div>
+    
+    <div id="opt-select-facebook" style="display:flex; align-items:center; gap:15px; padding:15px 0; cursor:pointer;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#b0b3b8"><path d="M12 2h8v20h-8z"/></svg>
+        <span style="font-size:16px;">Selecionar foto no Facebook</span>
+    </div>
+    
+    <button id="btn-close-avatar-drawer" style="width:100%; background:#3a3b3c; color:white; border:none; padding:12px; border-radius:8px; margin-top:15px; font-weight:bold; cursor:pointer;">Cancelar</button>
+</div>
+
+<!-- MODAL PARA ADICIONAR O LINK DA URL DA FOTO -->
+<div id="modal-avatar-url" style="display:none; position:fixed; top:60px; left:0; width:100%; height:calc(100vh - 60px); background:#18191a; z-index:4600; padding:20px; box-sizing:border-box; color:white;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:30px;">
+        <span id="close-modal-url" style="cursor:pointer; font-size:24px;">&times;</span>
+        <h2 style="margin:0; font-size:20px;">Atualizar foto de perfil</h2>
+        <button id="btn-save-avatar-url" style="background:#2374e1; color:white; border:none; padding:6px 16px; border-radius:4px; font-weight:bold; cursor:pointer;">Salvar</button>
+    </div>
+    <p style="font-weight:bold; margin-bottom:5px;">Endereço da imagem (URL)</p>
+    <p style="color:#b0b3b8; font-size:14px; margin:0 0 15px 0;">Cole o link direto da imagem que deseja usar.</p>
+    <input type="url" id="txt-avatar-url-field" placeholder="https://exemplo.com" style="width:100%; background:#242526; color:white; border:1px solid #3a3b3c; border-radius:8px; padding:12px; box-sizing:border-box; font-family:sans-serif; margin-bottom:20px;">
+    
+    <div id="avatar-preview-container" style="display:flex; justify-content:center; margin-top:20px;">
+        <img id="img-avatar-preview" src="" style="width:150px; height:150px; border-radius:50%; border:3px solid #2374e1; object-fit:cover; display:none;">
+    </div>
+</div>
 
     <div class="profile-info-section">
         <h2 id="p-user-title">Carregando...</h2>
@@ -1396,6 +1433,15 @@ const txtBioField = document.getElementById('txt-bio-field');
 const bioCharCounter = document.getElementById('bio-char-counter');
 
 let profileViewedEmail = ""; // Variável global de controle para saber qual perfil está aberto
+const drawerAvatarOptions = document.getElementById('drawer-avatar-options');
+const btnCloseAvatarDrawer = document.getElementById('btn-close-avatar-drawer');
+const optUploadPhoto = document.getElementById('opt-upload-photo');
+
+const modalAvatarUrl = document.getElementById('modal-avatar-url');
+const closeModalUrl = document.getElementById('close-modal-url');
+const btnSaveAvatarUrl = document.getElementById('btn-save-avatar-url');
+const txtAvatarUrlField = document.getElementById('txt-avatar-url-field');
+const imgAvatarPreview = document.getElementById('img-avatar-preview');
 
         // Variáveis para Paginação
         let lastVisible = null; // Para armazenar o último documento visível da consulta anterior
@@ -2013,20 +2059,29 @@ async function enviarMensagemChat() {
         btnTriggerEditProfile.style.display = 'none';
     }
     
-    // 5. BANCO DE DADOS: Recupera a Biografia Dinâmica no Firestore
+        // 5. BANCO DE DADOS: Recupera a Biografia e Foto Personalizada no Firestore
     pUserBio.textContent = "Carregando biografia...";
+    pAvatarImg.src = `https://dicebear.com{nomeBase}`; // Padrão temporário enquanto carrega
+    
     try {
         const userDocRef = doc(db, "usuarios", email);
         const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists() && userDocSnap.data().biografia) {
-            pUserBio.textContent = userDocSnap.data().biografia;
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            // Aplica a biografia salva
+            if (userData.biografia) pUserBio.textContent = userData.biografia;
+            else pUserBio.textContent = "Nenhuma biografia adicionada ainda.";
+            
+            // Aplica a URL da foto salva (Se houver no banco)
+            if (userData.fotoPerfil) pAvatarImg.src = userData.fotoPerfil;
         } else {
             pUserBio.textContent = "Nenhuma biografia adicionada ainda.";
         }
     } catch(err) {
-        console.error("Erro ao ler biografia:", err);
-        pUserBio.textContent = "Erro ao carregar biografia.";
+        console.error("Erro ao ler dados do usuário:", err);
+        pUserBio.textContent = "Erro ao carregar informações.";
     }
+
     
     // 6. BANCO DE DADOS: Conta em tempo real as publicações existentes deste usuário
     pUserPostCount.textContent = "Calculando posts...";
@@ -2094,6 +2149,69 @@ document.querySelector('.create-post-area .user-avatar')?.addEventListener('clic
 });
 
 window.openUserProfilePage = openUserProfilePage;
+// Abre a gaveta de opções ao clicar no botão de câmera do Avatar (Se for o próprio dono)
+document.querySelector('.btn-edit-avatar')?.addEventListener('click', () => {
+    if (auth.currentUser && auth.currentUser.email === profileViewedEmail) {
+        drawerAvatarOptions.style.display = 'block';
+    }
+});
+
+// Fecha a gaveta inferior
+btnCloseAvatarDrawer.addEventListener('click', () => {
+    drawerAvatarOptions.style.display = 'none';
+});
+
+// Clica em "Carregar Foto" -> Fecha a gaveta e abre o Modal do Link URL
+optUploadPhoto.addEventListener('click', () => {
+    drawerAvatarOptions.style.display = 'none';
+    txtAvatarUrlField.value = "";
+    imgAvatarPreview.style.display = 'none';
+    modalAvatarUrl.style.display = 'block';
+});
+
+// Fecha o modal da URL
+closeModalUrl.addEventListener('click', () => {
+    modalAvatarUrl.style.display = 'none';
+});
+
+// Mostra um preview da foto em tempo real se o usuário colar algo válido
+txtAvatarUrlField.addEventListener('input', () => {
+    const urlDigitada = txtAvatarUrlField.value.trim();
+    if(urlDigitada.startsWith('http')) {
+        imgAvatarPreview.src = urlDigitada;
+        imgAvatarPreview.style.display = 'block';
+    } else {
+        imgAvatarPreview.style.display = 'none';
+    }
+});
+
+// Salva a URL da foto de perfil no Firebase Firestore
+btnSaveAvatarUrl.addEventListener('click', async () => {
+    if (!auth.currentUser) return;
+    const urlFoto = txtAvatarUrlField.value.trim();
+    
+    if(!urlFoto || !urlFoto.startsWith('http')) {
+        alert("Por favor, insira uma URL de imagem válida.");
+        return;
+    }
+    
+    try {
+        const userDocRef = doc(db, "usuarios", auth.currentUser.email);
+        // Grava ou atualiza o campo fotoPerfil mantendo o resto intacto
+        await setDoc(userDocRef, { fotoPerfil: urlFoto }, { merge: true });
+        
+        // Atualiza a imagem da tela imediatamente
+        pAvatarImg.src = urlFoto;
+        modalAvatarUrl.style.display = 'none';
+        
+        // Opcional: Atualiza também a foto do criador no feed atual caso queira atualizar na hora
+        document.querySelector('.create-post-area .user-avatar').src = urlFoto;
+        
+    } catch(err) {
+        alert("Erro ao salvar link da foto no banco.");
+        console.error(err);
+    }
+});
 
 
 window.loadReels = loadReels;
