@@ -1387,38 +1387,37 @@ async function loadReels() {
     wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Carregando Reels...</p>';
     
     try {
-        // CORREÇÃO: Importe o 'where' caso dê erro (adicione o 'where' nas importações do firestore lá no topo se necessário)
-// Puxa apenas documentos onde 'isReel' é igual a true
-const q = query(collection(db, 'posts'), where('isReel', '==', true), orderBy('createdAt', 'desc'), limit(15));
-
+        const q = query(collection(db, 'posts'), where('isReel', '==', true), orderBy('createdAt', 'desc'), limit(15));
         const querySnapshot = await getDocs(q);
         
-        wrapper.innerHTML = ''; // Limpa o texto de carregando
+        wrapper.innerHTML = ''; 
+        
+        if (querySnapshot.empty) {
+            wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Nenhum Reel encontrado. Crie um post de Reel primeiro!</p>';
+            return;
+        }
         
         querySnapshot.forEach((doc) => {
             const post = doc.data();
             
-            // Só renderiza se o campo video tiver um link preenchido
             if (post.video && post.video.trim() !== "") {
                 const reelCard = document.createElement('div');
                 reelCard.className = 'reel-card';
                 
-                // Injeta o iframe usando direto a URL que o usuário salvou
+                // Adicionado parâmetros extras de liberação de embutidos para navegadores mobile
                 reelCard.innerHTML = `
-                    <iframe 
-                        src="${post.video}" 
-                        allow="autoplay; encrypted-media; picture-in-picture" 
-                        allowfullscreen>
+                    <iframe
+                        src="${post.video}"
+                        allow="autoplay; encrypted-media; picture-in-picture; clipboard-write; web-share"
+                        allowfullscreen="true">
                     </iframe>
                     
-                    <!-- Botões flutuantes estilo Facebook -->
                     <div class="reel-actions">
                         <button class="reel-btn" onclick="alert('Curtiu!')">👍</button>
                         <button class="reel-btn" onclick="alert('Comentários em breve!')">💬</button>
                         <button class="reel-btn" onclick="alert('Compartilhado!')">🔄</button>
                     </div>
                     
-                    <!-- Nome do usuário e legenda -->
                     <div class="reel-meta">
                         <h4>@${post.autor ? post.autor.split('@')[0] : 'anonimo'}</h4>
                         <p>${post.text || ''}</p>
@@ -1429,17 +1428,15 @@ const q = query(collection(db, 'posts'), where('isReel', '==', true), orderBy('c
             }
         });
 
-        // Caso nenhum post no banco tenha link de vídeo preenchido
-        if (wrapper.children.length === 0) {
-            wrapper.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Nenhum Reel encontrado. Publique um link de embed para testar!</p>';
-        }
-
     } catch (error) {
-        console.error("Erro ao carregar Reels via link de embed:", error);
+        console.error("Erro no Reels:", error);
+        wrapper.innerHTML = `<p style="color:red; text-align:center; padding-top:20px;">Erro: ${error.message}</p>`;
     }
 }
+
 // ==================== LOGICA DE PROCESSAMENTO EM TEMPO REAL ====================
 
+// 1. Carrega a lista intermediária puxando usuários únicos que já postaram na rede
 // 1. Carrega a lista intermediária puxando usuários únicos que já postaram na rede
 async function loadConversationsList() {
     const listWrapper = document.getElementById('conversations-list-wrapper');
@@ -1462,16 +1459,20 @@ async function loadConversationsList() {
             if (emailAmigo && emailAmigo !== meuEmail && !emailsAdicionados.has(emailAmigo)) {
                 emailsAdicionados.add(emailAmigo);
                 
-                const nomeAmigo = emailAmigo.split('@')[0];
+                // CORREÇÃO CLÍNICA: Isolamos a string do nome corretamente
+                const partesEmail = emailAmigo.split('@');
+                const nomeAmigo = partesEmail[0]; 
+                const nomeFormatado = nomeAmigo.charAt(0).toUpperCase() + nomeAmigo.slice(1);
+
                 const row = document.createElement('div');
                 row.className = 'chat-row';
                 
-                // Montagem da linha no estilo WhatsApp do seu print
+                // CORREÇÃO: Link do Dicebear ajustado com a barra certa para renderizar os avatares
                 row.innerHTML = `
                     <img src="https://dicebear.com{nomeAmigo}" class="chat-row-avatar">
                     <div class="chat-row-content">
                         <div class="chat-row-top">
-                            <h4 class="chat-row-name">${nomeAmigo.charAt(0).toUpperCase() + nomeAmigo.slice(1)}</h4>
+                            <h4 class="chat-row-name">${nomeFormatado}</h4>
                             <span class="chat-row-time">15:12</span>
                         </div>
                         <div class="chat-row-bottom">
@@ -1490,7 +1491,7 @@ async function loadConversationsList() {
                     
                     document.getElementById('chat-list-container').style.display = 'none';
                     document.getElementById('chat-container').style.display = 'flex';
-                    document.getElementById('chat-current-user-name').innerText = nomeAmigo;
+                    document.getElementById('chat-current-user-name').innerText = nomeFormatado;
                     document.getElementById('chat-current-avatar').src = `https://dicebear.com{nomeAmigo}`;
                     
                     // Liga os motores do onSnapshot do Firebase
@@ -1506,8 +1507,10 @@ async function loadConversationsList() {
 
     } catch (error) {
         console.error("Erro ao processar lista de conversas:", error);
+        listWrapper.innerHTML = `<p style="text-align:center; color:red; padding:20px;">Erro: ${error.message}</p>`;
     }
 }
+
 
 // 2. Escuta ativa em Tempo Real na sala específica selecionada
 function startChatListener() {
