@@ -2199,41 +2199,42 @@ txtAvatarUrlField.addEventListener('input', () => {
 
 // Salva a URL da foto de perfil no Firebase Firestore
 // Evento para salvar a URL da foto de perfil no Firestore
+// Procure o evento do 'btn-save-avatar-url' ou 'btnSaveAvatarUrl' no seu código e ajuste para ficar assim:
 btnSaveAvatarUrl.addEventListener('click', async () => {
     const fotoUrl = txtAvatarUrlField.value.trim();
 
     if (!fotoUrl) {
-        alert('Por favor, insira uma URL válida!');
+        alert('Por favor, insira uma URL!');
         return;
     }
 
     try {
+        // 1. Verificação crucial de autenticação
         if (!auth.currentUser) {
-            alert('Você precisa estar logado!');
+            alert('Você precisa estar logado para salvar a foto!');
             return;
         }
 
-        // Criamos ou atualizamos um documento na coleção 'usuarios' onde o ID é o e-mail do usuário
-        // Importante: Importe o 'setDoc' e 'doc' do firestore no topo do script se não houver
-        import { doc, setDoc } from 'https://gstatic.com';
-
+        // 2. Gravação associando o documento diretamente ao e-mail do usuário
+        // Certifique-se de que 'db' e 'doc', 'setDoc' estão devidamente importados no topo do script
         await setDoc(doc(db, 'usuarios', auth.currentUser.email), {
             fotoPerfil: fotoUrl,
             updatedAt: Date.now()
         }, { merge: true });
 
-        // Atualiza a imagem na tela do perfil imediatamente
+        // Atualiza a imagem na tela na mesma hora
         if (pAvatarImg) pAvatarImg.src = fotoUrl;
         
-        // Fecha o modal
         modalAvatarUrl.style.display = 'none';
-        alert('Foto de perfil atualizada com sucesso, chefia!');
+        alert('Foto de perfil atualizada com sucesso!');
 
     } catch (error) {
-        console.error("Erro ao salvar foto:", error);
-        alert('Erro ao salvar foto no banco: ' + error.message);
+        // Modifique temporariamente o seu alert para console.error para você ver o erro real no F12 do navegador
+        console.error("Erro real do Firebase:", error);
+        alert('Erro ao salvar link da foto no banco: ' + error.message);
     }
 });
+
 
 
 window.loadReels = loadReels;
