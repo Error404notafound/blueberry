@@ -2209,31 +2209,29 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
     }
 
     try {
-        // 1. Verificação crucial de autenticação
         if (!auth.currentUser) {
-            alert('Você precisa estar logado para salvar a foto!');
+            alert('Você precisa estar logado!');
             return;
         }
 
-        // 2. Gravação associando o documento diretamente ao e-mail do usuário
-        // Certifique-se de que 'db' e 'doc', 'setDoc' estão devidamente importados no topo do script
-        await setDoc(doc(db, 'usuarios', auth.currentUser.email), {
+        // Usando EXATAMENTE a mesma estrutura que você usa nos posts, sem imports novos:
+        await addDoc(collection(db, 'usuarios'), {
+            email: auth.currentUser.email,
             fotoPerfil: fotoUrl,
             updatedAt: Date.now()
-        }, { merge: true });
+        });
 
-        // Atualiza a imagem na tela na mesma hora
+        // Atualiza a foto na tela na mesma hora
         if (pAvatarImg) pAvatarImg.src = fotoUrl;
         
         modalAvatarUrl.style.display = 'none';
-        alert('Foto de perfil atualizada com sucesso!');
+        alert('Foto de perfil atualizada com sucesso, sem quebrar nada!');
 
     } catch (error) {
-        // Modifique temporariamente o seu alert para console.error para você ver o erro real no F12 do navegador
-        console.error("Erro real do Firebase:", error);
         alert('Erro ao salvar link da foto no banco: ' + error.message);
     }
 });
+
 
 
 
