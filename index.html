@@ -1462,29 +1462,25 @@ onAuthStateChanged(auth, async (user) => {
         appContainer.style.display = 'block';
         drawerUserName.textContent = user.email;
         
+        // 📸 BUSCAR A FOTO USANDO O GETDOCS QUE JÁ EXISTE NO SEU APP
         try {
-            // Montagem cirúrgica da URL com as barras inclusas nos pedaços
-            const parte1 = "https://gstatic.com";
-            const parte2 = "firebasejs/9.22.2/";
-            const parte3 = "firebase-firestore.js";
-            const urlFinal = parte1 + parte2 + parte3;
-
-            const { doc, getDoc } = await import(urlFinal);
+            const querySnapshot = await getDocs(collection(db, 'usuarios'));
             
-            const docRef = doc(db, 'usuarios', user.email);
-            const docSnap = await getDoc(docRef);
-
-            const img1 = "https://w3schools.com";
-            const img2 = "howto/img_avatar.png";
-            const avatarPadrao = img1 + img2;
-
-            if (docSnap.exists()) {
-                const dadosUsuario = docSnap.data();
-                if (dadosUsuario.fotoPerfil && typeof pAvatarImg !== 'undefined') {
-                    pAvatarImg.src = dadosUsuario.fotoPerfil;
+            let fotoEncontrada = null;
+            querySnapshot.forEach((documento) => {
+                const dados = documento.data();
+                if (dados.email === user.email) {
+                    fotoEncontrada = dados.fotoPerfil;
                 }
+            });
+
+            if (fotoEncontrada && typeof pAvatarImg !== 'undefined') {
+                pAvatarImg.src = fotoEncontrada;
             } else {
-                if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = avatarPadrao;
+                // Imagem cinza padrão gerada por código (evita que o Google corte links)
+                if (typeof pAvatarImg !== 'undefined') {
+                    pAvatarImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ccc'/></svg>";
+                }
             }
         } catch (erro) {
             console.error("Erro ao recuperar foto do Firebase:", erro);
@@ -1497,11 +1493,12 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         authContainer.style.display = 'block';
         appContainer.style.display = 'none';
-        const img1 = "https://w3schools.com";
-        const img2 = "howto/img_avatar.png";
-        if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = img1 + img2;
+        if (typeof pAvatarImg !== 'undefined') {
+            pAvatarImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ccc'/></svg>";
+        }
     }
 });
+
 
 
         
@@ -2250,29 +2247,25 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
             return;
         }
 
-        // Montagem cirúrgica da URL com as barras inclusas nos pedaços
-        const parte1 = "https://gstatic.com";
-        const parte2 = "firebasejs/9.22.2/";
-        const parte3 = "firebase-firestore.js";
-        const urlFinal = parte1 + parte2 + parte3;
-
-        const { doc, setDoc } = await import(urlFinal);
-
-        await setDoc(doc(db, 'usuarios', auth.currentUser.email), {
+        // Usa o addDoc e collection que já funcionam nos seus posts
+        await addDoc(collection(db, 'usuarios'), {
+            email: auth.currentUser.email,
             fotoPerfil: fotoUrl,
             updatedAt: Date.now()
-        }, { merge: true });
+        });
 
+        // Atualiza a foto na tela na mesma hora
         if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = fotoUrl;
         
         modalAvatarUrl.style.display = 'none';
-        alert('Foto de perfil salva com sucesso!');
+        alert('Foto de perfil salva com sucesso no banco!');
 
     } catch (error) {
         console.error("Erro ao salvar foto:", error);
         alert('Erro ao salvar foto no banco: ' + error.message);
     }
 });
+
 
 
 
