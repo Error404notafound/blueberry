@@ -1644,32 +1644,39 @@ window.addEventListener('click', (e) => {
 btnPublicarReel.addEventListener('click', async () => {
     const videoUrl = document.getElementById('reel-link-input').value.trim();
     const reelText = document.getElementById('reel-text-input').value.trim();
-
+    
     if (!videoUrl) {
         alert('Por favor, cole o link de embed do seu vídeo!');
         return;
     }
-
+    
     try {
-        // Adiciona no seu banco com a marcação "isReel: true"
+        // Garante que o usuário está realmente logado antes de enviar
+        if (!auth.currentUser) {
+            alert('Você precisa estar logado para postar!');
+            return;
+        }
+
         await addDoc(collection(db, 'posts'), {
             text: reelText,
             video: videoUrl,
-            autor: auth.currentUser.email,
+            autor: auth.currentUser.email, // Valida o e-mail contra a regra do Firestore
             createdAt: Date.now(),
-            isReel: true // Identificador para a página de Reels puxar
+            isReel: true,
+            likedBy: [] // Inicializa o array para evitar erros futuros nas curtidas
         });
 
-        // Limpa os campos e fecha
         document.getElementById('reel-link-input').value = '';
         document.getElementById('reel-text-input').value = '';
         reelModal.style.display = 'none';
-        alert('Reel publicado com sucesso, chefia!');
+        alert('Reel publicado com sucesso!');
         
     } catch (error) {
-        alert('Erro ao publicar Reel: ' + error.message);
+        console.error("Erro detalhado:", error);
+        alert('Erro ao salvar no banco: ' + error.message);
     }
 });
+
 
 
         // Publicar Mensagem
