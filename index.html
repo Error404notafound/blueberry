@@ -1462,25 +1462,21 @@ onAuthStateChanged(auth, async (user) => {
         appContainer.style.display = 'block';
         drawerUserName.textContent = user.email;
         
-        // 📸 BUSCAR A FOTO DE PERFIL SALVA NO BANCO
         try {
-            // Monta o link da biblioteca do Firebase em pedaços
-            const p1 = "https://www.";
-            const p2 = "://gstatic.com";
-            const p3 = "9.22.2/firebase-firestore.js";
-            const urlCompleta = p1 + p2 + p3;
+            // Montagem cirúrgica da URL com as barras inclusas nos pedaços
+            const parte1 = "https://gstatic.com";
+            const parte2 = "firebasejs/9.22.2/";
+            const parte3 = "firebase-firestore.js";
+            const urlFinal = parte1 + parte2 + parte3;
 
-            // Importação dinâmica blindada
-            const { doc, getDoc } = await import(urlCompleta);
+            const { doc, getDoc } = await import(urlFinal);
             
             const docRef = doc(db, 'usuarios', user.email);
             const docSnap = await getDoc(docRef);
 
-            // Monta o link da imagem padrão do W3Schools em pedaços para não quebrar
-            const img1 = "https://www.w3";
-            const img2 = "://schools.com";
-            const img3 = "img_avatar.png";
-            const avatarPadrao = img1 + img2 + img3;
+            const img1 = "https://w3schools.com";
+            const img2 = "howto/img_avatar.png";
+            const avatarPadrao = img1 + img2;
 
             if (docSnap.exists()) {
                 const dadosUsuario = docSnap.data();
@@ -1501,14 +1497,12 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         authContainer.style.display = 'block';
         appContainer.style.display = 'none';
-        
-        // Monta o avatar padrão para quando o usuário deslogar
-        const img1 = "https://www.w3";
-        const img2 = "://schools.com";
-        const img3 = "img_avatar.png";
-        if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = img1 + img2 + img3;
+        const img1 = "https://w3schools.com";
+        const img2 = "howto/img_avatar.png";
+        if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = img1 + img2;
     }
 });
+
 
         
         // Limpa o feed e reseta a paginação ao fazer login
@@ -2256,14 +2250,13 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
             return;
         }
 
-        // Monta o link em pedaços para o sistema não cortar
-        const p1 = "https://www.";
-        const p2 = "://gstatic.com";
-        const p3 = "9.22.2/firebase-firestore.js";
-        const urlCompleta = p1 + p2 + p3;
+        // Montagem cirúrgica da URL com as barras inclusas nos pedaços
+        const parte1 = "https://gstatic.com";
+        const parte2 = "firebasejs/9.22.2/";
+        const parte3 = "firebase-firestore.js";
+        const urlFinal = parte1 + parte2 + parte3;
 
-        // Importação dinâmica blindada
-        const { doc, setDoc } = await import(urlCompleta);
+        const { doc, setDoc } = await import(urlFinal);
 
         await setDoc(doc(db, 'usuarios', auth.currentUser.email), {
             fotoPerfil: fotoUrl,
@@ -2280,6 +2273,7 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
         alert('Erro ao salvar foto no banco: ' + error.message);
     }
 });
+
 
 
 
