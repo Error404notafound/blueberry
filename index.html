@@ -2198,30 +2198,40 @@ txtAvatarUrlField.addEventListener('input', () => {
 });
 
 // Salva a URL da foto de perfil no Firebase Firestore
+// Evento para salvar a URL da foto de perfil no Firestore
 btnSaveAvatarUrl.addEventListener('click', async () => {
-    if (!auth.currentUser) return;
-    const urlFoto = txtAvatarUrlField.value.trim();
-    
-    if(!urlFoto || !urlFoto.startsWith('http')) {
-        alert("Por favor, insira uma URL de imagem válida.");
+    const fotoUrl = txtAvatarUrlField.value.trim();
+
+    if (!fotoUrl) {
+        alert('Por favor, insira uma URL válida!');
         return;
     }
-    
+
     try {
-        const userDocRef = doc(db, "usuarios", auth.currentUser.email);
-        // Grava ou atualiza o campo fotoPerfil mantendo o resto intacto
-        await setDoc(userDocRef, { fotoPerfil: urlFoto }, { merge: true });
+        if (!auth.currentUser) {
+            alert('Você precisa estar logado!');
+            return;
+        }
+
+        // Criamos ou atualizamos um documento na coleção 'usuarios' onde o ID é o e-mail do usuário
+        // Importante: Importe o 'setDoc' e 'doc' do firestore no topo do script se não houver
+        import { doc, setDoc } from 'https://gstatic.com';
+
+        await setDoc(doc(db, 'usuarios', auth.currentUser.email), {
+            fotoPerfil: fotoUrl,
+            updatedAt: Date.now()
+        }, { merge: true });
+
+        // Atualiza a imagem na tela do perfil imediatamente
+        if (pAvatarImg) pAvatarImg.src = fotoUrl;
         
-        // Atualiza a imagem da tela imediatamente
-        pAvatarImg.src = urlFoto;
+        // Fecha o modal
         modalAvatarUrl.style.display = 'none';
-        
-        // Opcional: Atualiza também a foto do criador no feed atual caso queira atualizar na hora
-        document.querySelector('.create-post-area .user-avatar').src = urlFoto;
-        
-    } catch(err) {
-        alert("Erro ao salvar link da foto no banco.");
-        console.error(err);
+        alert('Foto de perfil atualizada com sucesso, chefia!');
+
+    } catch (error) {
+        console.error("Erro ao salvar foto:", error);
+        alert('Erro ao salvar foto no banco: ' + error.message);
     }
 });
 
