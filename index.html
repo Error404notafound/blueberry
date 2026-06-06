@@ -1454,23 +1454,50 @@ const imgAvatarPreview = document.getElementById('img-avatar-preview');
         let isFetchingPosts = false; // Flag para evitar múltiplas chamadas de fetch
 
         // Monitor de Login
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                authContainer.style.display = 'none';
-                appContainer.style.display = 'block';
-                // Atualiza o nome do usuário na gaveta lateral
-                drawerUserName.textContent = user.email;
-                
-                // Limpa o feed e reseta a paginação ao fazer login
-                document.getElementById('feed').innerHTML = '';
-                lastVisible = null;
-                isFetchingPosts = false; // Reseta a flag
-                loadMorePosts(); // Carrega os primeiros posts
+        // Monitor de Login
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        authContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        // Atualiza o nome do usuário na gaveta lateral
+        drawerUserName.textContent = user.email;
+        
+        // 📸 BUSCAR A FOTO DE PERFIL SALVA NO BANCO
+        try {
+            // Importação dinâmica para não quebrar ou travar os imports lá do topo do seu arquivo
+            const { doc, getDoc } = await import('https://gstatic.com');
+            
+            // Busca o documento correspondente ao e-mail do usuário
+            const docRef = doc(db, 'usuarios', user.email);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const dadosUsuario = docSnap.data();
+                // Coloca a URL da foto salva na imagem de perfil do HTML
+                if (dadosUsuario.fotoPerfil && typeof pAvatarImg !== 'undefined') {
+                    pAvatarImg.src = dadosUsuario.fotoPerfil;
+                }
             } else {
-                authContainer.style.display = 'block';
-                appContainer.style.display = 'none';
+                // Caso não tenha foto no banco, garante que fica com o avatar padrão
+                if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = 'https://w3schools.com';
             }
-        });
+        } catch (erro) {
+            console.error("Erro ao recuperar foto do Firebase:", erro);
+        }
+        
+        // Limpa o feed e reseta a paginação ao fazer login
+        document.getElementById('feed').innerHTML = '';
+        lastVisible = null;
+        isFetchingPosts = false; // Reseta a flag
+        loadMorePosts(); // Carrega os primeiros posts
+    } else {
+        authContainer.style.display = 'block';
+        appContainer.style.display = 'none';
+        // Reseta o avatar para o padrão quando deslogar
+        if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = 'https://w3schools.com';
+    }
+});
+
 
         // Clique Criar Conta
         btnRegister.addEventListener('click', () => {
@@ -2204,7 +2231,7 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
     const fotoUrl = txtAvatarUrlField.value.trim();
 
     if (!fotoUrl) {
-        alert('Por favor, insira uma URL!');
+        alert('Por favor, insira uma URL válida!');
         return;
     }
 
@@ -2214,23 +2241,28 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
             return;
         }
 
-        // Usando EXATAMENTE a mesma estrutura que você usa nos posts, sem imports novos:
-        await addDoc(collection(db, 'usuarios'), {
-            email: auth.currentUser.email,
+        // Importação dinâmica segura e isolada para o clique do botão
+        const { doc, setDoc } = await import('https://gstatic.com');
+
+        // Cria/atualiza o registro usando o e-mail como identificador único
+        await setDoc(doc(db, 'usuarios', auth.currentUser.email), {
             fotoPerfil: fotoUrl,
             updatedAt: Date.now()
-        });
+        }, { merge: true });
 
-        // Atualiza a foto na tela na mesma hora
-        if (pAvatarImg) pAvatarImg.src = fotoUrl;
+        // Atualiza na tela do usuário imediatamente
+        if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = fotoUrl;
         
         modalAvatarUrl.style.display = 'none';
-        alert('Foto de perfil atualizada com sucesso, sem quebrar nada!');
+        alert('Foto de perfil salva e blindada no banco de dados!');
 
     } catch (error) {
-        alert('Erro ao salvar link da foto no banco: ' + error.message);
+        console.error("Erro ao salvar foto:", error);
+        alert('Erro ao salvar foto no banco: ' + error.message);
     }
 });
+
+
 
 
 
