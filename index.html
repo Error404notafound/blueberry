@@ -1462,17 +1462,14 @@ onAuthStateChanged(auth, async (user) => {
         appContainer.style.display = 'block';
         drawerUserName.textContent = user.email;
         
-        // 📸 BUSCAR A FOTO DE FORMA SEGURA
+        // 📸 BUSCAR A FOTO DE PERFIL DIRETO NO BANCO
         try {
-            // Criamos a referência para a coleção de usuários
-            const usuariosRef = collection(db, 'usuarios');
-            
-            // Rodamos o getDocs usando a mesma biblioteca global que o seu feed usa
-            const querySnapshot = await getDocs(usuariosRef);
+            // Puxa a coleção 'usuarios' usando o que seu app já tem
+            const querySnapshot = await getDocs(collection(db, 'usuarios'));
             
             let fotoEncontrada = null;
-            
-            // Varre os documentos cadastrados procurando o e-mail do usuário logado
+
+            // Varre os IDs aleatórios procurando o documento que tem o seu e-mail dentro do campo
             querySnapshot.forEach((documento) => {
                 const dados = documento.data();
                 if (dados.email === user.email) {
@@ -1480,11 +1477,11 @@ onAuthStateChanged(auth, async (user) => {
                 }
             });
 
-            // Se achou a foto no banco, fixa ela no elemento da tela
+            // Se achou o seu e-mail no meio dos documentos, aplica a foto correspondente
             if (fotoEncontrada && typeof pAvatarImg !== 'undefined') {
                 pAvatarImg.src = fotoEncontrada;
             } else {
-                // Se não tiver foto salva, mantém o avatar cinza gerado por código
+                // Se não achar, mantém o avatar padrão em SVG (sem links para o Google cortar)
                 if (typeof pAvatarImg !== 'undefined') {
                     pAvatarImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ccc'/></svg>";
                 }
@@ -1493,7 +1490,6 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Erro ao recuperar foto do Firebase:", erro);
         }
         
-        // Mantém a sua lógica original de carregar o feed abaixo:
         document.getElementById('feed').innerHTML = '';
         lastVisible = null;
         isFetchingPosts = false;
@@ -1506,6 +1502,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     }
 });
+
 
 
 
