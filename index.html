@@ -1393,19 +1393,27 @@
             appId: '1:907567492761:web:6c9ee873357ceb68b25208'
         };
 
-        // ... Linhas iniciais do script pro gustavo mamar rindo...
+        // ... CONFIGURAÇÃO DO FIREBASE ...
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-//  COLE ESTAS TRÊS LINHAS EXATAMENTE AQUI:
+// As variáveis do chat que adicionamos:
 let currentChatRecipient = null;
 let currentRoomId = null;
 let activeChatListener = null;
 
-        // Novos elementos da UI
-        const searchIcon = document.getElementById('search-icon');
-        const searchBarContainer = document.getElementById('search-bar-container');
+//  ADICIONE ESSAS LINHAS DE VOLTA BEM AQUI:
+const authContainer = document.getElementById('auth-container');
+const appContainer = document.getElementById('app-container');
+const btnLogin = document.getElementById('btn-login');
+const btnRegister = document.getElementById('btn-register');
+
+// Novos elementos da UI (que já estão aí)
+const searchIcon = document.getElementById('search-icon');
+const searchBarContainer = document.getElementById('search-bar-container');
+// ... restante do código igual ...
+
         const menuHamburguerIcon = document.getElementById('menu-hamburguer-icon');
         const sideDrawer = document.getElementById('side-drawer');
         const closeDrawerBtn = document.getElementById('close-drawer-btn');
