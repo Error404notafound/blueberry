@@ -941,7 +941,8 @@
     <div id="app-container" style="display: none;">
                 <header class="header">
     <!-- Logo sozinho na esquerda -->
-    <div class="logo">Blueberry</div>
+<div class="logo" id="logo-link" style="cursor: pointer;">Blueberry</div>
+
     
     <!-- Lupa e Menu organizados linearmente na direita -->
     <div class="header-right">
@@ -1412,7 +1413,10 @@ const btnRegister = document.getElementById('btn-register');
 // Novos elementos da UI (que já estão aí)
 const searchIcon = document.getElementById('search-icon');
 const searchBarContainer = document.getElementById('search-bar-container');
+const logoLink = document.getElementById('logo-link'); // <-- LINHA ADICIONADA
 // ... restante do código igual ...
+
+// ... restante do código viu caraio ...
 
         const menuHamburguerIcon = document.getElementById('menu-hamburguer-icon');
         const sideDrawer = document.getElementById('side-drawer');
@@ -1609,7 +1613,22 @@ onAuthStateChanged(auth, async (user) => {
             loadMorePosts(); 
         });
 
-        friendsIcon.addEventListener('click', () => alert('Abrindo página de Amigos e Recomendações'));
+        // COLOQUE LOGO ABAIXO DO HOMEICON:
+logoLink.addEventListener('click', () => {
+    if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
+    if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
+    if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
+    if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
+
+    appContainer.querySelector('.main-container').style.display = 'block';
+
+    document.getElementById('feed').innerHTML = '';
+    lastVisible = null;
+    isFetchingPosts = false;
+    loadMorePosts();
+});
+
+friendsIcon.addEventListener('click', () => alert('Abrindo página de Amigos e Recomendações'));
         
         // NOVO: Clicou no ícone de Mensagens abre a Lista do WhatsApp Verde
         messagesIcon.addEventListener('click', () => {
