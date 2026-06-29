@@ -1482,13 +1482,17 @@ onAuthStateChanged(auth, async (user) => {
             
             let fotoEncontrada = null;
 
-            // Varre os IDs aleatórios procurando o documento que tem o seu e-mail dentro do campo
-            querySnapshot.forEach((documento) => {
-                const dados = documento.data();
-                if (dados.email === user.email) {
-                    fotoEncontrada = dados.fotoPerfil;
-                }
-            });
+            // Acessa diretamente o documento correspondente ao e-mail do usuário logado [1].
+// Faz apenas uma leitura no banco de dados [1].
+const userDocRef = doc(db, 'usuarios', user.email);
+const docSnap = await getDoc(userDocRef);
+
+if (docSnap.exists() && docSnap.data().fotoPerfil) {
+    pAvatarImg.src = docSnap.data().fotoPerfil;
+} else {
+    pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
+}
+
 
             // Se achou o seu e-mail no meio dos documentos, aplica a foto correspondente
             if (fotoEncontrada && typeof pAvatarImg !== 'undefined') {
@@ -2131,7 +2135,10 @@ async function enviarMensagemChat() {
     // 3. Monta nome e avatar dinâmico do Dicebear
     const nomeBase = email.split('@')[0];
     pUserTitle.textContent = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
-    pAvatarImg.src = `https://dicebear.com{nomeBase}`;
+    // Adicionado o caractere "$" antes de abrir as chaves.
+// Agora o JavaScript substitui o bloco pelo valor real da variável [1].
+pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
+
     
     // 4. Segurança de privacidade: Só exibe o botão "Editar Perfil" se o perfil visitado for do próprio usuário logado
     if (auth.currentUser && auth.currentUser.email === email) {
@@ -2142,7 +2149,10 @@ async function enviarMensagemChat() {
     
         // 5. BANCO DE DADOS: Recupera a Biografia e Foto Personalizada no Firestore
     pUserBio.textContent = "Carregando biografia...";
-    pAvatarImg.src = `https://dicebear.com{nomeBase}`; // Padrão temporário enquanto carrega
+    // Adicionado o caractere "$" antes de abrir as chaves.
+// Agora o JavaScript substitui o bloco pelo valor real da variável [1].
+pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
+// Padrão temporário enquanto carrega
     
     try {
         const userDocRef = doc(db, "usuarios", email);
@@ -2283,12 +2293,15 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
             return;
         }
 
-        // Usa o addDoc e collection que já funcionam nos seus posts
-        await addDoc(collection(db, 'usuarios'), {
-            email: auth.currentUser.email,
-            fotoPerfil: fotoUrl,
-            updatedAt: Date.now()
-        });
+        // Usa o e-mail do usuário logado como o ID exclusivo do documento (ex: "/usuarios/exemplo@email.com")
+// O { merge: true } garante que se a biografia já existir, ela não será apagada [1].
+const userDocRef = doc(db, 'usuarios', auth.currentUser.email);
+await setDoc(userDocRef, {
+    email: auth.currentUser.email,
+    fotoPerfil: fotoUrl,
+    updatedAt: Date.now()
+}, { merge: true });
+
 
         // Atualiza a foto na tela na mesma hora
         if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = fotoUrl;
