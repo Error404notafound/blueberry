@@ -1144,18 +1144,20 @@
 
         <main class="main-container">
                         <!-- Área de Postagem Aprimorada -->
-            <section class="create-post-area">
-                <img src="https://via.placeholder.com/40" alt="Avatar do Usuário" class="user-avatar">
-                <div class="post-input-wrapper">
-                    <input type="text" id="post-text" class="post-input" placeholder="No que você está pensando?">
-                </div>
-                <div class="photo-upload-btn" onclick="alert('Fazer upload de foto/vídeo')" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
-    <!-- Ícone de Galeria/Foto estilo Facebook -->
-    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #45bd62; margin-bottom: 2px;">
-        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19zM8.5 9.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
-    </svg>
-    <span>Foto</span>
-</div>
+<section class="create-post-area">
+    <img src="https://via.placeholder.com/40" alt="Avatar do Usuário" class="user-avatar">
+    <div class="post-input-wrapper">
+        <input type="text" id="post-text" class="post-input" placeholder="No que você está pensando?">
+    </div>
+    
+    <!-- MUDANÇA AQUI: Trocamos o alert por abrirModalFoto() -->
+    <div class="photo-upload-btn" onclick="abrirModalFoto()" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+        <!-- Ícone de Galeria/Foto estilo Facebook -->
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #45bd62; margin-bottom: 2px;">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19zM8.5 9.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
+        </svg>
+        <span>Foto</span>
+    </div>
 
 
                 <!-- O BOTÃO DE REEL ENTRA BEM AQUI -->
@@ -1360,6 +1362,23 @@
         </button>
     </div>
 </section>
+<!-- Modal de Foto (Fica escondido por padrão) -->
+<div id="modal-foto" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; backgroundColor: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+  <div style="background: #242526; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; color: #fff;">
+    <h3 style="margin-top: 0;">Nova Publicação (Foto)</h3>
+    
+    <label>Link da Imagem ou Embed:</label><br>
+    <input type="text" id="link-midia-foto" placeholder="Cole o link ou iframe aqui" style="width: 100%; margin-bottom: 15px; padding: 8px; background: #3a3b3c; border: none; color: #fff; border-radius: 5px;"><br>
+    
+    <label>Legenda:</label><br>
+    <textarea id="legenda-midia-foto" placeholder="Escreva uma legenda..." style="width: 100%; height: 80px; margin-bottom: 15px; padding: 8px; background: #3a3b3c; border: none; color: #fff; border-radius: 5px; resize: none;"></textarea><br>
+    
+    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+      <button onclick="fecharModalFoto()" style="background: #e4e6eb; color: #050505; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Cancelar</button>
+      <button onclick="salvarPublicacaoFoto()" style="background: #1877f2; color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">Publicar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal para Criar Reel -->
 <div id="reel-modal" class="modal-reel">
@@ -2353,6 +2372,48 @@ await setDoc(userDocRef, {
 
 window.loadReels = loadReels;
 window.loadConversationsList = loadConversationsList;
+
+// Função para abrir o modal mudando o estilo para flex
+function abrirModalFoto() {
+  document.getElementById("modal-foto").style.display = "flex";
+}
+
+// Função para fechar o modal e limpar os campos
+function fecharModalFoto() {
+  document.getElementById("modal-foto").style.display = "none";
+  document.getElementById("link-midia-foto").value = "";
+  document.getElementById("legenda-midia-foto").value = "";
+}
+
+// Função que envia os dados para o Firestore
+async function salvarPublicacaoFoto() {
+  const link = document.getElementById("link-midia-foto").value;
+  const legenda = document.getElementById("legenda-midia-foto").value;
+
+  if (!link) {
+    alert("Por favor, cole um link!");
+    return;
+  }
+
+  try {
+    // Altere 'db' e 'auth' se você usou outros nomes no seu Firebase
+    // Altere 'posts' para o nome exato da coleção que você usa para listar no feed
+    await db.collection("posts").add({
+      author: auth.currentUser ? auth.currentUser.email : "anonimo",
+      mediaUrl: link,
+      text: legenda,
+      type: "photo", // Identifica que é uma foto/video comum e não um Reel
+      createdAt: firebase.firestore.FieldValue.serverTimestamp() // Ou o formato de data que você já usa
+    });
+
+    alert("Publicado com sucesso!");
+    fecharModalFoto();
+  } catch (erro) {
+    console.error("Erro ao salvar no banco:", erro);
+    alert("Erro ao publicar.");
+  }
+}
+
 </script>
 </body>
     </html>
