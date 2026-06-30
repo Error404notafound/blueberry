@@ -923,8 +923,51 @@
     border-bottom: 3px solid #2374e1;
 }
 
+/* ====== CODIGO DO GEMINI: ELEMENTOS DO PRINT DO FACEBOOK ====== */
+.facebook-actions-container {
+    background-color: #242526;
+    padding: 10px 12px;
+    display: flex;
+    gap: 8px;
+    border-radius: 0 0 8px 8px;
+}
+.fb-pill-btn {
+    background-color: #3a3b3c !important;
+    color: #e4e6eb !important;
+    border: none;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: auto !important;
+    margin-top: 0 !important;
+}
+.fb-pill-btn:hover {
+    background-color: #4e4f50 !important;
+}
+.fb-pill-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: #e4e6eb;
+    stroke-width: 2px;
+}
+.fb-pill-btn.liked {
+    color: #2f80ed !important;
+}
+.fb-pill-btn.liked svg {
+    stroke: #2f80ed !important;
+    fill: #2f80ed !important;
+}
     </style>
 </head>
+
 
 <body>
 
@@ -1905,13 +1948,69 @@ async function loadMorePosts() {
                         if (userDocSnap.exists() && userDocSnap.data().fotoPerfil) {
                             fotoDoAutor = userDocSnap.data().fotoPerfil;
                         }
-                        // Guarda no cache para os próximos posts desse mesmo autor
+                                                // Guarda no cache para os próximos posts desse mesmo autor
                         cacheUsuarios[autorEmail] = fotoDoAutor;
                     } catch (err) {
                         console.error("Erro ao buscar foto do autor no Firestore:", err);
                     }
                 }
             }
+
+            // ====== COLE ESTE BLOCO ABAIXO DAQUI ======
+            const isLiked = post.likedBy && post.likedBy.includes(auth.currentUser.email) ? 'liked' : '';
+            const totalLikes = post.likedBy ? post.likedBy.length : 0;
+
+            const postCardHTML = `
+                <div class="post-card" id="post-${postId}" style="margin-bottom: 20px; padding: 0; overflow: hidden; background-color: var(--bg-card); border-radius: 8px;">
+                    
+                    <!-- Topo do card: Foto e Nome de quem postou -->
+                    <div style="display: flex; align-items: center; padding: 15px 15px 0 15px; margin-bottom: 12px;">
+                        <img src="${fotoDoAutor}" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover;">
+                        <div>
+                            <h4 style="margin: 0; color: white; font-size: 15px;">${autorEmail.split('@')[0]}</h4>
+                            <small style="color: #b0b3b8;">${new Date(post.createdAt).toLocaleDateString()}</small>
+                        </div>
+                    </div>
+
+                    <!-- Texto do post -->
+                    <p style="color: var(--text-main); font-size: 15px; margin: 0 15px 12px 15px;">${post.text || ''}</p>
+
+                    <!-- Vídeo ou Foto de anexo (se existir) -->
+                    ${post.video ? `<div style="padding: 0 15px 12px 15px;"><iframe src="${post.video}" style="width: 100%; height: 300px; border: none; border-radius: 8px;"></iframe></div>` : ''}
+
+                    <!-- BARRA CINZA DE BOTÕES ARREDONDADOS (IGUAL AO FACEBOOK) -->
+                    <div class="facebook-actions-container">
+                        
+                        <!-- Botão Curtir -->
+                        <button class="fb-pill-btn ${isLiked}" onclick="curtirPost('${postId}')">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span id="like-text-${postId}">${totalLikes > 0 ? totalLikes : 'Curtir'}</span>
+                        </button>
+
+                        <!-- Botão Comentar -->
+                        <button class="fb-pill-btn" onclick="alert('Comentários em breve!')">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Comentar</span>
+                        </button>
+
+                        <!-- Botão Compartilhar -->
+                        <button class="fb-pill-btn" onclick="alert('Link copiado!')">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Compartilhar</span>
+                        </button>
+
+                    </div>
+                </div>
+            `;
+
+            feed.insertAdjacentHTML('beforeend', postCardHTML);
+            // ====== FIM DO BLOCO ======
 
                         const card = document.createElement('div');
             card.className = 'post-card';
