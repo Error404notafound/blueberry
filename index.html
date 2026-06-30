@@ -1149,7 +1149,8 @@
                 <div class="post-input-wrapper">
                     <input type="text" id="post-text" class="post-input" placeholder="No que você está pensando?">
                 </div>
-                <div class="photo-upload-btn" onclick="alert('Fazer upload de foto/vídeo')" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+                <div class="photo-upload-btn" id="btn-abrir-modal-foto" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+
     <!-- Ícone de Galeria/Foto estilo Facebook -->
     <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #45bd62; margin-bottom: 2px;">
         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19zM8.5 9.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
@@ -1369,11 +1370,23 @@
         <input type="text" id="reel-link-input" placeholder="🌐 Cole o link de embed aqui (Ex: https://youtube.com...)">
         <textarea id="reel-text-input" placeholder="Escreva uma legenda para o seu Reel..."></textarea>
         <button id="btn-publicar-reel" type="button" style="background-color: #e4405f;">Compartilhar Reel</button>
+        </div>
+</div>
+
+<!-- MODAL PARA CRIAR POST DE FOTO (ADICIONADO AQUI) -->
+<div id="foto-modal" class="modal-reel">
+    <div class="modal-reel-content">
+        <span class="modal-reel-close" id="btn-fechar-modal-foto">&times;</span>
+        <h3>Publicar Nova Foto/Vídeo</h3>
+        <input type="text" id="foto-link-input" placeholder=" Cole o link da imagem ou embed aqui">
+        <textarea id="foto-text-input" placeholder="Escreva uma legenda para a sua publicação..."></textarea>
+        <button id="btn-publicar-foto" type="button" style="background-color: #45bd62;">Compartilhar Foto</button>
     </div>
 </div>
 
-                <!-- Scripts Firebase e Lógica da Aplicação -->
-    <script type="module">
+            <!-- Scripts Firebase e Lógica da Aplicação -->
+<script type="module">
+
         // Importações do Firebase SDK v9 modular
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
         import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
@@ -1712,8 +1725,27 @@ window.addEventListener('click', (e) => {
     if (e.target === reelModal) reelModal.style.display = 'none';
 });
 
+// MAPEAMENTO E EVENTOS DO MODAL DE FOTO (ADICIONADO AQUI)
+const fotoModal = document.getElementById('foto-modal');
+const btnAbrirModalFoto = document.getElementById('btn-abrir-modal-foto');
+const btnFecharModalFoto = document.getElementById('btn-fechar-modal-foto');
+const btnPublicarFoto = document.getElementById('btn-publicar-foto');
+
+btnAbrirModalFoto.addEventListener('click', () => {
+    fotoModal.style.display = 'flex';
+});
+
+btnFecharModalFoto.addEventListener('click', () => {
+    fotoModal.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === fotoModal) fotoModal.style.display = 'none';
+});
+
 // Enviar o Reel para o Firebase Firestore
 btnPublicarReel.addEventListener('click', async () => {
+
     const videoUrl = document.getElementById('reel-link-input').value.trim();
     const reelText = document.getElementById('reel-text-input').value.trim();
     
@@ -1740,7 +1772,7 @@ btnPublicarReel.addEventListener('click', async () => {
 
         document.getElementById('reel-link-input').value = '';
         document.getElementById('reel-text-input').value = '';
-        reelModal.style.display = 'none';
+                reelModal.style.display = 'none';
         alert('Reel publicado com sucesso!');
         
     } catch (error) {
@@ -1749,10 +1781,47 @@ btnPublicarReel.addEventListener('click', async () => {
     }
 });
 
-
+// FUNÇÃO PARA ENVIAR A FOTO/EMBED PARA O BANCO (ADICIONADO AQUI)
+btnPublicarFoto.addEventListener('click', async () => {
+    const mediaUrl = document.getElementById('foto-link-input').value.trim();
+    const fotoText = document.getElementById('foto-text-input').value.trim();
+   
+    if (!mediaUrl) {
+        alert('Por favor, cole o link da sua imagem ou embed!');
+        return;
+    }
+   
+    try {
+        if (!auth.currentUser) {
+            alert('Você precisa estar logado para postar!');
+            return;
+        }
+        await addDoc(collection(db, 'posts'), {
+            text: fotoText,
+            video: mediaUrl, // Injeta o link no leitor de mídias padrão do seu Feed
+            autor: auth.currentUser.email,
+            createdAt: Date.now(),
+            likedBy: []
+        });
+        document.getElementById('foto-link-input').value = '';
+        document.getElementById('foto-text-input').value = '';
+        fotoModal.style.display = 'none';
+        
+        // Atualiza a linha do tempo do Blueberry automaticamente
+        document.getElementById('feed').innerHTML = '';
+        lastVisible = null;
+        isFetchingPosts = false;
+        loadMorePosts();
+       
+    } catch (error) {
+        console.error("Erro detalhado:", error);
+        alert('Erro ao salvar no banco: ' + error.message);
+    }
+});
 
         // Publicar Mensagem
         const postTextInput = document.getElementById('post-text');
+
 
         postTextInput.addEventListener('keypress', async (e) => {
             if (e.key === 'Enter' && !e.shiftKey) { // Publica ao pressionar Enter, mas permite Shift+Enter para nova linha
