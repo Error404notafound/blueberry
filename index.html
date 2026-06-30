@@ -2012,71 +2012,8 @@ async function loadMorePosts() {
             feed.insertAdjacentHTML('beforeend', postCardHTML);
             // ====== FIM DO BLOCO ======
 
-                        const card = document.createElement('div');
-            card.className = 'post-card';
-            
-            let videoHTML = '';
-            if (post.video && post.video.trim() !== "") {
-                let videoUrl = post.video.trim();
-                
-                // VERIFICAÇÃO DE IMAGENS: Descobre se o link é uma foto antes de gerar o player
-                const linkLimpo = videoUrl.toLowerCase();
-                const ehImagem = linkLimpo.includes('.jpg') || 
-                                 linkLimpo.includes('.jpeg') || 
-                                 linkLimpo.includes('.png') || 
-                                 linkLimpo.includes('.gif') || 
-                                 linkLimpo.includes('placeholder') ||
-                                 linkLimpo.startsWith('data:image');
-
-                if (ehImagem) {
-                    // Injeta uma tag HTML de imagem estilizada para o Blueberry feed
-                    videoHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;"><img src="${videoUrl}" style="width:100%; height:auto; border-radius:8px; display:block;"></div>`;
-                } else {
-                    // Se não for imagem, roda a lógica padrão de vídeos que você já tinha
-                    if ((videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) && !videoUrl.includes('embed')) {
-                        let videoId = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
-                        if(videoId.includes('&')) videoId = videoId.split('&')[0];
-                        videoUrl = `https://youtube.com{videoId}`;
-                    }
-                    
-                    if (videoUrl.includes('embed') || videoUrl.includes('plugins/video.php')) {
-                        videoHTML = `
-                            <div class="feed-video-wrapper" style="position:relative; width:100%; padding-top:56.25%; background:#000; border-radius:8px; overflow:hidden; margin-top:10px;">
-                                <iframe
-                                    src="${videoUrl}"
-                                    frameborder="0"
-                                    allow="autoplay; encrypted-media; picture-in-picture"
-                                    allowfullscreen
-                                    style="position:absolute; top:0; left:0; width:100%; height:100%;">
-                                </iframe>
-                            </div>`;
-                    } else {
-                        videoHTML = `<video src="${videoUrl}" controls style="width:100%; max-height:400px; border-radius:8px; margin-top:10px; background:#000;"></video>`;
-                    }
-                }
-            }
-
-
-            // CORREÇÃO: Usando template literal `${fotoDoAutor}` para injetar o link correto dinamicamente [1]
-            card.innerHTML = `
-                <div class="user-feed-header" style="display:flex; align-items:center; margin-bottom: 10px; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">
-                    <img src="${fotoDoAutor}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; border: 1px solid var(--accent-purplish-blue); object-fit:cover;">
-                    <div style="display:flex; flex-direction:column;">
-                        <small style="color:var(--accent-blue); font-weight:bold;">${autorEmail || 'Anônimo'}</small>
-                        <span style="font-size:10px; color:#b0b3b8;">Postado recentemente</span>
-                    </div>
-                </div>
-                <p style="margin:5px 0 0 0; font-size:16px;">${post.text}</p>
-                ${videoHTML}
-            `;
-
-            feed.appendChild(card);
-        }
-
-        // Atualiza lastVisible com o último documento da página atual
-        lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
-        isFetchingPosts = false; // Libera para a próxima chamada
-    } catch (error) {
+        } // Fechamento do loop antigo
+    } catch (erro) {
         console.error("Erro ao carregar posts:", error);
         isFetchingPosts = false; // Libera em caso de erro
     }
