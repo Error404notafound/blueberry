@@ -924,38 +924,44 @@
 }
 
 /* ======== BARRA DE INTERAÇÕES DO POST (ESTILO FACEBOOK) ======== */
+/* ======== NOVA BARRA DE INTERAÇÕES HORIZONTAL (ESTILO FACEBOOK LITE) ======== */
 .post-footer-actions {
     display: flex;
     justify-content: space-around;
-    padding: 10px 0;
-    border-top: 1px solid #3e4042;
+    padding: 8px 4px;
+    border-top: 1px solid #2f3031;
     margin-top: 12px;
 }
+
 .post-action-btn {
-    background: transparent;
+    background: #242526; /* Fundo levemente cinza idêntico ao da imagem */
     border: none;
     color: #b0b3b8;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     cursor: pointer;
-    width: 33%;
-    padding: 6px 0;
-    border-radius: 4px;
-    transition: background-color 0.2s;
+    padding: 6px 14px;
+    border-radius: 20px; /* Botões arredondados em formato de pílula */
+    transition: background-color 0.2s, color 0.2s;
 }
+
 .post-action-btn:hover {
-    background-color: var(--bg-hover);
+    background-color: #3a3b3c;
     color: white;
 }
+
 .post-action-btn svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2px;
 }
+
 </style>
 </head>
 
@@ -1992,12 +1998,16 @@ async function loadMorePosts() {
 
 
                 // === CONTROLE E CÁLCULO DE CURTIDAS REAL ===
+        // === CÁLCULO DE ESTADO DAS CURTIDAS ===
     const postId = docSnap.id;
     const curtidasArray = post.likedBy || [];
     const totalCurtidas = curtidasArray.length;
     const usuarioLogadoEmail = auth.currentUser ? auth.currentUser.email : "";
     const jaCurtiu = curtidasArray.includes(usuarioLogadoEmail);
+
+    // Cores baseadas no print enviado: azul preenchido se curtiu, cinza se não
     const corBotaoCurtir = jaCurtiu ? "#2374e1" : "#b0b3b8";
+    const preenchimentoIcone = jaCurtiu ? "#2374e1" : "none";
 
     card.innerHTML = `
         <div class="user-feed-header" style="display:flex; align-items:center; margin-bottom: 10px;">
@@ -2007,70 +2017,74 @@ async function loadMorePosts() {
                 <span style="font-size:10px; color:#b0b3b8;">Postado recentemente</span>
             </div>
         </div>
-        <p style="margin:5px 0 0 0; font-size:16px;">${post.text}</p>
 
-        <!-- Mantém sua verificação de mídias perfeitamente intacta -->
+        <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
+
+        <!-- Suas mídias/embeds nativos do Blueberry -->
         ${videoHTML}
 
-        <!-- Contador de reações visual -->
-        <div style="display:flex; justify-content:space-between; padding: 8px 0 4px 0; font-size:13px; color:#b0b3b8; border-top: 1px solid #2f3031; margin-top: 10px;">
-            <span id="contador-curtidas-${postId}">👍 ${totalCurtidas} pessoas</span>
-            <span>0 comentários</span>
-        </div>
-
-        <!-- Nova barra estilo Facebook acoplada abaixo da mídia -->
+        <!-- Barra de ações reformulada com contagem lateral interna -->
         <div class="post-footer-actions">
             <button class="post-action-btn" id="btn-curtir-${postId}" style="color: ${corBotaoCurtir};">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                <span>Curtir</span>
+                <svg viewBox="0 0 24 24" style="fill: ${preenchimentoIcone};"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
+                <span id="texto-curtir-${postId}">${totalCurtidas > 0 ? totalCurtidas + ' mil' : 'Curtir'}</span>
             </button>
-            <button class="post-action-btn" onclick="alert('Sistema de comentários em breve!')">
-                <svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
-                <span>Comentar</span>
+
+            <button class="post-action-btn" onclick="alert('Sistema de comentários em desenvolvimento!')">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>3,1 mil</span>
             </button>
+
             <button class="post-action-btn" id="btn-compartilhar-${postId}">
-                <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-                <span>Compartilhar</span>
+                <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
+                <span>2,8 mil</span>
             </button>
         </div>
     `;
 
     feed.appendChild(card);
 
-    // Ouvinte de clique para atualizar a contagem atômica no banco
+    // Processador do clique de curtir modificado para atualizar o texto interno do botão
     let curtidasLocais = [...curtidasArray];
     const botaoCurtirElemento = card.querySelector(`#btn-curtir-${postId}`);
-    const botaoCompartilharElemento = card.querySelector(`#btn-compartilhar-${postId}`);
+    const iconeSvg = botaoCurtirElemento.querySelector('svg');
+    const labelTexto = document.getElementById(`texto-curtir-${postId}`);
 
     botaoCurtirElemento.addEventListener('click', async () => {
         if (!auth.currentUser) {
-            alert("Entre na sua conta para curtir!");
+            alert("Você precisa fazer login para reagir!");
             return;
         }
 
         const postRef = doc(db, 'posts', postId);
-        const itemContador = document.getElementById(`contador-curtidas-${postId}`);
         const indice = curtidasLocais.indexOf(usuarioLogadoEmail);
 
         if (indice > -1) {
+            // Descurtir
             curtidasLocais.splice(indice, 1);
             botaoCurtirElemento.style.color = "#b0b3b8";
-            itemContador.textContent = `👍 ${curtidasLocais.length} pessoas`;
+            iconeSvg.style.fill = "none";
+            labelTexto.textContent = curtidasLocais.length > 0 ? curtidasLocais.length + ' mil' : 'Curtir';
+
             await updateDoc(postRef, { likedBy: arrayRemove(usuarioLogadoEmail) });
         } else {
+            // Curtir
             curtidasLocais.push(usuarioLogadoEmail);
             botaoCurtirElemento.style.color = "#2374e1";
-            itemContador.textContent = `👍 ${curtidasLocais.length} pessoas`;
+            iconeSvg.style.fill = "#2374e1";
+            labelTexto.textContent = curtidasLocais.length + ' mil';
+
             await updateDoc(postRef, { likedBy: arrayUnion(usuarioLogadoEmail) });
         }
     });
 
-    // Evento prático de compartilhamento copiando o link/mídia se houver
-    botaoCompartilharElemento.addEventListener('click', () => {
-        const linkCompartilhar = post.video || "Texto do Blueberry";
-        navigator.clipboard.writeText(linkCompartilhar);
-        alert("Link da publicação copiado para a área de transferência!");
+    // Configuração de clique estático do botão de compartilhar
+    card.querySelector(`#btn-compartilhar-${postId}`).addEventListener('click', () => {
+        const conteudoMídia = post.video || "Texto do post";
+        navigator.clipboard.writeText(conteudoMídia);
+        alert("Link copiado com sucesso!");
     });
+
 
         }
 
