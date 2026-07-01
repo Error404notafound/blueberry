@@ -1999,91 +1999,109 @@ async function loadMorePosts() {
 
                 // === CONTROLE E CÁLCULO DE CURTIDAS REAL ===
         // === CÁLCULO DE ESTADO DAS CURTIDAS ===
-    const postId = docSnap.id;
-    const curtidasArray = post.likedBy || [];
-    const totalCurtidas = curtidasArray.length;
-    const usuarioLogadoEmail = auth.currentUser ? auth.currentUser.email : "";
-    const jaCurtiu = curtidasArray.includes(usuarioLogadoEmail);
+            // === CONTADORES REAIS DO FIREBASE ===
+        const postId = docSnap.id;
+        const curtidasArray = post.likedBy || [];
+        const totalCurtidas = curtidasArray.length;
+        const usuarioLogadoEmail = auth.currentUser ? auth.currentUser.email : "";
+        const jaCurtiu = curtidasArray.includes(usuarioLogadoEmail);
+        
+        // Cores baseadas no print real
+        const corBotaoCurtir = jaCurtiu ? "#2374e1" : "#b0b3b8";
+        const preenchimentoIcone = jaCurtiu ? "#2374e1" : "none";
 
-    // Cores baseadas no print enviado: azul preenchido se curtiu, cinza se não
-    const corBotaoCurtir = jaCurtiu ? "#2374e1" : "#b0b3b8";
-    const preenchimentoIcone = jaCurtiu ? "#2374e1" : "none";
+        // Busca a contagem real de documentos na subcoleção de comentários deste post específico
+        let totalComentarios = 0;
+        try {
+            const comentariosRef = collection(db, 'posts', postId, 'comentarios');
+            const snapshotComentarios = await getCountFromServer(comentariosRef);
+            totalComentarios = snapshotComentarios.data().count;
+        } catch (error) {
+            console.error("Erro ao contar comentários reais:", error);
+        }
 
-    card.innerHTML = `
-        <div class="user-feed-header" style="display:flex; align-items:center; margin-bottom: 10px;">
-            <img src="${fotoDoAutor}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover;">
-            <div style="display:flex; flex-direction:column;">
-                <small style="color:var(--accent-blue); font-weight:bold;">${autorEmail || 'Anônimo'}</small>
-                <span style="font-size:10px; color:#b0b3b8;">Postado recentemente</span>
+        card.innerHTML = `
+            <div class="user-feed-header" style="display:flex; align-items:center; margin-bottom: 10px;">
+                <img src="${fotoDoAutor}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover;">
+                <div style="display:flex; flex-direction:column;">
+                    <small style="color:var(--accent-blue); font-weight:bold;">${autorEmail || 'Anônimo'}</small>
+                    <span style="font-size:10px; color:#b0b3b8;">Postado recentemente</span>
+                </div>
             </div>
-        </div>
+            
+            <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
+            
+            <!-- Injeção de mídias nativa do Blueberry -->
+            ${videoHTML}
+            
+            <!-- Barra de ações 100% real (Sem números artificiais) -->
+            <div class="post-footer-actions">
+                <button class="post-action-btn" id="btn-curtir-${postId}" style="color: ${corBotaoCurtir};">
+                    <svg viewBox="0 0 24 24" style="fill: ${preenchimentoIcone};"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
+                    <span id="texto-curtir-${postId}">${totalCurtidas > 0 ? totalCurtidas : 'Curtir'}</span>
+                </button>
+                
+                <button class="post-action-btn" id="btn-comentar-${postId}">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span id="texto-comentar-${postId}">${totalComentarios > 0 ? totalComentarios : 'Comentar'}</span>
+                </button>
+                
+                <button class="post-action-btn" id="btn-compartilhar-${postId}">
+                    <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
+                    <span>Compartilhar</span>
+                </button>
+            </div>
+        `;
 
-        <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
+        feed.appendChild(card);
 
-        <!-- Suas mídias/embeds nativos do Blueberry -->
-        ${videoHTML}
+        // Processador de clique do Curtir Dinâmico
+        let curtidasLocais = [...curtidasArray];
+        const botaoCurtirElemento = card.querySelector(`#btn-curtir-${postId}`);
+        const iconeSvg = botaoCurtirElemento.querySelector('svg');
+        const labelTexto = document.getElementById(`texto-curtir-${postId}`);
+        
+        botaoCurtirElemento.addEventListener('click', async () => {
+            if (!auth.currentUser) {
+                alert("Você precisa fazer login para reagir!");
+                return;
+            }
+            
+            const postRef = doc(db, 'posts', postId);
+            const indice = curtidasLocais.indexOf(usuarioLogadoEmail);
+            
+            if (indice > -1) {
+                // Descurtir em tempo real na tela e atualizar banco
+                curtidasLocais.splice(indice, 1);
+                botaoCurtirElemento.style.color = "#b0b3b8";
+                iconeSvg.style.fill = "none";
+                labelTexto.textContent = curtidasLocais.length > 0 ? curtidasLocais.length : 'Curtir';
+                
+                await updateDoc(postRef, { likedBy: arrayRemove(usuarioLogadoEmail) });
+            } else {
+                // Curtir em tempo real na tela e atualizar banco
+                curtidasLocais.push(usuarioLogadoEmail);
+                botaoCurtirElemento.style.color = "#2374e1";
+                iconeSvg.style.fill = "#2374e1";
+                labelTexto.textContent = curtidasLocais.length;
+                
+                await updateDoc(postRef, { likedBy: arrayUnion(usuarioLogadoEmail) });
+            }
+        });
 
-        <!-- Barra de ações reformulada com contagem lateral interna -->
-        <div class="post-footer-actions">
-            <button class="post-action-btn" id="btn-curtir-${postId}" style="color: ${corBotaoCurtir};">
-                <svg viewBox="0 0 24 24" style="fill: ${preenchimentoIcone};"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
-                <span id="texto-curtir-${postId}">${totalCurtidas > 0 ? totalCurtidas + ' mil' : 'Curtir'}</span>
-            </button>
+        // Evento prático do botão Compartilhar
+        card.querySelector(`#btn-compartilhar-${postId}`).addEventListener('click', () => {
+            const linkMídia = post.video || "Texto do post do Blueberry";
+            navigator.clipboard.writeText(linkMídia);
+            alert("Link copiado para a área de transferência!");
+        });
 
-            <button class="post-action-btn" onclick="alert('Sistema de comentários em desenvolvimento!')">
-                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                <span>3,1 mil</span>
-            </button>
+        // Evento de clique do Comentar (Gatilho para você criar a caixinha depois)
+        card.querySelector(`#btn-comentar-${postId}`).addEventListener('click', () => {
+            // Disparar abertura de comentários reais futuramente
+            abrirJanelaComentarios(postId); 
+        });
 
-            <button class="post-action-btn" id="btn-compartilhar-${postId}">
-                <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
-                <span>2,8 mil</span>
-            </button>
-        </div>
-    `;
-
-    feed.appendChild(card);
-
-    // Processador do clique de curtir modificado para atualizar o texto interno do botão
-    let curtidasLocais = [...curtidasArray];
-    const botaoCurtirElemento = card.querySelector(`#btn-curtir-${postId}`);
-    const iconeSvg = botaoCurtirElemento.querySelector('svg');
-    const labelTexto = document.getElementById(`texto-curtir-${postId}`);
-
-    botaoCurtirElemento.addEventListener('click', async () => {
-        if (!auth.currentUser) {
-            alert("Você precisa fazer login para reagir!");
-            return;
-        }
-
-        const postRef = doc(db, 'posts', postId);
-        const indice = curtidasLocais.indexOf(usuarioLogadoEmail);
-
-        if (indice > -1) {
-            // Descurtir
-            curtidasLocais.splice(indice, 1);
-            botaoCurtirElemento.style.color = "#b0b3b8";
-            iconeSvg.style.fill = "none";
-            labelTexto.textContent = curtidasLocais.length > 0 ? curtidasLocais.length + ' mil' : 'Curtir';
-
-            await updateDoc(postRef, { likedBy: arrayRemove(usuarioLogadoEmail) });
-        } else {
-            // Curtir
-            curtidasLocais.push(usuarioLogadoEmail);
-            botaoCurtirElemento.style.color = "#2374e1";
-            iconeSvg.style.fill = "#2374e1";
-            labelTexto.textContent = curtidasLocais.length + ' mil';
-
-            await updateDoc(postRef, { likedBy: arrayUnion(usuarioLogadoEmail) });
-        }
-    });
-
-    // Configuração de clique estático do botão de compartilhar
-    card.querySelector(`#btn-compartilhar-${postId}`).addEventListener('click', () => {
-        const conteudoMídia = post.video || "Texto do post";
-        navigator.clipboard.writeText(conteudoMídia);
-        alert("Link copiado com sucesso!");
-    });
 
 
         }
