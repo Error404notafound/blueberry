@@ -1184,8 +1184,9 @@
         <main class="main-container">
                         <!-- Área de Postagem Aprimorada -->
             <section class="create-post-area">
-                <img src="https://via.placeholder.com/40" alt="Avatar do Usuário" class="user-avatar">
-                <div class="post-input-wrapper">
+    <img id="feed-avatar-img" src="https://placeholder.com" alt="Avatar do Usuário" class="user-avatar">
+    <div class="post-input-wrapper">
+
                     <input type="text" id="post-text" class="post-input" placeholder="No que você está pensando?">
                 </div>
                 <div class="photo-upload-btn" id="btn-abrir-modal-foto" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
@@ -1488,7 +1489,9 @@ const logoLink = document.getElementById('logo-link'); // <-- LINHA ADICIONADA
 const profileContainer = document.getElementById('profile-container');
 const pUserTitle = document.getElementById('p-user-title');
 const pAvatarImg = document.getElementById('p-avatar-img');
+const feedAvatarImg = document.getElementById('feed-avatar-img'); // <-- Adicione esta linha
 const pUserPostCount = document.getElementById('p-user-post-count');
+
 const pUserBio = document.getElementById('p-user-bio');
 const btnTriggerEditProfile = document.getElementById('btn-trigger-edit-profile');
 
@@ -1541,9 +1544,13 @@ const docSnap = await getDoc(userDocRef);
 
 if (docSnap.exists() && docSnap.data().fotoPerfil) {
     pAvatarImg.src = docSnap.data().fotoPerfil;
+    if (feedAvatarImg) feedAvatarImg.src = docSnap.data().fotoPerfil; // <-- Adicione esta linha
 } else {
-    pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
+    const defaultAvatar = `https://dicebear.com{user.email.split('@')[0]}`;
+    pAvatarImg.src = defaultAvatar;
+    if (feedAvatarImg) feedAvatarImg.src = defaultAvatar; // <-- Adicione esta linha
 }
+
 
 
             // Se achou o seu e-mail no meio dos documentos, aplica a foto correspondente
