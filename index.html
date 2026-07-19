@@ -1436,7 +1436,7 @@
 
         // Importações do Firebase SDK v9 modular
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
 
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
@@ -1991,7 +1991,8 @@ async function loadMorePosts() {
                     if ((videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) && !videoUrl.includes('embed')) {
                         let videoId = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
                         if(videoId.includes('&')) videoId = videoId.split('&')[0];
-                        videoUrl = `https://youtube.com{videoId}`;
+                        videoUrl = `https://www.youtube.com/embed/${videoId}`;
+
                     }
                     
                     if (videoUrl.includes('embed') || videoUrl.includes('plugins/video.php')) {
@@ -2227,7 +2228,7 @@ async function loadReels() {
                     
                     <div class="reel-meta">
                         <div class="creator-info">
-                            <img src="https://dicebear.com{post.autor}" class="creator-avatar">
+                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${post.autor ? post.autor.split('@')[0] : 'anonimo'}" class="creator-avatar">
                             <h4 class="creator-name">@${post.autor ? post.autor.split('@')[0] : 'anonimo'}</h4>
                             <button class="btn-seguir" onclick="alert('Seguindo!')">Seguir</button>
                         </div>
@@ -2277,19 +2278,20 @@ async function loadConversationsList() {
                 row.className = 'chat-row';
                 
                 // CORREÇÃO: Link do Dicebear ajustado com a barra certa para renderizar os avatares
-                row.innerHTML = `
-                    <img src="https://dicebear.com{nomeAmigo}" class="chat-row-avatar">
-                    <div class="chat-row-content">
-                        <div class="chat-row-top">
-                            <h4 class="chat-row-name">${nomeFormatado}</h4>
-                            <span class="chat-row-time">15:12</span>
-                        </div>
-                        <div class="chat-row-bottom">
-                            <p class="chat-row-msg">Clique para abrir o chat em tempo real...</p>
-                            <div class="chat-row-badge">1</div>
-                        </div>
-                    </div>
-                `;
+row.innerHTML = `
+    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${nomeAmigo}" class="chat-row-avatar">
+    <div class="chat-row-content">
+        <div class="chat-row-top">
+            <h4 class="chat-row-name">${nomeFormatado}</h4>
+            <span class="chat-row-time">15:12</span>
+        </div>
+        <div class="chat-row-bottom">
+            <p class="chat-row-msg">Clique para abrir o chat em tempo real...</p>
+            <div class="chat-row-badge">1</div>
+        </div>
+    </div>
+`;
+
                 
                 // Evento ao clicar no contato: Abre o chat escuro em tempo real com ele
                 //  Agora, ao clicar em uma conversa, as atribuições funcionam perfeitamente:
@@ -2302,8 +2304,7 @@ row.addEventListener('click', () => {
                     document.getElementById('chat-list-container').style.display = 'none';
                     document.getElementById('chat-container').style.display = 'flex';
                     document.getElementById('chat-current-user-name').innerText = nomeFormatado;
-                    document.getElementById('chat-current-avatar').src = `https://dicebear.com{nomeAmigo}`;
-                    
+                    document.getElementById('chat-current-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeAmigo}`;
                     // Liga os motores do onSnapshot do Firebase
                     startChatListener();
                 });
