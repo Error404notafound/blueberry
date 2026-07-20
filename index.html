@@ -905,41 +905,6 @@
     justify-content: center;
     gap: 6px;
 }
-
-/* Estilos para os botões do perfil de terceiros */
-.btn-add-amigo {
-    flex: 1;
-    background-color: #2374e1; /* Azul Facebook */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 10px;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-.btn-enviar-msg-perfil {
-    flex: 1;
-    background-color: #3a3b3c; /* Cinza Escuro de Destaque */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 10px;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-.btn-add-amigo:hover { background-color: #1b5bb5; }
-.btn-enviar-msg-perfil:hover { background-color: #4e5052; }
-
 .profile-nav-tabs {
     display: flex;
     padding: 5px 10px 0 10px;
@@ -1322,9 +1287,8 @@
         <p class="profile-bio" id="p-user-bio">Nenhuma biografia adicionada ainda.</p>
     </div>
 
-        <div class="profile-actions-bar">
-        <!-- Botões do Perfil Próprio -->
-        <button class="btn-story" id="btn-action-story-add" style="display: none;">
+    <div class="profile-actions-bar">
+        <button class="btn-story" id="btn-action-story-add">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             Adicionar ao story
         </button>
@@ -1332,18 +1296,7 @@
             <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
             Editar perfil
         </button>
-
-        <!-- Novos Botões do Perfil de Outro Usuário (Secundário) -->
-        <button class="btn-add-amigo" id="btn-perfil-add-amigo" style="display: none;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            Adicionar aos amigos
-        </button>
-        <button class="btn-enviar-msg-perfil" id="btn-perfil-mensagem" style="display: none;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
-            Mensagem
-        </button>
     </div>
-
 
     <div class="profile-nav-tabs">
         <div class="profile-tab-item active">Tudo</div>
@@ -1924,36 +1877,32 @@ btnPublicarFoto.addEventListener('click', async () => {
         const postTextInput = document.getElementById('post-text');
 
 
-                // Código corrigido para evitar o conflito entre Postagem e Pesquisa
         postTextInput.addEventListener('keypress', async (e) => {
-            // Se o usuário apertar Enter MAS estiver com o foco na barra de pesquisa, pare a postagem!
-            if (document.activeElement === document.getElementById('input-pesquisa-usuarios') || 
-                document.activeElement === searchBarContainer.querySelector('input')) {
-                return; 
-            }
-
-            // Lógica original de postagem (só roda se NÃO estiver pesquisando)
-            if (e.key === 'Enter' && !e.shiftKey) { 
-                e.preventDefault(); 
+            if (e.key === 'Enter' && !e.shiftKey) { // Publica ao pressionar Enter, mas permite Shift+Enter para nova linha
+                e.preventDefault(); // Evita quebra de linha padrão do Enter
                 const textValue = postTextInput.value.trim();
                 const videoUrl = document.getElementById('video-link-input')?.value.trim() || '';
-                
+
                 if (textValue || videoUrl) {
                     try {
                         await addDoc(collection(db, 'posts'), {
                             text: textValue,
                             video: videoUrl,
                             autor: auth.currentUser.email,
-                            createdAt: Date.now() 
+                            createdAt: Date.now() // Usar timestamp do servidor é melhor para evitar problemas de sincronização
                         });
-                        postTextInput.value = ''; 
+                        postTextInput.value = ''; // Limpa o campo de texto
                         if (document.getElementById('video-link-input')) {
-                             document.getElementById('video-link-input').value = ''; 
+                             document.getElementById('video-link-input').value = ''; // Limpa o campo de vídeo, se existir
                         }
+                        // O feed será atualizado automaticamente se você adicionar um listener em tempo real para os posts mais recentes.
+                        // Para paginação, geralmente você limpa o feed e recarrega os primeiros posts ou insere o novo post no topo.
+                        // Para simplicidade aqui, vamos limpar e carregar a primeira página novamente após um novo post.
                         document.getElementById('feed').innerHTML = '';
                         lastVisible = null;
                         isFetchingPosts = false;
                         loadMorePosts();
+
                     } catch (error) {
                         alert('Erro ao publicar: ' + error.message);
                     }
@@ -1962,17 +1911,6 @@ btnPublicarFoto.addEventListener('click', async () => {
                 }
             }
         });
-// Captura o "OK" / "Enter" do teclado do celular na barra de pesquisa
-document.getElementById('input-pesquisa-usuarios').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        e.preventDefault(); // Impede que o formulário recarregue a página
-        const termoBusca = e.target.value.toLowerCase().trim();
-        
-        // Executa a busca no banco de dados com o termo digitado
-        buscarUsuariosBanco(termoBusca); 
-    }
-});
-
 
         // Criamos um cache fora da função para não cobrar leituras repetidas do mesmo usuário no Spark!
 const cacheUsuarios = {};
@@ -2646,51 +2584,6 @@ await setDoc(userDocRef, {
 
 window.loadReels = loadReels;
 window.loadConversationsList = loadConversationsList;
-
-// NOVA FUNÇÃO: Abre a tela de perfil e gerencia quais botões devem aparecer
-async function abrirPerfilDoUsuario(emailDoPerfilAlvo) {
-    // 1. Atualiza a variável global que você já tem no código
-    profileViewedEmail = emailDoPerfilAlvo; 
-    
-    // 2. Captura o e-mail de quem está usando o aplicativo no momento
-    const emailUsuarioLogado = auth.currentUser.email;
-
-    // 3. Mapeia os elementos do HTML
-    const btnStory = document.getElementById('btn-action-story-add');
-    const btnEditP = document.getElementById('btn-trigger-edit-profile');
-    const btnAddAmigo = document.getElementById('btn-perfil-add-amigo');
-    const btnMensagem = document.getElementById('btn-perfil-mensagem');
-
-    // 4. Esconde a página inicial/feed e mostra o contêiner do Perfil
-    appContainer.querySelector('.main-container').style.display = 'none';
-    document.getElementById('profile-container').style.display = 'block';
-
-    // 5. REGRA DE TRANSIÇÃO: O perfil aberto é meu ou de outra pessoa?
-    if (emailDoPerfilAlvo === emailUsuarioLogado) {
-        // O perfil é meu: Mostra opções de edição e esconde as de interação
-        btnStory.style.display = "flex";
-        btnEditP.style.display = "flex";
-        btnAddAmigo.style.display = "none";
-        btnMensagem.style.display = "none";
-    } else {
-        // O perfil é de outra pessoa: Esconde minhas opções e mostra "Adicionar" e "Mensagem"
-        btnStory.style.display = "none";
-        btnEditP.style.display = "none";
-        btnAddAmigo.style.display = "flex";
-        btnMensagem.style.display = "flex";
-    }
-
-    // 6. Ação do Botão Mensagem: Te joga direto para o chat do WhatsApp Dark com o usuário alvo
-    btnMensagem.onclick = () => {
-        document.getElementById('profile-container').style.display = 'none';
-        document.getElementById('chat-container').style.display = 'flex';
-        
-        // Aqui você pode chamar o seu inicializador de chat existente, ex:
-        // currentChatRecipient = emailDoPerfilAlvo;
-        // abrirConversaPrivada();
-    };
-}
-
 </script>
 </body>
     </html>
