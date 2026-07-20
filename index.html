@@ -1962,7 +1962,7 @@ btnPublicarFoto.addEventListener('click', async () => {
                 }
             }
         });
-    // Captura o "OK" / "Enter" do teclado do celular na barra de pesquisa
+// Captura o "OK" / "Enter" do teclado do celular na barra de pesquisa
 document.getElementById('input-pesquisa-usuarios').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault(); // Impede que o formulário recarregue a página
@@ -1973,37 +1973,6 @@ document.getElementById('input-pesquisa-usuarios').addEventListener('keydown', (
     }
 });
 
-
-                const videoUrl = document.getElementById('video-link-input')?.value.trim() || '';
-
-                if (textValue || videoUrl) {
-                    try {
-                        await addDoc(collection(db, 'posts'), {
-                            text: textValue,
-                            video: videoUrl,
-                            autor: auth.currentUser.email,
-                            createdAt: Date.now() // Usar timestamp do servidor é melhor para evitar problemas de sincronização
-                        });
-                        postTextInput.value = ''; // Limpa o campo de texto
-                        if (document.getElementById('video-link-input')) {
-                             document.getElementById('video-link-input').value = ''; // Limpa o campo de vídeo, se existir
-                        }
-                        // O feed será atualizado automaticamente se você adicionar um listener em tempo real para os posts mais recentes.
-                        // Para paginação, geralmente você limpa o feed e recarrega os primeiros posts ou insere o novo post no topo.
-                        // Para simplicidade aqui, vamos limpar e carregar a primeira página novamente após um novo post.
-                        document.getElementById('feed').innerHTML = '';
-                        lastVisible = null;
-                        isFetchingPosts = false;
-                        loadMorePosts();
-
-                    } catch (error) {
-                        alert('Erro ao publicar: ' + error.message);
-                    }
-                } else {
-                    alert('Por favor, escreva algo ou adicione um link de vídeo para publicar.');
-                }
-            }
-        });
 
         // Criamos um cache fora da função para não cobrar leituras repetidas do mesmo usuário no Spark!
 const cacheUsuarios = {};
