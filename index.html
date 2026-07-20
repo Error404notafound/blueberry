@@ -1924,10 +1924,56 @@ btnPublicarFoto.addEventListener('click', async () => {
         const postTextInput = document.getElementById('post-text');
 
 
+                // Código corrigido para evitar o conflito entre Postagem e Pesquisa
         postTextInput.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { // Publica ao pressionar Enter, mas permite Shift+Enter para nova linha
-                e.preventDefault(); // Evita quebra de linha padrão do Enter
+            // Se o usuário apertar Enter MAS estiver com o foco na barra de pesquisa, pare a postagem!
+            if (document.activeElement === document.getElementById('input-pesquisa-usuarios') || 
+                document.activeElement === searchBarContainer.querySelector('input')) {
+                return; 
+            }
+
+            // Lógica original de postagem (só roda se NÃO estiver pesquisando)
+            if (e.key === 'Enter' && !e.shiftKey) { 
+                e.preventDefault(); 
                 const textValue = postTextInput.value.trim();
+                const videoUrl = document.getElementById('video-link-input')?.value.trim() || '';
+                
+                if (textValue || videoUrl) {
+                    try {
+                        await addDoc(collection(db, 'posts'), {
+                            text: textValue,
+                            video: videoUrl,
+                            autor: auth.currentUser.email,
+                            createdAt: Date.now() 
+                        });
+                        postTextInput.value = ''; 
+                        if (document.getElementById('video-link-input')) {
+                             document.getElementById('video-link-input').value = ''; 
+                        }
+                        document.getElementById('feed').innerHTML = '';
+                        lastVisible = null;
+                        isFetchingPosts = false;
+                        loadMorePosts();
+                    } catch (error) {
+                        alert('Erro ao publicar: ' + error.message);
+                    }
+                } else {
+                    alert('Por favor, escreva algo ou adicione um link de vídeo para publicar.');
+                }
+            }
+        });
+    // Captura o "OK" / "Enter" do teclado do celular na barra de pesquisa
+document.getElementById('input-pesquisa-usuarios').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Impede que o formulário recarregue a página
+        const termoBusca = e.target.value.toLowerCase().trim();
+        
+        // Executa a busca no banco de dados com o termo digitado
+        buscarUsuariosBanco(termoBusca); 
+    }
+});
+
+
                 const videoUrl = document.getElementById('video-link-input')?.value.trim() || '';
 
                 if (textValue || videoUrl) {
