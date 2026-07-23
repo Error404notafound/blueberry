@@ -1873,18 +1873,22 @@ btnFecharModalFoto.addEventListener('click', () => {
 window.addEventListener('click', (e) => {
     if (e.target === fotoModal) fotoModal.style.display = 'none';
 });
-// CONTROLE DE EVENTOS DA GAVETA DE OPÇÕES DO POST
+// ==========================================
+// CONTROLE DE EVENTOS DA GAVETA DO POST
+// ==========================================
 const drawerPostOptions = document.getElementById('drawer-post-options');
 const postDrawerOverlay = document.getElementById('post-drawer-overlay');
 const btnClosePostDrawer = document.getElementById('btn-close-post-drawer');
-let activePostId = null; // Armazena o ID do post clicado para exclusão futura
+let activePostId = null; // Guarda o ID do post que foi clicado
 
-// Ouvinte de evento global para capturar cliques nos três pontinhos (mesmo em posts novos)
+// 1. Escuta o clique nos três pontinhos (em qualquer post do feed)
 document.addEventListener('click', (e) => {
     const targetBtn = e.target.closest('.class-trigger-options');
     if (targetBtn) {
+        // Pega o ID do post vindo do Firebase que injetamos no botão
         activePostId = targetBtn.getAttribute('data-id');
         
+        // Mostra a gaveta subindo da tela
         drawerPostOptions.style.display = 'block';
         postDrawerOverlay.style.display = 'block';
         setTimeout(() => {
@@ -1893,7 +1897,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Função para ocultar a gaveta para baixo
+// 2. Função para fechar a gaveta jogando-a para baixo
 function closePostDrawer() {
     drawerPostOptions.style.bottom = '-100%';
     postDrawerOverlay.style.display = 'none';
@@ -1902,19 +1906,58 @@ function closePostDrawer() {
     }, 300);
 }
 
+// Fecha ao clicar em cancelar ou fora da gaveta
 btnClosePostDrawer.addEventListener('click', closePostDrawer);
 postDrawerOverlay.addEventListener('click', closePostDrawer);
 
-// Ações dos botões internos da gaveta
+
+// 3. AÇÃO REAL DE DELETAR DO FIREBASE (Coloque este bloco aqui!)
+document.getElementById('opt-delete-post').addEventListener('click', async () => {
+    if (!activePostId) return;
+
+    if (confirm("Tem certeza que deseja excluir permanentemente este post?")) {
+        try {
+            // Cria a referência do documento usando a variável 'db' do seu Firebase
+            // Nota: Se sua coleção no Firestore se chamar "post" no singular, mude aqui de "posts" para "post"
+            const postRef = doc(db, "posts", activePostId);
+            
+            // Deleta o post direto no banco de dados Firebase
+            await deleteDoc(postRef);
+            
+            alert("Post excluído com sucesso!");
+
+            // Remove o post visualmente da tela para o usuário
+            const postButtonOnScreen = document.querySelector(`.class-trigger-options[data-id="${activePostId}"]`);
+            if (postButtonOnScreen) {
+                // Encontra o card inteiro do post e remove do HTML
+                const cardContainer = postButtonOnScreen.closest('.user-post-card') || postButtonOnScreen.closest('.post-card') || postButtonOnScreen.closest('[id^="post-"]'); 
+                if (cardContainer) {
+                    cardContainer.remove();
+                } else {
+                    window.location.reload(); // Recarrega se não achar a div do card
+                }
+            }
+
+        } catch (error) {
+            console.error("Erro ao deletar o post: ", error);
+            alert("Não foi possível excluir o post.");
+        } finally {
+            closePostDrawer(); // Fecha a gaveta
+        }
+    }
+});
+
+// Outras ações da gaveta (Apenas alertas visuais por enquanto)
 document.getElementById('opt-copy-link').addEventListener('click', () => {
-    alert('Link do post ' + activePostId + ' copiado com sucesso!');
+    alert('Link copiado!');
     closePostDrawer();
 });
 
 document.getElementById('opt-edit-post').addEventListener('click', () => {
-    alert('Editando o post: ' + activePostId);
+    alert('Editar post clicado!');
     closePostDrawer();
 });
+
 
 // Enviar o Reel para o Firebase Firestore
 btnPublicarReel.addEventListener('click', async () => {
