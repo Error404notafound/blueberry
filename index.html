@@ -2156,13 +2156,24 @@ async function loadMorePosts() {
         }
 
         card.innerHTML = `
-    <div class="user-feed-header" style="display:flex; align-items:center; margin-bottom: 10px;">
-        <img src="${fotoDoAutor}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">
-        <div style="display:flex; flex-direction:column;">
-            <small style="color:var(--accent-blue); font-weight:bold; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">${autorEmail || 'Anônimo'}</small>
-            <span style="font-size:10px; color:#b0b3b8;">Postado recentemente</span>
+    <div class="user-feed-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px;">
+        <!-- Agrupa foto e textos na esquerda -->
+        <div style="display:flex; align-items:center;">
+            <img src="${fotoDoAutor}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">
+            <div style="display:flex; flex-direction:column;">
+                <small style="color:var(--accent-blue); font-weight:bold; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">${autorEmail || 'Anônimo'}</small>
+                <span style="font-size:10px; color:#b0b3b8;">Postado recentemente</span>
+            </div>
         </div>
+        
+        <!-- Novo Botão de Opções alinhado na extrema direita -->
+        <button class="post-options-btn class-trigger-options" data-id="${doc.id}">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+                <path fill="currentColor" d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2z"/>
+            </svg>
+        </button>
     </div>
+
 
             
             <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
