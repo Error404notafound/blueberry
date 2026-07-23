@@ -961,6 +961,56 @@
     stroke: currentColor;
     stroke-width: 2px;
 }
+/* Cabeçalho do Card do Post */
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+}
+
+.post-meta-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Botão de Três Pontinhos */
+.post-options-btn {
+    background: transparent;
+    border: none;
+    color: #b0b3b8;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    width: auto !important; /* Sobrescreve largura 100% de botões globais */
+    margin-top: 0 !important;
+}
+
+.post-options-btn:hover {
+    background-color: var(--bg-hover);
+    color: var(--accent-white);
+}
+
+/* Transição de subida da Gaveta do Post */
+.post-drawer-animated {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background: #18191a;
+    border-radius: 15px 15px 0 0;
+    z-index: 4500;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+    padding: 20px;
+    box-sizing: border-box;
+    color: white;
+    transition: bottom 0.3s ease-in-out;
+}
 
 </style>
 </head>
@@ -1136,6 +1186,33 @@
 
         <!-- Overlay para fechar a gaveta -->
         <div class="overlay" id="drawer-overlay"></div>
+<!-- GAVETA INFERIOR DE OPÇÕES DO POST (BOTTOM SHEET) -->
+<div id="drawer-post-options" class="post-drawer-animated" style="display: none;">
+    <div style="width:40px; height:4px; background:#3a3b3c; border-radius:2px; margin:0 auto 20px auto;"></div>
+    
+    <div id="opt-edit-post" style="display:flex; align-items:center; gap:15px; padding:15px 0; cursor:pointer; border-bottom:1px solid #242526;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#b0b3b8"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        <span style="font-size:16px;">Editar post</span>
+    </div>
+    
+    <div id="opt-delete-post" style="display:flex; align-items:center; gap:15px; padding:15px 0; cursor:pointer; border-bottom:1px solid #242526;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#b0b3b8"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        <div>
+            <span style="font-size:16px; display:block;">Mover para a Lixeira</span>
+            <small style="color:#b0b3b8; font-size:12px;">Os itens na Lixeira são excluídos após 30 dias.</small>
+        </div>
+    </div>
+
+    <div id="opt-copy-link" style="display:flex; align-items:center; gap:15px; padding:15px 0; cursor:pointer;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#b0b3b8"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+        <span style="font-size:16px;">Copiar link</span>
+    </div>
+    
+    <button id="btn-close-post-drawer" style="width:100%; background:#3a3b3c; color:white; border:none; padding:12px; border-radius:8px; margin-top:15px; font-weight:bold; cursor:pointer;">Cancelar</button>
+</div>
+
+<!-- Fundo escurecido para isolar a gaveta do post -->
+<div id="post-drawer-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:4400;"></div>
 
         <!-- Main Navigation Bar -->
         <nav class="main-nav">
@@ -1795,6 +1872,48 @@ btnFecharModalFoto.addEventListener('click', () => {
 
 window.addEventListener('click', (e) => {
     if (e.target === fotoModal) fotoModal.style.display = 'none';
+});
+// CONTROLE DE EVENTOS DA GAVETA DE OPÇÕES DO POST
+const drawerPostOptions = document.getElementById('drawer-post-options');
+const postDrawerOverlay = document.getElementById('post-drawer-overlay');
+const btnClosePostDrawer = document.getElementById('btn-close-post-drawer');
+let activePostId = null; // Armazena o ID do post clicado para exclusão futura
+
+// Ouvinte de evento global para capturar cliques nos três pontinhos (mesmo em posts novos)
+document.addEventListener('click', (e) => {
+    const targetBtn = e.target.closest('.class-trigger-options');
+    if (targetBtn) {
+        activePostId = targetBtn.getAttribute('data-id');
+        
+        drawerPostOptions.style.display = 'block';
+        postDrawerOverlay.style.display = 'block';
+        setTimeout(() => {
+            drawerPostOptions.style.bottom = '0';
+        }, 10);
+    }
+});
+
+// Função para ocultar a gaveta para baixo
+function closePostDrawer() {
+    drawerPostOptions.style.bottom = '-100%';
+    postDrawerOverlay.style.display = 'none';
+    setTimeout(() => {
+        drawerPostOptions.style.display = 'none';
+    }, 300);
+}
+
+btnClosePostDrawer.addEventListener('click', closePostDrawer);
+postDrawerOverlay.addEventListener('click', closePostDrawer);
+
+// Ações dos botões internos da gaveta
+document.getElementById('opt-copy-link').addEventListener('click', () => {
+    alert('Link do post ' + activePostId + ' copiado com sucesso!');
+    closePostDrawer();
+});
+
+document.getElementById('opt-edit-post').addEventListener('click', () => {
+    alert('Editando o post: ' + activePostId);
+    closePostDrawer();
 });
 
 // Enviar o Reel para o Firebase Firestore
