@@ -1513,11 +1513,12 @@
 
         // Importações do Firebase SDK v9 modular
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getFirestore, collection, addDoc, query, orderBy, limit, 
-  startAfter, onSnapshot, getDocs, where, doc, getDoc, 
-  setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer,
-  deleteDoc // <--- Adicionado para permitir a exclusão de documentos
-} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+
+        // import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js';
+
 
 
         // 1. CONFIGURAÇÃO DO FIREBASE (SEUS DADOS DE PROJETO)
