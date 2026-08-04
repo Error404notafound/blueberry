@@ -1592,7 +1592,10 @@ const bioCharCounter = document.getElementById('bio-char-counter');
 let profileViewedEmail = ""; // Variável global de controle para saber qual perfil está aberto
 const drawerAvatarOptions = document.getElementById('drawer-avatar-options');
 const btnCloseAvatarDrawer = document.getElementById('btn-close-avatar-drawer');
+// 🟢 COLE A LINHA ABAIXO AQUI:
+const btnEditCover = document.querySelector('.btn-edit-cover');
 const optUploadPhoto = document.getElementById('opt-upload-photo');
+
 
 const modalAvatarUrl = document.getElementById('modal-avatar-url');
 const closeModalUrl = document.getElementById('close-modal-url');
@@ -1684,11 +1687,33 @@ if (docSnap.exists() && docSnap.data().fotoPerfil) {
             }
 
             createUserWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
-                })
-                .catch(error => alert('Erro ao criar conta: ' + error.message));
-        });
+.then(() => {
+alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
+})
+.catch(error => alert('Erro ao criar conta: ' + error.message));
+});
+
+// 🟢 COLE TODO ESTE BLOCO ABAIXO BEM AQUI NO FINAL DO SCRIPT:
+
+// 1. Vincula o botão da câmera da foto de CAPAL
+if (btnEditCover) {
+    btnEditCover.addEventListener('click', () => {
+        if (drawerAvatarOptions) {
+            drawerAvatarOptions.style.display = 'block';
+        }
+    });
+}
+
+// 2. Vincula o botão da câmera do AVATAR (garante que ele também funcione)
+const btnEditAvatar = document.getElementById('btn-open-camera-options');
+if (btnEditAvatar) {
+    btnEditAvatar.addEventListener('click', () => {
+        if (drawerAvatarOptions) {
+            drawerAvatarOptions.style.display = 'block';
+        }
+    });
+}
+
 
         // Clique Entrar
         btnLogin.addEventListener('click', () => {
