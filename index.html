@@ -1513,8 +1513,7 @@
 
         // Importações do Firebase SDK v9 modular
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        // Adicionado "deleteDoc" no final da lista de importações
-import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
 
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
@@ -1630,14 +1629,39 @@ const docSnap = await getDoc(userDocRef);
 if (docSnap.exists() && docSnap.data().fotoPerfil) {
     const fotoUrl = docSnap.data().fotoPerfil;
     pAvatarImg.src = fotoUrl;
-    if (postAreaAvatar) postAreaAvatar.src = fotoUrl;
+    if (postAreaAvatar) postAreaAvatar.src = fotoUrl; // Atualiza a barra de postagem
 } else {
     const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
     pAvatarImg.src = defaultAvatar;
-    if (postAreaAvatar) postAreaAvatar.src = defaultAvatar;
+    if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; // Atualiza com o padrão
 }
-// O bloco "if (fotoEncontrada) {...}" foi removido completamente!
 
+
+
+            // Se achou o seu e-mail no meio dos documentos, aplica a foto correspondente
+            if (fotoEncontrada && typeof pAvatarImg !== 'undefined') {
+                pAvatarImg.src = fotoEncontrada;
+            } else {
+                // Se não achar, mantém o avatar padrão em SVG (sem links para o Google cortar)
+                if (typeof pAvatarImg !== 'undefined') {
+                    pAvatarImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ccc'/></svg>";
+                }
+            }
+        } catch (erro) {
+            console.error("Erro ao recuperar foto do Firebase:", erro);
+        }
+        
+        document.getElementById('feed').innerHTML = '';
+        lastVisible = null;
+        isFetchingPosts = false;
+        loadMorePosts();
+    } else {
+        authContainer.style.display = 'block';
+        appContainer.style.display = 'none';
+        if (typeof pAvatarImg !== 'undefined') {
+            pAvatarImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ccc'/></svg>";
+        }
+    }
 });
 
 
@@ -2733,29 +2757,6 @@ await setDoc(userDocRef, {
 
 window.loadReels = loadReels;
 window.loadConversationsList = loadConversationsList;
-
-async function curtirReel(postId, curtidasAtuais) {
-    if (!auth.currentUser) {
-        alert("Você precisa fazer login para reagir!");
-        return;
-    }
-    const meuEmail = auth.currentUser.email;
-    const postRef = doc(db, 'posts', postId);
-    const jaCurtiu = curtidasAtuais.includes(meuEmail);
-
-    try {
-        if (jaCurtiu) {
-            await updateDoc(postRef, { likedBy: arrayRemove(meuEmail) });
-        } else {
-            await updateDoc(postRef, { likedBy: arrayUnion(meuEmail) });
-        }
-    } catch (error) {
-        console.error("Erro ao atualizar curtida do Reel: ", error);
-    }
-}
-// Expõe a função para que os cliques inline do HTML a encontrem
-window.curtirReel = curtirReel;
-
 </script>
 </body>
     </html>
