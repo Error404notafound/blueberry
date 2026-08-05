@@ -2762,23 +2762,41 @@ txtAvatarUrlField.addEventListener('input', () => {
 // Procure o evento do 'btn-save-avatar-url' ou 'btnSaveAvatarUrl' no seu código e ajuste para ficar assim:
 btnSaveAvatarUrl.addEventListener('click', async () => {
     const fotoUrl = txtAvatarUrlField.value.trim();
-    if (!fotoUrl) { alert('Insira uma URL!'); return; }
+
+    if (!fotoUrl) {
+        alert('Por favor, insira uma URL válida!');
+        return;
+    }
 
     try {
-        if (!auth.currentUser) return;
+        if (!auth.currentUser) {
+            alert('Você precisa estar logado!');
+            return;
+        }
+
         const userDocRef = doc(db, 'usuarios', auth.currentUser.email);
         
-        // Define os dados dinamicamente
-        const dadosAtualizados = { email: auth.currentUser.email, updatedAt: Date.now() };
-        if (activeUploadType === 'avatar') dadosAtualizados.fotoPerfil = fotoUrl;
-        else dadosAtualizados.fotoCapa = fotoUrl;
+        // Define o objeto de atualização com campos comuns
+        const dadosAtualizados = {
+            email: auth.currentUser.email,
+            updatedAt: Date.now()
+        };
 
+        // NOVA LÓGICA: Determina qual campo salvar baseado no clique que abriu o modal
+        if (activeUploadType === 'avatar') {
+            dadosAtualizados.fotoPerfil = fotoUrl;
+        } else {
+            dadosAtualizados.fotoCapa = fotoUrl;
+        }
+
+        // Salva com merge: true para não sobrescrever outros campos (como a bio)
         await setDoc(userDocRef, dadosAtualizados, { merge: true });
 
-        // Atualização em tempo real na tela
+        // NOVA LÓGICA: Atualiza o elemento de interface correto
         if (activeUploadType === 'avatar') {
             if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = fotoUrl;
-            alert('Foto de perfil atualizada!');
+            if (postAreaAvatar) postAreaAvatar.src = fotoUrl; // Atualiza barra de postagem
+            alert('Foto de perfil salva com sucesso no banco!');
         } else {
             const coverWrapper = document.querySelector('.profile-cover-wrapper');
             if (coverWrapper) {
@@ -2786,13 +2804,17 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
                 coverWrapper.style.backgroundSize = 'cover';
                 coverWrapper.style.backgroundPosition = 'center';
             }
-            alert('Foto de capa atualizada!');
+            alert('Foto de capa salva com sucesso no banco!');
         }
+        
         modalAvatarUrl.style.display = 'none';
+
     } catch (error) {
-        console.error("Erro:", error);
+        console.error("Erro ao salvar foto:", error);
+        alert('Erro ao salvar foto no banco: ' + error.message);
     }
 });
+
 
 
         // Usa o e-mail do usuário logado como o ID exclusivo do documento (ex: "/usuarios/exemplo@email.com")
@@ -2819,14 +2841,26 @@ await setDoc(userDocRef, {
 
 
 
+async function curtirReel(postId, curtidas) {
+    if (!auth.currentUser) {
+        alert("Você precisa fazer login para curtir!");
+        return;
+    }
+    const meuEmail = auth.currentUser.email;
+    const postRef = doc(db, 'posts', postId);
+    
+    if (curtidas.includes(meuEmail)) {
+        await updateDoc(postRef, { likedBy: arrayRemove(meuEmail) });
+    } else {
+        await updateDoc(postRef, { likedBy: arrayUnion(meuEmail) });
+    }
+}
 
-
-
-
-
-
+// Expondo a função no objeto window para o onclick do HTML encontrar
+window.curtirReel = curtirReel;
 window.loadReels = loadReels;
 window.loadConversationsList = loadConversationsList;
+
 </script>
 </body>
     </html>
