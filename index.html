@@ -1707,6 +1707,16 @@ if (btnEditCover) {
     });
 }
 
+// 1. Vincula o botão da câmera da foto de CAPAL
+if (btnEditCover) {
+    btnEditCover.addEventListener('click', () => {
+        activeUploadType = 'cover'; // <--- Altera para capa
+        if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
+    });
+}
+
+// 2. Vincula o botão da câmera do AVATAR (Unificado e Declarado Primeiro)
+const btnEditAvatar = document.getElementById('btn-open-camera-options');
 if (btnEditAvatar) {
     btnEditAvatar.addEventListener('click', () => {
         activeUploadType = 'avatar'; // <--- Altera para avatar
@@ -1714,16 +1724,6 @@ if (btnEditAvatar) {
     });
 }
 
-
-// 2. Vincula o botão da câmera do AVATAR (garante que ele também funcione)
-const btnEditAvatar = document.getElementById('btn-open-camera-options');
-if (btnEditAvatar) {
-    btnEditAvatar.addEventListener('click', () => {
-        if (drawerAvatarOptions) {
-            drawerAvatarOptions.style.display = 'block';
-        }
-    });
-}
 
 
         // Clique Entrar
@@ -2817,27 +2817,7 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
 
 
 
-        // Usa o e-mail do usuário logado como o ID exclusivo do documento (ex: "/usuarios/exemplo@email.com")
-// O { merge: true } garante que se a biografia já existir, ela não será apagada [1].
-const userDocRef = doc(db, 'usuarios', auth.currentUser.email);
-await setDoc(userDocRef, {
-    email: auth.currentUser.email,
-    fotoPerfil: fotoUrl,
-    updatedAt: Date.now()
-}, { merge: true });
-
-
-        // Atualiza a foto na tela na mesma hora
-        if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = fotoUrl;
-        
-        modalAvatarUrl.style.display = 'none';
-        alert('Foto de perfil salva com sucesso no banco!');
-
-    } catch (error) {
-        console.error("Erro ao salvar foto:", error);
-        alert('Erro ao salvar foto no banco: ' + error.message);
-    }
-});
+        // Usa o e-mail do usuário
 
 
 
