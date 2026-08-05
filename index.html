@@ -1541,8 +1541,12 @@ let currentChatRecipient = null;
 let currentRoomId = null;
 let activeChatListener = null;
 
+// VARIÁVEL DE CONTROLE PARA ADICIONAR FOTO DE PERFIL OU CAPA
+let activeUploadType = 'avatar'; // Pode ser 'avatar' ou 'cover'
+
 //  ADICIONE ESSAS LINHAS DE VOLTA BEM AQUI:
 const authContainer = document.getElementById('auth-container');
+
 const appContainer = document.getElementById('app-container');
 const btnLogin = document.getElementById('btn-login');
 const btnRegister = document.getElementById('btn-register');
@@ -1698,11 +1702,18 @@ alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
 // 1. Vincula o botão da câmera da foto de CAPAL
 if (btnEditCover) {
     btnEditCover.addEventListener('click', () => {
-        if (drawerAvatarOptions) {
-            drawerAvatarOptions.style.display = 'block';
-        }
+        activeUploadType = 'cover'; // <--- Altera para capa
+        if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
     });
 }
+
+if (btnEditAvatar) {
+    btnEditAvatar.addEventListener('click', () => {
+        activeUploadType = 'avatar'; // <--- Altera para avatar
+        if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
+    });
+}
+
 
 // 2. Vincula o botão da câmera do AVATAR (garante que ele também funcione)
 const btnEditAvatar = document.getElementById('btn-open-camera-options');
@@ -2611,17 +2622,29 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
 pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
 // Padrão temporário enquanto carrega
     
-    try {
+        try {
         const userDocRef = doc(db, "usuarios", email);
         const userDocSnap = await getDoc(userDocRef);
+        
+        // CORREÇÃO: Limpa a imagem de capa do perfil carregado anteriormente
+        const coverWrapper = document.querySelector('.profile-cover-wrapper');
+        if (coverWrapper) coverWrapper.style.backgroundImage = 'none';
+
         if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
             // Aplica a biografia salva
             if (userData.biografia) pUserBio.textContent = userData.biografia;
             else pUserBio.textContent = "Nenhuma biografia adicionada ainda.";
-            
+
             // Aplica a URL da foto salva (Se houver no banco)
             if (userData.fotoPerfil) pAvatarImg.src = userData.fotoPerfil;
+
+            // NOVA LÓGICA: Se houver foto de capa salva, exibe-a como plano de fundo
+            if (userData.fotoCapa && coverWrapper) {
+                coverWrapper.style.backgroundImage = `url('${userData.fotoCapa}')`;
+                coverWrapper.style.backgroundSize = 'cover';
+                coverWrapper.style.backgroundPosition = 'center';
+            }
         } else {
             pUserBio.textContent = "Nenhuma biografia adicionada ainda.";
         }
@@ -2629,6 +2652,7 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
         console.error("Erro ao ler dados do usuário:", err);
         pUserBio.textContent = "Erro ao carregar informações.";
     }
+
 
     
     // 6. BANCO DE DADOS: Conta em tempo real as publicações existentes deste usuário
@@ -2738,17 +2762,38 @@ txtAvatarUrlField.addEventListener('input', () => {
 // Procure o evento do 'btn-save-avatar-url' ou 'btnSaveAvatarUrl' no seu código e ajuste para ficar assim:
 btnSaveAvatarUrl.addEventListener('click', async () => {
     const fotoUrl = txtAvatarUrlField.value.trim();
-
-    if (!fotoUrl) {
-        alert('Por favor, insira uma URL válida!');
-        return;
-    }
+    if (!fotoUrl) { alert('Insira uma URL!'); return; }
 
     try {
-        if (!auth.currentUser) {
-            alert('Você precisa estar logado!');
-            return;
+        if (!auth.currentUser) return;
+        const userDocRef = doc(db, 'usuarios', auth.currentUser.email);
+        
+        // Define os dados dinamicamente
+        const dadosAtualizados = { email: auth.currentUser.email, updatedAt: Date.now() };
+        if (activeUploadType === 'avatar') dadosAtualizados.fotoPerfil = fotoUrl;
+        else dadosAtualizados.fotoCapa = fotoUrl;
+
+        await setDoc(userDocRef, dadosAtualizados, { merge: true });
+
+        // Atualização em tempo real na tela
+        if (activeUploadType === 'avatar') {
+            if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = fotoUrl;
+            alert('Foto de perfil atualizada!');
+        } else {
+            const coverWrapper = document.querySelector('.profile-cover-wrapper');
+            if (coverWrapper) {
+                coverWrapper.style.backgroundImage = `url('${fotoUrl}')`;
+                coverWrapper.style.backgroundSize = 'cover';
+                coverWrapper.style.backgroundPosition = 'center';
+            }
+            alert('Foto de capa atualizada!');
         }
+        modalAvatarUrl.style.display = 'none';
+    } catch (error) {
+        console.error("Erro:", error);
+    }
+});
+
 
         // Usa o e-mail do usuário logado como o ID exclusivo do documento (ex: "/usuarios/exemplo@email.com")
 // O { merge: true } garante que se a biografia já existir, ela não será apagada [1].
