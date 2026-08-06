@@ -1665,8 +1665,8 @@ if (docSnap.exists() && docSnap.data().fotoPerfil) {
     pAvatarImg.src = fotoUrl;
     if (postAreaAvatar) postAreaAvatar.src = fotoUrl; // Atualiza a barra de postagem
 } else {
-            const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
-    pAvatarImg.src = defaultAvatar;
+            const defaultAvatar = `https://dicebear.com{user.email.split('@')[0]}`;
+        pAvatarImg.src = defaultAvatar;
         if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; // Atualiza com o padrão
     }
 } catch (erro) {
