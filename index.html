@@ -1208,8 +1208,29 @@
         <span style="font-size:16px;">Copiar link</span>
     </div>
     
-    <button id="btn-close-post-drawer" style="width:100%; background:#3a3b3c; color:white; border:none; padding:12px; border-radius:8px; margin-top:15px; font-weight:bold; cursor:pointer;">Cancelar</button>
+    <<button id="btn-close-post-drawer" style="width:100%; background:#3a3b3c; color:white; border:none; padding: 12px; border-radius:8px; margin-top:15px; font-weight:bold; cursor:pointer;">Cancelar</button>
 </div>
+
+<!-- ========================================== -->
+<!-- BLOCO NOVO: GAVETA DE COMENTÁRIOS         -->
+<!-- ========================================== -->
+<div id="drawer-comments" class="post-drawer-animated" style="display: none;">
+    <div style="width:40px; height: 4px; background: #3a3b3c; border-radius: 2px; margin:0 auto 20px auto;"></div>
+    <h3 style="text-align: center; margin-bottom: 20px;">Comentários</h3>
+    <div id="comments-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
+        <div style="text-align: center; color: #b0b3b8; padding: 20px;">
+            <p style="margin: 0; font-size: 16px; font-weight: bold; color: #fff;">Ainda não há nenhum comentário</p>
+            <small style="color: #b0b3b8;">Seja a primeira pessoa a comentar.</small>
+        </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; border-top: 1px solid #2f3031; padding-top: 15px;">
+        <input type="text" placeholder="Comente..." style="flex: 1; background-color: #2a3942; border: none; border-radius: 8px; padding: 12px; color: white; outline: none;">
+        <button style="background: none; border: none; cursor: pointer; color: #00a884; font-weight: bold;">Enviar</button>
+    </div>
+    <button id="btn-close-comments" style="width:100%; background:#3a3b3c; color:white; border:none; padding: 12px; border-radius:8px; margin-top:15px; font-weight:bold; cursor:pointer;">Cancelar</button>
+</div>
+<!-- ========================================== -->
+
 
 <!-- Fundo escurecido para isolar a gaveta do post -->
 <div id="post-drawer-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:4400;"></div>
@@ -1607,6 +1628,12 @@ const btnSaveAvatarUrl = document.getElementById('btn-save-avatar-url');
 const txtAvatarUrlField = document.getElementById('txt-avatar-url-field');
 const imgAvatarPreview = document.getElementById('img-avatar-preview');
 
+// NOVAS VARIÁVEIS DOS COMENTÁRIOS ADICIONADAS AQUI:
+const drawerComments = document.getElementById('drawer-comments');
+const btnCloseComments = document.getElementById('btn-close-comments');
+const btnOpenComments = document.querySelector('.post-action-btn:nth-child(2)'); 
+const postDrawerOverlay = document.getElementById('post-drawer-overlay');
+
         // Variáveis para Paginação
         let lastVisible = null; // Para armazenar o último documento visível da consulta anterior
         const postsPerPage = 5; // Número de posts a carregar por vez
@@ -1697,6 +1724,37 @@ alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
 .catch(error => alert('Erro ao criar conta: ' + error.message));
 });
 
+// BLOCO NOVO: LÓGICA DE SUBIR E DESCER A GAVETA DE COMENTÁRIOS
+// ====================================================================
+if (typeof btnOpenComments !== 'undefined' && btnOpenComments) {
+    btnOpenComments.addEventListener('click', () => {
+        drawerComments.style.display = 'block';
+        postDrawerOverlay.style.display = 'block';
+        setTimeout(() => { drawerComments.style.bottom = '0'; }, 10);
+    });
+}
+
+if (typeof btnCloseComments !== 'undefined' && btnCloseComments) {
+    btnCloseComments.addEventListener('click', () => {
+        drawerComments.style.bottom = '-100%'; 
+        setTimeout(() => {
+            drawerComments.style.display = 'none';
+            postDrawerOverlay.style.display = 'none';
+        }, 300); 
+    });
+}
+
+if (typeof postDrawerOverlay !== 'undefined' && postDrawerOverlay) {
+    postDrawerOverlay.addEventListener('click', () => {
+        if (drawerComments && drawerComments.style.display === 'block') {
+            drawerComments.style.bottom = '-100%';
+            setTimeout(() => {
+                drawerComments.style.display = 'none';
+                postDrawerOverlay.style.display = 'none';
+            }, 300);
+        }
+    });
+}
 // 🟢 COLE TODO ESTE BLOCO ABAIXO BEM AQUI NO FINAL DO SCRIPT:
 
 // 1. Vincula o botão da câmera da foto de CAPAL
