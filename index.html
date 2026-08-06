@@ -1774,37 +1774,7 @@ alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
 .catch(error => alert('Erro ao criar conta: ' + error.message));
 });
 
-// BLOCO NOVO: LÓGICA DE SUBIR E DESCER A GAVETA DE COMENTÁRIOS
-// ====================================================================
-if (typeof btnOpenComments !== 'undefined' && btnOpenComments) {
-    btnOpenComments.addEventListener('click', () => {
-        drawerComments.style.display = 'block';
-        postDrawerOverlay.style.display = 'block';
-        setTimeout(() => { drawerComments.style.bottom = '0'; }, 10);
-    });
-}
-
-if (typeof btnCloseComments !== 'undefined' && btnCloseComments) {
-    btnCloseComments.addEventListener('click', () => {
-        drawerComments.style.bottom = '-100%'; 
-        setTimeout(() => {
-            drawerComments.style.display = 'none';
-            postDrawerOverlay.style.display = 'none';
-        }, 300); 
-    });
-}
-
-if (typeof postDrawerOverlay !== 'undefined' && postDrawerOverlay) {
-    postDrawerOverlay.addEventListener('click', () => {
-        if (drawerComments && drawerComments.style.display === 'block') {
-            drawerComments.style.bottom = '-100%';
-            setTimeout(() => {
-                drawerComments.style.display = 'none';
-                postDrawerOverlay.style.display = 'none';
-            }, 300);
-        }
-    });
-}
+// BLOCO NOVO:
 // 🟢 COLE TODO ESTE BLOCO ABAIXO BEM AQUI NO FINAL DO SCRIPT:
 
 // 1. Vincula o botão da câmera da foto de CAPAL
