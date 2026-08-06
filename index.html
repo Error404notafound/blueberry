@@ -1665,10 +1665,60 @@ if (docSnap.exists() && docSnap.data().fotoPerfil) {
     pAvatarImg.src = fotoUrl;
     if (postAreaAvatar) postAreaAvatar.src = fotoUrl; // Atualiza a barra de postagem
 } else {
-    const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
+            const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
     pAvatarImg.src = defaultAvatar;
-    if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; // Atualiza com o padrão
+        if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; // Atualiza com o padrão
+    }
+} catch (erro) {
+    console.error("Erro ao recuperar foto do Firebase:", erro);
 }
+    document.getElementById('feed').innerHTML = "";
+    lastVisible = null;
+    isFetchingPosts = false;
+    loadMorePosts();
+} else {
+    authContainer.style.display = 'block';
+    appContainer.style.display = 'none';
+    if (typeof pAvatarImg !== 'undefined') {
+        pAvatarImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ccc'/></svg>";
+    }
+}
+}); // <-- ISSO FECHA O MONITOR DE LOGIN COM SEGURANÇA!
+
+// ====================================================================
+// BLOCO NOVO: LÓGICA DE SUBIR E DESCER A GAVETA DE COMENTÁRIOS
+// ====================================================================
+if (typeof btnOpenComments !== 'undefined' && btnOpenComments) {
+    btnOpenComments.addEventListener('click', () => {
+        drawerComments.style.display = 'block';
+        postDrawerOverlay.style.display = 'block';
+        setTimeout(() => { drawerComments.style.bottom = '0'; }, 10);
+    });
+}
+
+if (typeof btnCloseComments !== 'undefined' && btnCloseComments) {
+    btnCloseComments.addEventListener('click', () => {
+        drawerComments.style.bottom = '-100%'; 
+        setTimeout(() => {
+            drawerComments.style.display = 'none';
+            postDrawerOverlay.style.display = 'none';
+        }, 300); 
+    });
+}
+
+if (typeof postDrawerOverlay !== 'undefined' && postDrawerOverlay) {
+    postDrawerOverlay.addEventListener('click', () => {
+        if (drawerComments && drawerComments.style.display === 'block') {
+            drawerComments.style.bottom = '-100%';
+            setTimeout(() => {
+                drawerComments.style.display = 'none';
+                postDrawerOverlay.style.display = 'none';
+            }, 300);
+        }
+    });
+}
+// ====================================================================
+
 
 
 
