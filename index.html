@@ -1732,48 +1732,6 @@ if (postDrawerOverlay) {
     });
 }
 // Clique Criar Conta
-        btnRegister.addEventListener('click', () => {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-            
-            if(!email || !password) {
-                alert('Por favor, preencha o e-mail e a senha!');
-                return;
-            }
-
-            createUserWithEmailAndPassword(auth, email, password)
-.then(() => {
-alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
-})
-.catch(error => alert('Erro ao criar conta: ' + error.message));
-});
-
-// 🟢 COLE TODO ESTE BLOCO ABAIXO BEM AQUI NO FINAL DO SCRIPT:
-
-// 1. Vincula o botão da câmera da foto de CAPAL
-if (btnEditCover) {
-    btnEditCover.addEventListener('click', () => {
-        activeUploadType = 'cover'; // <--- Altera para capa
-        if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
-    });
-}
-
-// 1. Vincula o botão da câmera da foto de CAPAL
-if (btnEditCover) {
-    btnEditCover.addEventListener('click', () => {
-        activeUploadType = 'cover'; // <--- Altera para capa
-        if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
-    });
-}
-
-// 2. Vincula o botão da câmera do AVATAR (Unificado e Declarado Primeiro)
-const btnEditAvatar = document.getElementById('btn-open-camera-options');
-if (btnEditAvatar) {
-    btnEditAvatar.addEventListener('click', () => {
-        activeUploadType = 'avatar'; // <--- Altera para avatar
-        if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
-    });
-}
 
 
 
@@ -2893,6 +2851,61 @@ window.curtirReel = curtirReel;
 window.loadReels = loadReels;
 window.loadConversationsList = loadConversationsList;
 
+// Clique Criar Conta
+if (btnRegister) {
+    btnRegister.addEventListener('click', () => {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
+        
+        if(!email || !password) {
+            alert('Por favor, preencha o e-mail e a senha!');
+            return;
+        }
+        
+        createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+            alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
+        })
+        .catch(error => alert('Erro ao criar conta: ' + error.message));
+    });
+}
+
+// =========================================================
+// LÓGICA DO NOVO LAYOUT: ABRIR E FECHAR A GAVETA DE COMENTÁRIOS
+// =========================================================
+if (btnOpenComments) {
+    btnOpenComments.addEventListener('click', () => {
+        drawerComments.style.display = 'block';
+        postDrawerOverlay.style.display = 'block';
+        setTimeout(() => {
+            drawerComments.style.bottom = '0'; 
+        }, 10);
+    });
+}
+
+if (btnCloseComments) {
+    btnCloseComments.addEventListener('click', () => {
+        drawerComments.style.bottom = '-100%'; 
+        setTimeout(() => {
+            drawerComments.style.display = 'none';
+            postDrawerOverlay.style.display = 'none';
+        }, 300); 
+    });
+}
+
+if (postDrawerOverlay) {
+    postDrawerOverlay.addEventListener('click', () => {
+        if (drawerComments && drawerComments.style.display === 'block') {
+            drawerComments.style.bottom = '-100%';
+            setTimeout(() => {
+                drawerComments.style.display = 'none';
+                postDrawerOverlay.style.display = 'none';
+            }, 300);
+        }
+    });
+}
+
 </script>
 </body>
-    </html>
+</html>
+
