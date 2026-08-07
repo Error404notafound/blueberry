@@ -1218,7 +1218,7 @@
 <div id="drawer-post-comments" class="post-drawer-animated" style="display: none; position: fixed; left: 0; width: 100%; background: #18191a; border-radius: 15px 15px 0 0; z-index: 4500; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; color: white; transition: bottom 0.3s ease-in-out;">
     <div style="width:40px; height: 4px; background: #3a3b3c; border-radius: 2px; margin:0 auto 15px auto;"></div>
     
-    <h3 style="text-align: center; font-size: 16px; margin-bottom: 15px; color: white;">Post de Rick</h3>
+    <h3 id="comments-drawer-title" style="text-align: center; font-size: 16px; margin-bottom: 15px; color: white;">Carregando post...</h3>
 
     <div id="comments-list-wrapper" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px; text-align: center; color: #b0b3b8;">
         <div style="margin: 20px 0;">
@@ -1648,8 +1648,16 @@ let activeCommentPostId = null;
 let activeCommentsListener = null;
 
 // Função real para abrir e escutar os comentários do Firestore em tempo real
-async function abrirJanelaComentarios(postId) {
+async function abrirJanelaComentarios(postId, autorEmail) {
     activeCommentPostId = postId;
+    
+    // Atualiza o título da gaveta dinamicamente com o autor do post
+    const drawerTitle = document.getElementById('comments-drawer-title');
+    if (drawerTitle) {
+        const nomeSemDominio = autorEmail ? autorEmail.split('@')[0] : 'Anônimo';
+        const nomeFormatado = nomeSemDominio.charAt(0).toUpperCase() + nomeSemDominio.slice(1);
+        drawerTitle.textContent = `Post de ${nomeFormatado}`;
+    }
     
     // Abre o painel visualmente deslizando de baixo para cima
     drawerComments.style.display = 'block';
@@ -1659,6 +1667,7 @@ async function abrirJanelaComentarios(postId) {
     }, 10);
     
     commentsWrapper.innerHTML = '<p style="text-align: center; color: #b0b3b8; padding: 20px;">Carregando comentários...</p>';
+
     
     // Cancela o listener do post anterior se houver para economizar leituras no plano Spark
     if (activeCommentsListener) {
@@ -2433,8 +2442,6 @@ async function loadMorePosts() {
 </button>
 
     </div>
-
-
             
             <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
             
@@ -2505,11 +2512,9 @@ async function loadMorePosts() {
 
         // Evento de clique do Comentar (Gatilho para você criar a caixinha depois)
         card.querySelector(`#btn-comentar-${postId}`).addEventListener('click', () => {
-            // Disparar abertura de comentários reais futuramente
-            abrirJanelaComentarios(postId); 
-        });
-
-
+    // Disparar abertura de comentários reais passando o autor
+    abrirJanelaComentarios(postId, autorEmail); 
+});
 
         }
 
@@ -2521,7 +2526,6 @@ async function loadMorePosts() {
         isFetchingPosts = false; // Libera em caso de erro
     }
 }
-
 
         // Lógica para detectar o final da página e carregar mais posts
         window.addEventListener('scroll', () => {
