@@ -1012,6 +1012,78 @@
     transition: bottom 0.3s ease-in-out;
 }
 
+/* 👇 [TRECHO NOVO DE CSS ADICIONADO AQUI] 👇 */
+.pill-btn {
+    background-color: #242526 !important;
+    color: #e4e6eb !important;
+    border: none;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    width: auto !important;
+    margin-top: 0 !important;
+}
+.pill-btn.active-pill {
+    background-color: #3a3b3c !important;
+    color: white !important;
+}
+.friend-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.friend-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #242526;
+}
+.friend-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.friend-name {
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+}
+.friend-actions-row {
+    display: flex;
+    gap: 8px;
+}
+.btn-confirm-add {
+    background-color: #2374e1 !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 0 !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+    font-size: 14px !important;
+    cursor: pointer;
+    flex: 1;
+    margin-top: 0 !important;
+    text-align: center;
+}
+.btn-delete-ignore {
+    background-color: #3a3b3c !important;
+    color: white !important;
+    border: none !important;
+    padding: 8px 0 !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+    font-size: 14px !important;
+    cursor: pointer;
+    flex: 1;
+    margin-top: 0 !important;
+    text-align: center;
+}
+/* 👆 [FIM DO TRECHO NOVO DE CSS] 👆 */
+
 </style>
 </head>
 
@@ -1330,6 +1402,25 @@
             </section> -->
 
                         <section id="feed" class="feed"></section>
+        <!-- 👇 [TRECHO NOVO DE HTML ADICIONADO AQUI] 👇 -->
+            <section id="friends-screen-container" style="display: none; padding-bottom: 30px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button class="pill-btn active-pill">Sugestões / Pedidos</button>
+                    <button class="pill-btn">Seus amigos</button>
+                </div>
+                <div class="friends-section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span style="font-weight: bold; font-size: 16px; color: #fff;">Pedidos de amizade (<span id="count-requests">0</span>)</span>
+                    <a href="#" style="color: #2374e1; font-size: 14px; text-decoration: none;">Ver tudo</a>
+                </div>
+                <div id="friend-requests-list" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;"></div>
+                <div style="height: 1px; background-color: #2f3031; margin: 20px 0;"></div>
+                <div class="friends-section-title" style="margin-bottom: 15px; font-weight: bold; font-size: 16px; color: #fff;">
+                    Pessoas que talvez você conheça
+                </div>
+                <div id="friend-suggestions-list" style="display: flex; flex-direction: column; gap: 15px;"></div>
+            </section>
+            <!-- 👆 [FIM DO TRECHO NOVO DE HTML] 👆 -->
+
         </main>
 <!-- TELA DE PERFIL DO USUÁRIO ESTILO FACEBOOK MOBILE -->
 <!-- TELA DE PERFIL DO USUÁRIO DINÂMICA -->
@@ -1689,8 +1780,114 @@ document.addEventListener('click', (e) => {
 
         const privacySettingsBtn = document.getElementById('privacy-settings-btn');
         const homeIcon = document.getElementById('home-icon');
-        const friendsIcon = document.getElementById('friends-icon');
-        const messagesIcon = document.getElementById('messages-icon');
+const friendsIcon = document.getElementById('friends-icon');
+const messagesIcon = document.getElementById('messages-icon');
+
+// 👇 [TRECHO NOVO DE JAVASCRIPT ADICIONADO AQUI] 👇
+
+const feedSection = document.getElementById('feed');
+const friendsScreen = document.getElementById('friends-screen-container');
+
+// Evento para abrir a tela de amigos ao clicar no ícone do menu superior
+friendsIcon.addEventListener('click', () => {
+    feedSection.style.display = 'none';
+    if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
+    if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
+    
+    friendsScreen.style.display = 'block';
+    
+    carregarPedidosDeAmizade();
+    carregarSugestoesAleatorias();
+});
+
+async function carregarPedidosDeAmizade() {
+    const listWrapper = document.getElementById('friend-requests-list');
+    const countBadge = document.getElementById('count-requests');
+    const meuEmail = auth.currentUser ? auth.currentUser.email : "";
+    listWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Buscando solicitações...</p>';
+    try {
+        const q = query(collection(db, "solicitacoes"), where("destinatario", "==", meuEmail), where("status", "==", "pendente"));
+        const snapshot = await getDocs(q);
+        listWrapper.innerHTML = "";
+        countBadge.textContent = snapshot.size;
+        if (snapshot.empty) {
+            listWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Nenhuma solicitação pendente.</p>';
+            return;
+        }
+        snapshot.forEach((solicitacaoDoc) => {
+            const data = solicitacaoDoc.data();
+            const idDoc = solicitacaoDoc.id;
+            const remetenteEmail = data.remetente;
+            const nomeBase = remetenteEmail.split('@')[0];
+            const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
+            const row = document.createElement('div');
+            row.className = "friend-row";
+            row.id = `request-${idDoc}`;
+            row.innerHTML = `
+                <img src="https://dicebear.com{nomeBase}" class="friend-avatar">
+                <div class="friend-info">
+                    <span class="friend-name">${nomeFormatado}</span>
+                    <div class="friend-actions-row">
+                        <button class="btn-confirm-add" onclick="responderSolicitacao('${idDoc}', 'aceito')">Confirmar</button>
+                        <button class="btn-delete-ignore" onclick="responderSolicitacao('${idDoc}', 'recusado')">Excluir</button>
+                    </div>
+                </div>
+            `;
+            listWrapper.appendChild(row);
+        });
+    } catch (error) { console.error(error); }
+}
+
+async function carregarSugestoesAleatorias() {
+    const suggestionsWrapper = document.getElementById('friend-suggestions-list');
+    const meuEmail = auth.currentUser ? auth.currentUser.email : "";
+    suggestionsWrapper.innerHTML = "";
+    try {
+        const q = query(collection(db, "usuarios"), limit(8));
+        const snapshot = await getDocs(q);
+        snapshot.forEach((userDoc) => {
+            const emailUsuario = userDoc.id;
+            if (emailUsuario === meuEmail) return;
+            const userData = userDoc.data();
+            const nomeBase = emailUsuario.split('@')[0];
+            const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
+            const avatar = userData.fotoPerfil || `https://dicebear.com{nomeBase}`;
+            const row = document.createElement('div');
+            row.className = "friend-row";
+            row.innerHTML = `
+                <img src="${avatar}" class="friend-avatar">
+                <div class="friend-info">
+                    <span class="friend-name">${nomeFormatado}</span>
+                    <div class="friend-actions-row">
+                        <button class="btn-confirm-add">Adicionar aos amigos</button>
+                        <button class="btn-delete-ignore" onclick="this.closest('.friend-row').remove()">Remover</button>
+                    </div>
+                </div>
+            `;
+            suggestionsWrapper.appendChild(row);
+            const btnSug = row.querySelector('.btn-confirm-add');
+            btnSug.addEventListener('click', () => {
+                btnSug.style.backgroundColor = '#3a3b3c';
+                btnSug.style.color = '#ffffff';
+                btnSug.textContent = "Cancelar pedido";
+            });
+        });
+    } catch (error) { console.error(error); }
+}
+
+window.responderSolicitacao = async function(idDoc, acao) {
+    try {
+        if(acao === 'aceito') {
+            await updateDoc(doc(db, "solicitacoes", idDoc), { status: "aceito" });
+            alert("Solicitação aceita!");
+        } else {
+            await deleteDoc(doc(db, "solicitacoes", idDoc));
+        }
+        document.getElementById(`request-${idDoc}`).remove();
+    } catch (error) { console.error(error); }
+}
+// 👆 [FIM DO TRECHO NOVO DE JAVASCRIPT] 👆
+
         const reelsNavIcon = document.getElementById('reels-nav-icon');
         const notificationsIcon = document.getElementById('notifications-icon');
         const marketIcon = document.getElementById('market-icon');
