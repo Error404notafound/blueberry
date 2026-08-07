@@ -1366,7 +1366,7 @@
 
         <main class="main-container">
                         <!-- Área de Postagem Aprimorada -->
-<section class="create-post-area">
+<section id="create-post-container" class="create-post-area">
     <img src="https://via.placeholder.com/40" alt="Avatar do Usuário" class="user-avatar" id="post-area-avatar">
     <div class="post-input-wrapper">
 
@@ -1783,81 +1783,57 @@ document.addEventListener('click', (e) => {
 const friendsIcon = document.getElementById('friends-icon');
 const messagesIcon = document.getElementById('messages-icon');
 
-// 👇 [TRECHO NOVO DE JAVASCRIPT ADICIONADO AQUI] 👇
+// 👇 [TRECHO ATUALIZADO E CORRIGIDO] 👇
 
 const feedSection = document.getElementById('feed');
 const friendsScreen = document.getElementById('friends-screen-container');
+const createPostContainer = document.getElementById('create-post-container');
 
-// Evento para abrir a tela de amigos ao clicar no ícone do menu superior
+// Evento para abrir a tela de amigos limpando a área de postagem superior
 friendsIcon.addEventListener('click', () => {
-    feedSection.style.display = 'none';
+    // Esconde o feed e a área de criação de posts
+    if (feedSection) feedSection.style.display = 'none';
+    if (createPostContainer) createPostContainer.style.display = 'none';
+    
+    // Oculta outras seções caso estejam abertas
     if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
     
+    // Exibe a tela de recomendações/pedidos
     friendsScreen.style.display = 'block';
     
     carregarPedidosDeAmizade();
     carregarSugestoesAleatorias();
 });
 
-async function carregarPedidosDeAmizade() {
-    const listWrapper = document.getElementById('friend-requests-list');
-    const countBadge = document.getElementById('count-requests');
-    const meuEmail = auth.currentUser ? auth.currentUser.email : "";
-    listWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Buscando solicitações...</p>';
-    try {
-        const q = query(collection(db, "solicitacoes"), where("destinatario", "==", meuEmail), where("status", "==", "pendente"));
-        const snapshot = await getDocs(q);
-        listWrapper.innerHTML = "";
-        countBadge.textContent = snapshot.size;
-        if (snapshot.empty) {
-            listWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Nenhuma solicitação pendente.</p>';
-            return;
-        }
-        snapshot.forEach((solicitacaoDoc) => {
-            const data = solicitacaoDoc.data();
-            const idDoc = solicitacaoDoc.id;
-            const remetenteEmail = data.remetente;
-            const nomeBase = remetenteEmail.split('@')[0];
-            const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
-            const row = document.createElement('div');
-            row.className = "friend-row";
-            row.id = `request-${idDoc}`;
-            row.innerHTML = `
-                <img src="https://dicebear.com{nomeBase}" class="friend-avatar">
-                <div class="friend-info">
-                    <span class="friend-name">${nomeFormatado}</span>
-                    <div class="friend-actions-row">
-                        <button class="btn-confirm-add" onclick="responderSolicitacao('${idDoc}', 'aceito')">Confirmar</button>
-                        <button class="btn-delete-ignore" onclick="responderSolicitacao('${idDoc}', 'recusado')">Excluir</button>
-                    </div>
-                </div>
-            `;
-            listWrapper.appendChild(row);
-        });
-    } catch (error) { console.error(error); }
-}
-
+// Recomenda apenas usuários reais cadastrados na coleção 'usuarios' do Firestore
 async function carregarSugestoesAleatorias() {
     const suggestionsWrapper = document.getElementById('friend-suggestions-list');
     const meuEmail = auth.currentUser ? auth.currentUser.email : "";
     suggestionsWrapper.innerHTML = "";
+
     try {
-        const q = query(collection(db, "usuarios"), limit(8));
+        const q = query(collection(db, "usuarios"), limit(15));
         const snapshot = await getDocs(q);
+
         snapshot.forEach((userDoc) => {
             const emailUsuario = userDoc.id;
+            
+            // Pula você mesmo para não se autorecomendar
             if (emailUsuario === meuEmail) return;
+
             const userData = userDoc.data();
-            const nomeBase = emailUsuario.split('@')[0];
-            const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
-            const avatar = userData.fotoPerfil || `https://dicebear.com{nomeBase}`;
+            
+            // Obtém os dados reais salvos no Firestore do usuário
+            const nomeReal = userData.nome || userData.nomeCompleto || userData.username || emailUsuario;
+            const fotoReal = userData.fotoPerfil || userData.avatarUrl || "https://placeholder.com";
+
             const row = document.createElement('div');
             row.className = "friend-row";
             row.innerHTML = `
-                <img src="${avatar}" class="friend-avatar">
+                <img src="${fotoReal}" class="friend-avatar" onerror="this.src='https://placeholder.com'">
                 <div class="friend-info">
-                    <span class="friend-name">${nomeFormatado}</span>
+                    <span class="friend-name">${nomeReal}</span>
                     <div class="friend-actions-row">
                         <button class="btn-confirm-add">Adicionar aos amigos</button>
                         <button class="btn-delete-ignore" onclick="this.closest('.friend-row').remove()">Remover</button>
@@ -1865,6 +1841,8 @@ async function carregarSugestoesAleatorias() {
                 </div>
             `;
             suggestionsWrapper.appendChild(row);
+            
+            // Comportamento visual ao clicar para adicionar
             const btnSug = row.querySelector('.btn-confirm-add');
             btnSug.addEventListener('click', () => {
                 btnSug.style.backgroundColor = '#3a3b3c';
@@ -1872,7 +1850,67 @@ async function carregarSugestoesAleatorias() {
                 btnSug.textContent = "Cancelar pedido";
             });
         });
-    } catch (error) { console.error(error); }
+    } catch (error) { 
+        console.error("Erro ao puxar sugestões reais:", error); 
+    }
+}
+
+// Atualização da lista de solicitações reais recebidas
+async function carregarPedidosDeAmizade() {
+    const listWrapper = document.getElementById('friend-requests-list');
+    const countBadge = document.getElementById('count-requests');
+    const meuEmail = auth.currentUser ? auth.currentUser.email : "";
+    
+    listWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Buscando solicitações...</p>';
+    
+    try {
+        const q = query(collection(db, "solicitacoes"), where("destinatario", "==", meuEmail), where("status", "==", "pendente"));
+        const snapshot = await getDocs(q);
+        
+        listWrapper.innerHTML = "";
+        countBadge.textContent = snapshot.size;
+        
+        if (snapshot.empty) {
+            listWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Nenhuma solicitação pendente.</p>';
+            return;
+        }
+        
+        for (const solicitacaoDoc of snapshot.docs) {
+            const data = solicitacaoDoc.data();
+            const idDoc = solicitacaoDoc.id;
+            const remetenteEmail = data.remetente;
+            
+            // Busca o documento real do remetente para exibir o nome e fotos verdadeiras
+            const userRef = doc(db, "usuarios", remetenteEmail);
+            const userSnap = await getDoc(userRef);
+            
+            let nomeReal = remetenteEmail;
+            let fotoReal = "https://placeholder.com";
+            
+            if (userSnap.exists()) {
+                const uData = userSnap.data();
+                nomeReal = uData.nome || uData.nomeCompleto || uData.username || remetenteEmail;
+                fotoReal = uData.fotoPerfil || uData.avatarUrl || fotoReal;
+            }
+            
+            const row = document.createElement('div');
+            row.className = "friend-row";
+            row.id = `request-${idDoc}`;
+            row.innerHTML = `
+                <img src="${fotoReal}" class="friend-avatar" onerror="this.src='https://placeholder.com'">
+                <div class="friend-info">
+                    <span class="friend-name">${nomeReal}</span>
+                    <div class="friend-actions-row">
+                        <button class="btn-confirm-add" onclick="responderSolicitacao('${idDoc}', 'aceito')">Confirmar</button>
+                        <button class="btn-delete-ignore" onclick="responderSolicitacao('${idDoc}', 'recusado')">Excluir</button>
+                    </div>
+                </div>
+            `;
+            listWrapper.appendChild(row);
+        }
+    } catch (error) { 
+        console.error("Erro nas solicitações:", error); 
+    }
 }
 
 window.responderSolicitacao = async function(idDoc, acao) {
@@ -1883,10 +1921,12 @@ window.responderSolicitacao = async function(idDoc, acao) {
         } else {
             await deleteDoc(doc(db, "solicitacoes", idDoc));
         }
-        document.getElementById(`request-${idDoc}`).remove();
+        const elemento = document.getElementById(`request-${idDoc}`);
+        if (elemento) elemento.remove();
     } catch (error) { console.error(error); }
 }
-// 👆 [FIM DO TRECHO NOVO DE JAVASCRIPT] 👆
+// 👆 [FIM DO TRECHO ATUALIZADO] 👆
+
 
         const reelsNavIcon = document.getElementById('reels-nav-icon');
         const notificationsIcon = document.getElementById('notifications-icon');
