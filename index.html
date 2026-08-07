@@ -1391,29 +1391,31 @@
         <p class="profile-bio" id="p-user-bio">Nenhuma biografia adicionada ainda.</p>
     </div>
 
-            <div class="profile-actions-bar" style="display: flex; gap: 10px; padding: 0 15px 15px 15px; width: 100%; box-sizing: border-box;">
-    <!-- Botão Adicionar ao Story -->
-    <button class="btn-story" id="btn-action-story-add" style="flex: 1; padding: 0 10px; font-size: 14px; font-weight: bold; height: 40px; display: none; align-items: center; justify-content: center; gap: 6px;">
-        Adicionar ao story
-    </button>
-    
+            <!-- Barra de ações do perfil atualizada (sem o botão de story antigo dentro) -->
+<div class="profile-actions-bar" style="display: flex; gap: 10px; padding: 0 15px 15px 15px; width: 100%; box-sizing: border-box;">
     <!-- Botão Editar Perfil -->
     <button class="btn-edit-p" id="btn-trigger-edit-profile" style="flex: 1; padding: 0 10px; font-size: 14px; font-weight: bold; height: 40px; display: none; align-items: center; justify-content: center; gap: 6px;">
         Editar perfil
     </button>
     
-    <!-- BOTÃO ADICIONAR AMIGO: Com o bonequinho de volta ajustado -->
-    <button class="btn-story" id="btn-add-friend" style="display: none; flex: 1; background-color: #2374e1; padding: 0 8px; font-size: 13px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; display: none; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;">
+    <!-- Botão Adicionar Amigo -->
+    <button class="btn-story" id="btn-add-friend" style="display: none; flex: 1; background-color: #2374e1; padding: 0 8px; font-size: 13px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="white" style="flex-shrink: 0;"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
         Adicionar aos amigos
     </button>
     
-    <!-- BOTÃO MENSAGEM: Com o ícone de balão de texto ajustado -->
-    <button class="btn-edit-p" id="btn-send-message-profile" style="display: none; flex: 1; background-color: #3a3b3c; padding: 0 8px; font-size: 13px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; display: none; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;">
+    <!-- Botão Mensagem -->
+    <button class="btn-edit-p" id="btn-send-message-profile" style="display: none; flex: 1; background-color: #3a3b3c; padding: 0 8px; font-size: 13px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="white" style="flex-shrink: 0;"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
         Mensagem
     </button>
 </div>
+
+<!-- NOVO BOTÃO FLUTUANTE DE STORY (Coloque esta linha logo ABAIXO da div acima) -->
+<button id="btn-action-story-add" style="display: none; position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; background-color: #2374e1; border: none; border-radius: 50%; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4); z-index: 999; justify-content: center; align-items: center; cursor: pointer;">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+</button>
+
 
     <div class="profile-nav-tabs">
         <div class="profile-tab-item active">Tudo</div>
@@ -1742,6 +1744,33 @@ const commentsWrapper = document.getElementById('comments-list-wrapper');
 
 let activeCommentPostId = null;
 let activeCommentsListener = null;
+// =================================================================
+// FUNÇÃO QUE CONTROLA O PERFIL (COLE ESSE BLOCO INTEIRO AQUI)
+// =================================================================
+async function openUserProfilePage(email) {
+    profileViewedEmail = email; // Define o e-mail do perfil que está sendo aberto
+    const usuarioLogadoEmail = auth.currentUser ? auth.currentUser.email : "";
+
+    // LÓGICA DE ALTERNÂNCIA DOS BOTÕES DE ACORDO COM O USUÁRIO
+    if (usuarioLogadoEmail === profileViewedEmail) {
+        // Se o perfil visualizado for o MEU (Usuário A vendo o próprio perfil):
+        btnTriggerEditProfile.style.display = 'flex';   // Mostra "Editar Perfil"
+        btnActionStoryAdd.style.display = 'flex';       // Mostra a bolinha do "+"
+        
+        // Esconde os botões que seriam de outras pessoas
+        btnAddFriend.style.display = 'none';          
+        btnSendMessageProfile.style.display = 'none'; 
+    } else {
+        // Se o perfil for de OUTRA PESSOA (Usuário A vendo o Usuário B):
+        btnTriggerEditProfile.style.display = 'none';   // Esconde "Editar Perfil"
+        btnActionStoryAdd.style.display = 'none';       // Esconde a bolinha do "+"
+        
+        // Exibe os novos botões lado a lado bonitinhos
+        btnAddFriend.style.display = 'flex';          
+        btnSendMessageProfile.style.display = 'flex'; 
+    }
+}
+// =================================================================
 
 // Função real para abrir e escutar os comentários do Firestore em tempo real
 async function abrirJanelaComentarios(postId, autorEmail) {
