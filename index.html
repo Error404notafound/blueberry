@@ -1011,6 +1011,36 @@
     color: white;
     transition: bottom 0.3s ease-in-out;
 }
+.btn-add-friend {
+    flex: 1;
+    background-color: #2374e1;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.btn-message {
+    flex: 1;
+    background-color: #3a3b3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
 
 </style>
 </head>
@@ -1385,13 +1415,13 @@
     </div>
 </div>
 
-    <div class="profile-info-section">
+        <div class="profile-info-section">
         <h2 id="p-user-title">Carregando...</h2>
         <div class="profile-post-count" id="p-user-post-count">0 posts</div>
         <p class="profile-bio" id="p-user-bio">Nenhuma biografia adicionada ainda.</p>
     </div>
-
-    <div class="profile-actions-bar">
+    <!-- ALTERADO: Agora os botões são injetados pelo JavaScript aqui dentro -->
+    <div class="profile-actions-bar" id="profile-actions-container"></div>
         <button class="btn-story" id="btn-action-story-add">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             Adicionar ao story
@@ -2873,11 +2903,58 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
 
     
     // 4. Segurança de privacidade: Só exibe o botão "Editar Perfil" se o perfil visitado for do próprio usuário logado
-    if (auth.currentUser && auth.currentUser.email === email) {
-        btnTriggerEditProfile.style.display = 'flex';
-    } else {
-        btnTriggerEditProfile.style.display = 'none';
-    }
+    const actionsContainer = document.getElementById('profile-actions-container');
+const currentUserEmail = auth.currentUser ? auth.currentUser.email : null;
+
+// Limpa os botões anteriores para não acumular
+actionsContainer.innerHTML = '';
+
+if (email === currentUserEmail) {
+    // 1. SE O PERFIL FOR SEU: Mostra Adicionar ao Story e Editar Perfil
+    actionsContainer.innerHTML = `
+        <button class="btn-story" id="btn-action-story-add">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Adicionar ao story
+        </button>
+        <button class="btn-edit-p" id="btn-trigger-edit-profile">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            Editar perfil
+        </button>
+    `;
+    
+    // Vincula o clique de abrir o modal de edição que já existe no seu projeto
+    document.getElementById('btn-trigger-edit-profile').addEventListener('click', () => {
+        document.getElementById('modal-edit-profile').style.display = 'block';
+    });
+
+} else {
+    // 2. SE O PERFIL FOR DE OUTRA PESSOA: Injeta os botões iguais aos do seu print
+    actionsContainer.innerHTML = `
+        <button class="btn-add-friend" id="btn-profile-add-friend">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+                <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            Adicionar aos amigos
+        </button>
+        <button class="btn-message" id="btn-profile-send-message">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+            </svg>
+            Mensagem
+        </button>
+    `;
+
+    // Ações de clique para os novos botões do perfil alheio
+    document.getElementById('btn-profile-send-message').addEventListener('click', () => {
+        alert(`Abrindo chat com: ${email}`);
+        // Aqui você poderá chamar a função do seu chat, passando a variável 'email'
+    });
+
+    document.getElementById('btn-profile-add-friend').addEventListener('click', () => {
+        alert(`Solicitação de amizade enviada para: ${email}`);
+    });
+}
+
     
         // 5. BANCO DE DADOS: Recupera a Biografia e Foto Personalizada no Firestore
     pUserBio.textContent = "Carregando biografia...";
