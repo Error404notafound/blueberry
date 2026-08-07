@@ -1213,6 +1213,34 @@
 
 <!-- Fundo escurecido para isolar a gaveta do post -->
 <div id="post-drawer-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:4400;"></div>
+<!-- ================= COLOQUE ESTE NOVO BLOCO AQUI ================= -->
+<!-- GAVETA INFERIOR DE COMENTÁRIOS DO POST (BOTTOM SHEET) -->
+<div id="drawer-post-comments" class="post-drawer-animated" style="display: none; position: fixed; left: 0; width: 100%; background: #18191a; border-radius: 15px 15px 0 0; z-index: 4500; box-shadow: 0 -5px 15px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; color: white; transition: bottom 0.3s ease-in-out;">
+    <div style="width:40px; height: 4px; background: #3a3b3c; border-radius: 2px; margin:0 auto 15px auto;"></div>
+    
+    <h3 style="text-align: center; font-size: 16px; margin-bottom: 15px; color: white;">Post de Rick</h3>
+
+    <div id="comments-list-wrapper" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px; text-align: center; color: #b0b3b8;">
+        <div style="margin: 20px 0;">
+            <svg width="60" height="60" fill="#65676b" viewBox="0 0 24 24" style="display: block; margin: 0 auto;">
+                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+            </svg>
+        </div>
+        <p style="margin: 0; font-size: 15px; font-weight: bold; color: #e4e6eb;">Ainda não há nenhum comentário</p>
+        <small style="font-size: 13px; color: #b0b3b8;">Seja a primeira pessoa a comentar.</small>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px; border-top: 1px solid #2f3031; padding-top: 10px;">
+        <input type="text" id="input-new-comment" placeholder="Comente..." 
+               style="flex: 1; padding: 12px; background-color: #3a3b3c; border: none; border-radius: 20px; color: white; box-sizing: border-box; font-size: 14px; outline: none;">
+        <button id="btn-send-comment" type="button" style="width: auto; background: none; border: none; color: #2374e1; padding: 0 10px; font-weight: bold; cursor: pointer;">Enviar</button>
+    </div>
+    
+    <button id="btn-close-comments" style="width:100%; background:#242526; color:white; border:none; padding: 12px; border-radius:8px; margin-top:12px; font-weight:bold; cursor:pointer;">Fechar</button>
+</div>
+
+<!-- Fundo escurecido específico dos comentários -->
+<div id="comments-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:4400;"></div>
 
         <!-- Main Navigation Bar -->
         <nav class="main-nav">
@@ -1596,23 +1624,32 @@ const bioCharCounter = document.getElementById('bio-char-counter');
 let profileViewedEmail = ""; // Variável global de controle para saber qual perfil está aberto
 const drawerAvatarOptions = document.getElementById('drawer-avatar-options');
 const btnCloseAvatarDrawer = document.getElementById('btn-close-avatar-drawer');
-// 🟢 COLE A LINHA ABAIXO AQUI:
+
+// 🟢 LINHA COLADA AQUI:
 const btnEditCover = document.querySelector('.btn-edit-cover');
+
+// Elementos do Upload do Avatar e Modais
 const optUploadPhoto = document.getElementById('opt-upload-photo');
-
-
 const modalAvatarUrl = document.getElementById('modal-avatar-url');
 const closeModalUrl = document.getElementById('close-modal-url');
 const btnSaveAvatarUrl = document.getElementById('btn-save-avatar-url');
 const txtAvatarUrlField = document.getElementById('txt-avatar-url-field');
 const imgAvatarPreview = document.getElementById('img-avatar-preview');
 
-        // Variáveis para Paginação
-        let lastVisible = null; // Para armazenar o último documento visível da consulta anterior
-        const postsPerPage = 5; // Número de posts a carregar por vez
-        let isFetchingPosts = false; // Flag para evitar múltiplas chamadas de fetch
+// ================= GATILHOS DA GAVETA DE COMENTÁRIOS =================
+const btnCommentTrigger = document.querySelector('.post-action-btn'); 
+const drawerComments = document.getElementById('drawer-post-comments');
+const commentsOverlay = document.getElementById('comments-overlay');
+const btnCloseComments = document.getElementById('btn-close-comments');
+// =====================================================================
 
-        // Monitor de Login
+// Variáveis para Paginação
+let lastVisible = null; // Para armazenar o último documento visível da consulta anterior
+const postsPerPage = 5; // Número de posts a carregar por vez
+let isFetchingPosts = false; // Flag para evitar múltiplas chamadas de fetch
+
+// Monitor de Login
+
         // Monitor de Login
 // Monitor de Login
 onAuthStateChanged(auth, async (user) => {
@@ -1671,11 +1708,6 @@ if (docSnap.exists() && docSnap.data().fotoPerfil) {
     }
 });
 
-
-
-
-
-
         
         // Limpa o feed e reseta a paginação ao fazer login
 
@@ -1690,12 +1722,66 @@ if (docSnap.exists() && docSnap.data().fotoPerfil) {
                 return;
             }
 
-            createUserWithEmailAndPassword(auth, email, password)
-.then(() => {
-alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
-})
-.catch(error => alert('Erro ao criar conta: ' + error.message));
+                createUserWithEmailAndPassword(auth, email, password)
+    .then(() => {
+        alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
+    })
+    .catch(error => alert('Erro ao criar conta: ' + error.message));
 });
+
+// ================= COLE ESTA LÓGICA NO FINAL DO SCRIPT =================
+
+// Abre o painel deslizando de baixo para cima
+if (btnCommentTrigger) {
+    btnCommentTrigger.addEventListener('click', () => {
+        drawerComments.style.display = 'block';
+        commentsOverlay.style.display = 'block';
+        setTimeout(() => {
+            drawerComments.style.bottom = '0';
+        }, 10);
+    });
+}
+
+// Esconde o painel deslizando para baixo
+function fecharComentarios() {
+    drawerComments.style.bottom = '-100%';
+    commentsOverlay.style.display = 'none';
+    setTimeout(() => {
+        drawerComments.style.display = 'none';
+    }, 300);
+}
+
+if (btnCloseComments) btnCloseComments.addEventListener('click', fecharComentarios);
+if (commentsOverlay) commentsOverlay.addEventListener('click', fecharComentarios);
+
+// Envio local do comentário digitado para testar em tela
+const btnSendComment = document.getElementById('btn-send-comment');
+const inputNewComment = document.getElementById('input-new-comment');
+const commentsWrapper = document.getElementById('comments-list-wrapper');
+
+if (btnSendComment) {
+    btnSendComment.addEventListener('click', () => {
+        const text = inputNewComment.value.trim();
+        if (!text) return;
+
+        // Se for o primeiro comentário, limpa o ícone cinza de 'Vazio'
+        if (commentsWrapper.querySelector('svg')) {
+            commentsWrapper.innerHTML = '';
+        }
+
+        // Adiciona o comentário na lista visualmente
+        commentsWrapper.innerHTML += `
+            <div style="text-align: left; padding: 10px; border-bottom: 1px solid #2f3031;">
+                <span style="color: #2f80ed; font-weight: bold; font-size: 13px; display: block; margin-bottom: 2px;">Usuário Autenticado</span>
+                <span style="color: #e4e6eb; font-size: 14px;">${text}</span>
+            </div>
+        `;
+        
+        inputNewComment.value = ''; // Reseta o campo
+        commentsWrapper.scrollTop = commentsWrapper.scrollHeight; // Rola para o fim
+    });
+}
+
 
 // 🟢 COLE TODO ESTE BLOCO ABAIXO BEM AQUI NO FINAL DO SCRIPT:
 
@@ -1723,7 +1809,6 @@ if (btnEditAvatar) {
         if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
     });
 }
-
 
 
         // Clique Entrar
