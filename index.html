@@ -1391,14 +1391,25 @@
         <p class="profile-bio" id="p-user-bio">Nenhuma biografia adicionada ainda.</p>
     </div>
 
-    <div class="profile-actions-bar">
+        <div class="profile-actions-bar">
+        <!-- Mantém o Adicionar ao Story -->
         <button class="btn-story" id="btn-action-story-add">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M19 13h-6v6h-2v6H5v-2h6V5h2v6h6v2z"/></svg>
             Adicionar ao story
         </button>
+        <!-- Mantém o Editar Perfil -->
         <button class="btn-edit-p" id="btn-trigger-edit-profile" style="display: none;">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
             Editar perfil
+        </button>
+        <!-- NOVOS BOTÕES: Criados no formato flex e inicialmente ocultos -->
+        <button class="btn-story" id="btn-add-friend" style="display: none; background-color: #2374e1;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            Adicionar aos amigos
+        </button>
+        <button class="btn-edit-p" id="btn-send-message-profile" style="display: none; background-color: #3a3b3c;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M18 2H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-4 11H7v-2h7v2zm3-4H7V7h10v2z"/></svg>
+            Mensagem
         </button>
     </div>
 
@@ -1689,6 +1700,10 @@ const postAreaAvatar = document.getElementById('post-area-avatar');
 const pUserPostCount = document.getElementById('p-user-post-count');
 const pUserBio = document.getElementById('p-user-bio');
 const btnTriggerEditProfile = document.getElementById('btn-trigger-edit-profile');
+// NOVAS VARIÁVEIS ADICIONADAS BEM AQUI:
+const btnAddFriend = document.getElementById('btn-add-friend');
+const btnSendMessageProfile = document.getElementById('btn-send-message-profile');
+const btnActionStoryAdd = document.getElementById('btn-action-story-add');
 
 const modalEditProfile = document.getElementById('modal-edit-profile');
 const closeModalEditP = document.getElementById('close-modal-edit-p');
@@ -2872,12 +2887,25 @@ async function enviarMensagemChat() {
 pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
 
     
-    // 4. Segurança de privacidade: Só exibe o botão "Editar Perfil" se o perfil visitado for do próprio usuário logado
-    if (auth.currentUser && auth.currentUser.email === email) {
-        btnTriggerEditProfile.style.display = 'flex';
-    } else {
-        btnTriggerEditProfile.style.display = 'none';
-    }
+    // Altere para esta estrutura flex com a lógica completa para esconder e exibir as opções certas
+if (auth.currentUser && auth.currentUser.email === profileViewedEmail) {
+    // Se o perfil visualizado for o MEU:
+    btnTriggerEditProfile.style.display = 'flex'; 
+    btnActionStoryAdd.style.display = 'flex';     
+    
+    // Esconde os de terceiros
+    btnAddFriend.style.display = 'none';          
+    btnSendMessageProfile.style.display = 'none'; 
+} else {
+    // Se o perfil for de OUTRA PESSOA (Usuário A vendo Usuário B):
+    btnTriggerEditProfile.style.display = 'none'; 
+    btnActionStoryAdd.style.display = 'none';     
+    
+    // Exibe os novos botões que você viu no print
+    btnAddFriend.style.display = 'flex';          
+    btnSendMessageProfile.style.display = 'flex'; 
+}
+
     
         // 5. BANCO DE DADOS: Recupera a Biografia e Foto Personalizada no Firestore
     pUserBio.textContent = "Carregando biografia...";
