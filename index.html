@@ -1636,12 +1636,127 @@ const btnSaveAvatarUrl = document.getElementById('btn-save-avatar-url');
 const txtAvatarUrlField = document.getElementById('txt-avatar-url-field');
 const imgAvatarPreview = document.getElementById('img-avatar-preview');
 
-// ================= GATILHOS DA GAVETA DE COMENTÁRIOS =================
-const btnCommentTrigger = document.querySelector('.post-action-btn'); 
+// ================= GATILHOS DA GAVETA DE COMENTÁRIOS COM FIREBASE =================
 const drawerComments = document.getElementById('drawer-post-comments');
 const commentsOverlay = document.getElementById('comments-overlay');
 const btnCloseComments = document.getElementById('btn-close-comments');
-// =====================================================================
+const btnSendComment = document.getElementById('btn-send-comment');
+const inputNewComment = document.getElementById('input-new-comment');
+const commentsWrapper = document.getElementById('comments-list-wrapper');
+
+let activeCommentPostId = null;
+let activeCommentsListener = null;
+
+// Função real para abrir e escutar os comentários do Firestore em tempo real
+async function abrirJanelaComentarios(postId) {
+    activeCommentPostId = postId;
+    
+    // Abre o painel visualmente deslizando de baixo para cima
+    drawerComments.style.display = 'block';
+    commentsOverlay.style.display = 'block';
+    setTimeout(() => {
+        drawerComments.style.bottom = '0';
+    }, 10);
+    
+    commentsWrapper.innerHTML = '<p style="text-align: center; color: #b0b3b8; padding: 20px;">Carregando comentários...</p>';
+    
+    // Cancela o listener do post anterior se houver para economizar leituras no plano Spark
+    if (activeCommentsListener) {
+        activeCommentsListener();
+    }
+    
+    // Carrega em tempo real da subcoleção posts/{postId}/comentarios
+    const comentariosRef = collection(db, 'posts', postId, 'comentarios');
+    const q = query(comentariosRef, orderBy('createdAt', 'asc'));
+    
+    activeCommentsListener = onSnapshot(q, (snapshot) => {
+        commentsWrapper.innerHTML = '';
+        
+        if (snapshot.empty) {
+            commentsWrapper.innerHTML = `
+                <div style="margin: 20px 0;">
+                    <svg width="60" height="60" fill="#65676b" viewBox="0 0 24 24" style="display: block; margin: 0 auto;">
+                        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+                    </svg>
+                </div>
+                <p style="margin: 0; font-size: 15px; font-weight: bold; color: #e4e6eb;">Ainda não há nenhum comentário</p>
+                <small style="font-size: 13px; color: #b0b3b8;">Seja a primeira pessoa a comentar.</small>
+            `;
+            return;
+        }
+        
+        snapshot.forEach((docSnap) => {
+            const coment = docSnap.data();
+            const autorEmail = coment.autor || 'Anônimo';
+            const nomeSemDominio = autorEmail.split('@')[0];
+            
+            commentsWrapper.innerHTML += `
+                <div style="text-align: left; padding: 10px; border-bottom: 1px solid #2f3031;">
+                    <span style="color: #2f80ed; font-weight: bold; font-size: 13px; display: block; margin-bottom: 2px;">@${nomeSemDominio}</span>
+                    <span style="color: #e4e6eb; font-size: 14px;">${coment.text}</span>
+                </div>
+            `;
+        });
+        
+        commentsWrapper.scrollTop = commentsWrapper.scrollHeight;
+    }, (error) => {
+        console.error("Erro ao carregar comentários do Firebase:", error);
+    });
+}
+
+// Expõe a função globalmente para garantir que o feed de posts consiga chamá-la
+window.abrirJanelaComentarios = abrirJanelaComentarios;
+
+// Esconde o painel deslizando para baixo e desativa o ouvinte em tempo real
+function fecharComentarios() {
+    drawerComments.style.bottom = '-100%';
+    commentsOverlay.style.display = 'none';
+    setTimeout(() => {
+        drawerComments.style.display = 'none';
+        if (activeCommentsListener) {
+            activeCommentsListener();
+            activeCommentsListener = null;
+        }
+    }, 300);
+}
+
+if (btnCloseComments) btnCloseComments.addEventListener('click', fecharComentarios);
+if (commentsOverlay) commentsOverlay.addEventListener('click', fecharComentarios);
+
+// Salva o novo comentário na subcoleção do post no Firestore
+async function enviarComentarioFirebase() {
+    const text = inputNewComment.value.trim();
+    if (!text || !activeCommentPostId) return;
+
+    try {
+        if (!auth.currentUser) {
+            alert("Você precisa fazer login para comentar!");
+            return;
+        }
+
+        const comentariosRef = collection(db, 'posts', activeCommentPostId, 'comentarios');
+        await addDoc(comentariosRef, {
+            text: text,
+            autor: auth.currentUser.email,
+            createdAt: Date.now()
+        });
+        
+        inputNewComment.value = ''; // Limpa o campo de entrada de texto
+    } catch (error) {
+        console.error("Erro ao salvar comentário no Firebase:", error);
+        alert("Erro ao enviar comentário.");
+    }
+}
+
+// Vincula os eventos do botão "Enviar" e tecla Enter para processar a função acima
+if (btnSendComment) {
+    btnSendComment.addEventListener('click', enviarComentarioFirebase);
+}
+if (inputNewComment) {
+    inputNewComment.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') enviarComentarioFirebase();
+    });
+}
 
 // Variáveis para Paginação
 let lastVisible = null; // Para armazenar o último documento visível da consulta anterior
@@ -1729,58 +1844,7 @@ if (docSnap.exists() && docSnap.data().fotoPerfil) {
     .catch(error => alert('Erro ao criar conta: ' + error.message));
 });
 
-// ================= COLE ESTA LÓGICA NO FINAL DO SCRIPT =================
-
-// Abre o painel deslizando de baixo para cima
-if (btnCommentTrigger) {
-    btnCommentTrigger.addEventListener('click', () => {
-        drawerComments.style.display = 'block';
-        commentsOverlay.style.display = 'block';
-        setTimeout(() => {
-            drawerComments.style.bottom = '0';
-        }, 10);
-    });
-}
-
-// Esconde o painel deslizando para baixo
-function fecharComentarios() {
-    drawerComments.style.bottom = '-100%';
-    commentsOverlay.style.display = 'none';
-    setTimeout(() => {
-        drawerComments.style.display = 'none';
-    }, 300);
-}
-
-if (btnCloseComments) btnCloseComments.addEventListener('click', fecharComentarios);
-if (commentsOverlay) commentsOverlay.addEventListener('click', fecharComentarios);
-
-// Envio local do comentário digitado para testar em tela
-const btnSendComment = document.getElementById('btn-send-comment');
-const inputNewComment = document.getElementById('input-new-comment');
-const commentsWrapper = document.getElementById('comments-list-wrapper');
-
-if (btnSendComment) {
-    btnSendComment.addEventListener('click', () => {
-        const text = inputNewComment.value.trim();
-        if (!text) return;
-
-        // Se for o primeiro comentário, limpa o ícone cinza de 'Vazio'
-        if (commentsWrapper.querySelector('svg')) {
-            commentsWrapper.innerHTML = '';
-        }
-
-        // Adiciona o comentário na lista visualmente
-        commentsWrapper.innerHTML += `
-            <div style="text-align: left; padding: 10px; border-bottom: 1px solid #2f3031;">
-                <span style="color: #2f80ed; font-weight: bold; font-size: 13px; display: block; margin-bottom: 2px;">Usuário Autenticado</span>
-                <span style="color: #e4e6eb; font-size: 14px;">${text}</span>
-            </div>
-        `;
-        
-        inputNewComment.value = ''; // Reseta o campo
-        commentsWrapper.scrollTop = commentsWrapper.scrollHeight; // Rola para o fim
-    });
-}
+// ================= COLE ESTA LÓGICA
 
 
 // 🟢 COLE TODO ESTE BLOCO ABAIXO BEM AQUI NO FINAL DO SCRIPT:
