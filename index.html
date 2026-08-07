@@ -1788,15 +1788,23 @@ async function abrirJanelaComentarios(postId, autorEmail) {
             }
             
             // Layout com Flexbox colocando o avatar na esquerda do nome/comentário
-            commentsWrapper.innerHTML += `
-                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 10px; border-bottom: 1px solid #2f3031; text-align: left;">
-                    <img id="comment-avatar-${commentId}" src="${fotoDoComentador}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background-color: #242526; flex-shrink: 0; border: 1px solid #3a3b3c;">
-                    <div style="display: flex; flex-direction: column; flex-grow: 1;">
-                        <span style="color: #2f80ed; font-weight: bold; font-size: 13px; margin-bottom: 2px;">@${nomeSemDominio}</span>
-                        <span style="color: #e4e6eb; font-size: 14px; line-height: 1.4; word-break: break-word;">${coment.text}</span>
-                    </div>
-                </div>
-            `;
+commentsWrapper.innerHTML += `
+    <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 10px; border-bottom: 1px solid #2f3031; text-align: left;">
+        <!-- Avatar clicável que fecha a gaveta e abre o perfil -->
+        <img id="comment-avatar-${commentId}" src="${fotoDoComentador}" 
+             style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background-color: #242526; flex-shrink: 0; border: 1px solid #3a3b3c; cursor: pointer;"
+             onclick="fecharComentarios(); window.openUserProfilePage('${autorEmail}')">
+             
+        <div style="display: flex; flex-direction: column; flex-grow: 1;">
+            <!-- Nome de usuário clicável que faz o mesmo papel -->
+            <span style="color: #2f80ed; font-weight: bold; font-size: 13px; margin-bottom: 2px; cursor: pointer;"
+                  onclick="fecharComentarios(); window.openUserProfilePage('${autorEmail}')">@${nomeSemDominio}</span>
+                  
+            <span style="color: #e4e6eb; font-size: 14px; line-height: 1.4; word-break: break-word;">${coment.text}</span>
+        </div>
+    </div>
+`;
+
             
             // 3. Se não estiver em cache, faz a requisição assíncrona ao Firestore sem bloquear a tela [1]
             if (autorEmail && !cacheUsuarios[autorEmail]) {
@@ -1841,6 +1849,7 @@ function fecharComentarios() {
 
 if (btnCloseComments) btnCloseComments.addEventListener('click', fecharComentarios);
 if (commentsOverlay) commentsOverlay.addEventListener('click', fecharComentarios);
+window.fecharComentarios = fecharComentarios; // 🟢 LINHA ADICIONADA: Torna a função global
 
 // Salva o novo comentário na subcoleção do post no Firestore
 async function enviarComentarioFirebase() {
