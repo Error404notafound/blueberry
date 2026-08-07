@@ -1685,18 +1685,49 @@ async function abrirJanelaComentarios(postId) {
             return;
         }
         
-        snapshot.forEach((docSnap) => {
+                snapshot.forEach((docSnap) => {
             const coment = docSnap.data();
             const autorEmail = coment.autor || 'Anônimo';
             const nomeSemDominio = autorEmail.split('@')[0];
+            const commentId = docSnap.id;
             
+            // 1. Define a foto padrão em SVG do Dicebear
+            let fotoDoComentador = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeSemDominio}`;
+            
+            // 2. Se já estiver no cache local, usa diretamente (economiza leituras do plano Spark!)
+            if (autorEmail && cacheUsuarios[autorEmail]) {
+                fotoDoComentador = cacheUsuarios[autorEmail];
+            }
+            
+            // Layout com Flexbox colocando o avatar na esquerda do nome/comentário
             commentsWrapper.innerHTML += `
-                <div style="text-align: left; padding: 10px; border-bottom: 1px solid #2f3031;">
-                    <span style="color: #2f80ed; font-weight: bold; font-size: 13px; display: block; margin-bottom: 2px;">@${nomeSemDominio}</span>
-                    <span style="color: #e4e6eb; font-size: 14px;">${coment.text}</span>
+                <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 10px; border-bottom: 1px solid #2f3031; text-align: left;">
+                    <img id="comment-avatar-${commentId}" src="${fotoDoComentador}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background-color: #242526; flex-shrink: 0; border: 1px solid #3a3b3c;">
+                    <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                        <span style="color: #2f80ed; font-weight: bold; font-size: 13px; margin-bottom: 2px;">@${nomeSemDominio}</span>
+                        <span style="color: #e4e6eb; font-size: 14px; line-height: 1.4; word-break: break-word;">${coment.text}</span>
+                    </div>
                 </div>
             `;
+            
+            // 3. Se não estiver em cache, faz a requisição assíncrona ao Firestore sem bloquear a tela [1]
+            if (autorEmail && !cacheUsuarios[autorEmail]) {
+                const userDocRef = doc(db, 'usuarios', autorEmail);
+                getDoc(userDocRef).then((userDocSnap) => {
+                    if (userDocSnap.exists() && userDocSnap.data().fotoPerfil) {
+                        const fotoReal = userDocSnap.data().fotoPerfil;
+                        cacheUsuarios[autorEmail] = fotoReal; // Armazena no cache global
+                        
+                        // Atualiza dinamicamente a imagem na tela se o elemento ainda existir
+                        const imgElem = document.getElementById(`comment-avatar-${commentId}`);
+                        if (imgElem) {
+                            imgElem.src = fotoReal;
+                        }
+                    }
+                }).catch((err) => console.error("Erro ao carregar avatar customizado do comentário:", err));
+            }
         });
+
         
         commentsWrapper.scrollTop = commentsWrapper.scrollHeight;
     }, (error) => {
