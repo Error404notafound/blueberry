@@ -1013,6 +1013,7 @@
 }
 
 /* 👇 [TRECHO NOVO DE CSS ADICIONADO AQUI] 👇 */
+
 .pill-btn {
     background-color: #242526 !important;
     color: #e4e6eb !important;
@@ -1033,34 +1034,41 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    width: 100%;
 }
 .friend-avatar {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
     background-color: #242526;
+    flex-shrink: 0;
 }
 .friend-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    min-width: 0; /* Evita quebra de layout com nomes longos */
 }
 .friend-name {
     color: white;
     font-weight: 600;
     font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .friend-actions-row {
     display: flex;
     gap: 8px;
+    width: 100%;
 }
 .btn-confirm-add {
     background-color: #2374e1 !important;
     color: white !important;
     border: none !important;
-    padding: 8px 0 !important;
+    padding: 8px 12px !important;
     border-radius: 6px !important;
     font-weight: bold !important;
     font-size: 14px !important;
@@ -1068,12 +1076,13 @@
     flex: 1;
     margin-top: 0 !important;
     text-align: center;
+    white-space: nowrap;
 }
 .btn-delete-ignore {
     background-color: #3a3b3c !important;
     color: white !important;
     border: none !important;
-    padding: 8px 0 !important;
+    padding: 8px 12px !important;
     border-radius: 6px !important;
     font-weight: bold !important;
     font-size: 14px !important;
@@ -1081,7 +1090,9 @@
     flex: 1;
     margin-top: 0 !important;
     text-align: center;
+    white-space: nowrap;
 }
+
 /* 👆 [FIM DO TRECHO NOVO DE CSS] 👆 */
 
 </style>
@@ -1806,26 +1817,34 @@ friendsIcon.addEventListener('click', () => {
     carregarSugestoesAleatorias();
 });
 
-// Recomenda apenas usuários reais cadastrados na coleção 'usuarios' do Firestore
+// Substitua apenas a função carregarSugestoesAleatorias no seu script por esta:
+
 async function carregarSugestoesAleatorias() {
     const suggestionsWrapper = document.getElementById('friend-suggestions-list');
     const meuEmail = auth.currentUser ? auth.currentUser.email : "";
     suggestionsWrapper.innerHTML = "";
 
     try {
-        const q = query(collection(db, "usuarios"), limit(15));
+        // Buscamos uma amostragem de usuários
+        const q = query(collection(db, "usuarios"), limit(30));
         const snapshot = await getDocs(q);
 
         snapshot.forEach((userDoc) => {
             const emailUsuario = userDoc.id;
             
-            // Pula você mesmo para não se autorecomendar
+            // 1. Pula você mesmo
             if (emailUsuario === meuEmail) return;
 
             const userData = userDoc.data();
             
-            // Obtém os dados reais salvos no Firestore do usuário
-            const nomeReal = userData.nome || userData.nomeCompleto || userData.username || emailUsuario;
+            // 2. FILTRO CRUCIAL: Se o usuário não tiver nome ou username preenchido, 
+            // significa que o perfil não foi criado/configurado ainda. Ignoramos ele.
+            if (!userData.nome && !userData.nomeCompleto && !userData.username) {
+                return; 
+            }
+
+            // Define os dados reais validados
+            const nomeReal = userData.nome || userData.nomeCompleto || userData.username;
             const fotoReal = userData.fotoPerfil || userData.avatarUrl || "https://placeholder.com";
 
             const row = document.createElement('div');
@@ -1850,6 +1869,12 @@ async function carregarSugestoesAleatorias() {
                 btnSug.textContent = "Cancelar pedido";
             });
         });
+
+        // Caso todos os lidos tenham sido filtrados e a lista fique vazia
+        if (suggestionsWrapper.children.length === 0) {
+            suggestionsWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Nenhuma sugestão de perfil configurado no momento.</p>';
+        }
+
     } catch (error) { 
         console.error("Erro ao puxar sugestões reais:", error); 
     }
