@@ -1392,22 +1392,25 @@
     </div>
 
             <div class="profile-actions-bar" style="display: flex; gap: 10px; padding: 0 15px 15px 15px; width: 100%; box-sizing: border-box;">
-    <!-- Botão Adicionar ao Story (Ajustado) -->
-    <button class="btn-story" id="btn-action-story-add" style="flex: 1; padding: 10px; font-size: 14px; font-weight: bold; height: 40px; display: none;">
+    <!-- Botão Adicionar ao Story -->
+    <button class="btn-story" id="btn-action-story-add" style="flex: 1; padding: 0 10px; font-size: 14px; font-weight: bold; height: 40px; display: none; align-items: center; justify-content: center; gap: 6px;">
         Adicionar ao story
     </button>
     
-    <!-- Botão Editar Perfil (Ajustado) -->
-    <button class="btn-edit-p" id="btn-trigger-edit-profile" style="flex: 1; padding: 10px; font-size: 14px; font-weight: bold; height: 40px; display: none;">
+    <!-- Botão Editar Perfil -->
+    <button class="btn-edit-p" id="btn-trigger-edit-profile" style="flex: 1; padding: 0 10px; font-size: 14px; font-weight: bold; height: 40px; display: none; align-items: center; justify-content: center; gap: 6px;">
         Editar perfil
     </button>
     
-    <!-- NOVOS BOTÕES CORRIGIDOS: Sem quebra de linha e dividindo a tela meio a meio -->
-    <button class="btn-story" id="btn-add-friend" style="display: none; flex: 1; background-color: #2374e1; padding: 10px; font-size: 14px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; justify-content: center; align-items: center;">
+    <!-- BOTÃO ADICIONAR AMIGO: Com o bonequinho de volta ajustado -->
+    <button class="btn-story" id="btn-add-friend" style="display: none; flex: 1; background-color: #2374e1; padding: 0 8px; font-size: 13px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; display: none; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="white" style="flex-shrink: 0;"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
         Adicionar aos amigos
     </button>
     
-    <button class="btn-edit-p" id="btn-send-message-profile" style="display: none; flex: 1; background-color: #3a3b3c; padding: 10px; font-size: 14px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; justify-content: center; align-items: center;">
+    <!-- BOTÃO MENSAGEM: Com o ícone de balão de texto ajustado -->
+    <button class="btn-edit-p" id="btn-send-message-profile" style="display: none; flex: 1; background-color: #3a3b3c; padding: 0 8px; font-size: 13px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; display: none; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="white" style="flex-shrink: 0;"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
         Mensagem
     </button>
 </div>
