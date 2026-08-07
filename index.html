@@ -1391,27 +1391,26 @@
         <p class="profile-bio" id="p-user-bio">Nenhuma biografia adicionada ainda.</p>
     </div>
 
-        <div class="profile-actions-bar">
-        <!-- Mantém o Adicionar ao Story -->
-        <button class="btn-story" id="btn-action-story-add">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M19 13h-6v6h-2v6H5v-2h6V5h2v6h6v2z"/></svg>
-            Adicionar ao story
-        </button>
-        <!-- Mantém o Editar Perfil -->
-        <button class="btn-edit-p" id="btn-trigger-edit-profile" style="display: none;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-            Editar perfil
-        </button>
-        <!-- NOVOS BOTÕES: Criados no formato flex e inicialmente ocultos -->
-        <button class="btn-story" id="btn-add-friend" style="display: none; background-color: #2374e1;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            Adicionar aos amigos
-        </button>
-        <button class="btn-edit-p" id="btn-send-message-profile" style="display: none; background-color: #3a3b3c;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M18 2H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-4 11H7v-2h7v2zm3-4H7V7h10v2z"/></svg>
-            Mensagem
-        </button>
-    </div>
+            <div class="profile-actions-bar" style="display: flex; gap: 10px; padding: 0 15px 15px 15px; width: 100%; box-sizing: border-box;">
+    <!-- Botão Adicionar ao Story (Ajustado) -->
+    <button class="btn-story" id="btn-action-story-add" style="flex: 1; padding: 10px; font-size: 14px; font-weight: bold; height: 40px; display: none;">
+        Adicionar ao story
+    </button>
+    
+    <!-- Botão Editar Perfil (Ajustado) -->
+    <button class="btn-edit-p" id="btn-trigger-edit-profile" style="flex: 1; padding: 10px; font-size: 14px; font-weight: bold; height: 40px; display: none;">
+        Editar perfil
+    </button>
+    
+    <!-- NOVOS BOTÕES CORRIGIDOS: Sem quebra de linha e dividindo a tela meio a meio -->
+    <button class="btn-story" id="btn-add-friend" style="display: none; flex: 1; background-color: #2374e1; padding: 10px; font-size: 14px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; justify-content: center; align-items: center;">
+        Adicionar aos amigos
+    </button>
+    
+    <button class="btn-edit-p" id="btn-send-message-profile" style="display: none; flex: 1; background-color: #3a3b3c; padding: 10px; font-size: 14px; font-weight: bold; height: 40px; color: white; border: none; border-radius: 6px; justify-content: center; align-items: center;">
+        Mensagem
+    </button>
+</div>
 
     <div class="profile-nav-tabs">
         <div class="profile-tab-item active">Tudo</div>
