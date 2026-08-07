@@ -2867,9 +2867,8 @@ async function enviarMensagemChat() {
     }
 }
         async function openUserProfilePage(email) {
-    if (!email) return;
-    profileViewedEmail = email; // Define de quem é o perfil em exibição
-    
+    profileViewedEmail = email; // Define o e-mail do perfil que está sendo aberto
+    const usuarioLogadoEmail = auth.currentUser ? auth.currentUser.email : "";    
     // 1. Esconde containers antigos
     appContainer.querySelector('.main-container').style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
@@ -2945,7 +2944,25 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
         pUserBio.textContent = "Erro ao carregar informações.";
     }
 
-
+// LÓGICA DE ALTERNÂNCIA DOS BOTÕES (COLE ESTE BLOCO NO FINAL DA FUNÇÃO):
+    if (usuarioLogadoEmail === profileViewedEmail) {
+        // Se o perfil visualizado for o MEU:
+        btnTriggerEditProfile.style.display = 'flex'; 
+        btnActionStoryAdd.style.display = 'flex';     
+        
+        // Esconde os botões de interação de terceiros
+        btnAddFriend.style.display = 'none';          
+        btnSendMessageProfile.style.display = 'none'; 
+    } else {
+        // Se o perfil for de OUTRA PESSOA (Usuário A vendo Usuário B):
+        btnTriggerEditProfile.style.display = 'none'; 
+        btnActionStoryAdd.style.display = 'none';     
+        
+        // Exibe os novos botões (Adicionar aos amigos e Mensagem)
+        btnAddFriend.style.display = 'flex';          
+        btnSendMessageProfile.style.display = 'flex'; 
+    }
+    }
     
     // 6. BANCO DE DADOS: Conta em tempo real as publicações existentes deste usuário
     pUserPostCount.textContent = "Calculando posts...";
