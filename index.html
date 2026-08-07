@@ -2402,9 +2402,8 @@ async function loadMorePosts() {
             console.error("Erro ao contar comentários reais:", error);
         }
 
-        card.innerHTML = `
+                card.innerHTML = `
     <div class="user-feed-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px;">
-        <!-- Agrupa foto e textos na esquerda -->
         <div style="display:flex; align-items:center;">
             <img src="${fotoDoAutor}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">
             <div style="display:flex; flex-direction:column;">
@@ -2413,40 +2412,56 @@ async function loadMorePosts() {
             </div>
         </div>
         
-        <!-- Mude para ficar exatamente assim: -->
-<button class="post-options-btn class-trigger-options" data-id="${postId}">
-    <svg viewBox="0 0 24 24" width="22" height="22">
-        <path fill="currentColor" d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2z"/>
-    </svg>
-</button>
-
+        <button class="post-options-btn class-trigger-options" data-id="${postId}">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+                <path fill="currentColor" d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2z"/>
+            </svg>
+        </button>
     </div>
 
+    <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
+    
+    ${videoHTML}
+    
+    <div class="post-footer-actions">
+        <button class="post-action-btn" id="btn-curtir-${postId}" style="color: ${corBotaoCurtir};">
+            <svg viewBox="0 0 24 24" style="fill: ${preenchimentoIcone};"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
+            <span id="texto-curtir-${postId}">${totalCurtidas > 0 ? totalCurtidas : 'Curtir'}</span>
+        </button>
+        
+        <!-- CORREÇÃO: Adicionada a classe btn-comment-toggle -->
+        <button class="post-action-btn btn-comment-toggle" id="btn-comentar-${postId}">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span id="texto-comentar-${postId}">${totalComentarios > 0 ? totalComentarios : 'Comentar'}</span>
+        </button>
+        
+        <button class="post-action-btn" id="btn-compartilhar-${postId}">
+            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
+            <span>Compartilhar</span>
+        </button>
+    </div>
 
-            
-            <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
-            
-            <!-- Injeção de mídias nativa do Blueberry -->
-            ${videoHTML}
-            
-            <!-- Barra de ações 100% real (Sem números artificiais) -->
-            <div class="post-footer-actions">
-                <button class="post-action-btn" id="btn-curtir-${postId}" style="color: ${corBotaoCurtir};">
-                    <svg viewBox="0 0 24 24" style="fill: ${preenchimentoIcone};"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
-                    <span id="texto-curtir-${postId}">${totalCurtidas > 0 ? totalCurtidas : 'Curtir'}</span>
-                </button>
-                
-                <button class="post-action-btn" id="btn-comentar-${postId}">
-                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    <span id="texto-comentar-${postId}">${totalComentarios > 0 ? totalComentarios : 'Comentar'}</span>
-                </button>
-                
-                <button class="post-action-btn" id="btn-compartilhar-${postId}">
-                    <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
-                    <span>Compartilhar</span>
+    <!-- CORREÇÃO: Nova seção de comentários real e injetada no post -->
+    <div class="post-comments-section" id="comments-section-${postId}" style="display: none; padding: 15px; border-top: 1px solid #2f3031;">
+        <div class="comments-list-container" id="comments-list-${postId}">
+            <div class="comments-empty-state" style="text-align: center; padding: 15px 0;">
+                <p class="empty-state-title" style="margin: 0; font-weight: bold; color: #e4e6eb;">Ainda não há nenhum comentário</p>
+                <p class="empty-state-subtitle" style="margin: 4px 0 0 0; font-size: 13px; color: #8696a0;">Seja a primeira pessoa a comentar.</p>
+            </div>
+        </div>
+
+        <div class="comment-footer-input" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; border-top: 1px solid #2f3031; padding-top: 12px;">
+            <img src="${fotoDoAutor}" class="comment-user-avatar" alt="Sua foto" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+            <div class="comment-input-wrapper" style="flex: 1; display: flex; align-items: center; background-color: #242526; border-radius: 20px; padding: 4px 12px;">
+                <input type="text" id="comment-input-${postId}" placeholder="Comente..." style="flex: 1; background: transparent; border: none; outline: none; color: white; padding: 6px 0; font-size: 14px;">
+                <button class="btn-send-comment" id="btn-send-comment-${postId}" type="button" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 0; width: auto; margin: 0;">
+                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #8696a0;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
             </div>
-        `;
+        </div>
+    </div>
+    `;
+
 
         feed.appendChild(card);
 
@@ -2491,15 +2506,16 @@ async function loadMorePosts() {
             alert("Link copiado para a área de transferência!");
         });
 
-        // Evento de clique do Comentar (Gatilho para você criar a caixinha depois)
-        card.querySelector(`#btn-comentar-${postId}`).addEventListener('click', () => {
-            // Disparar abertura de comentários reais futuramente
-            abrirJanelaComentarios(postId); 
-        });
+        // 1. Alterna a visibilidade e puxa os comentários do Firebase
+card.querySelector(`#btn-comentar-${postId}`).addEventListener('click', () => {
+    abrirJanelaComentarios(postId);
+});
 
+// 2. Dispara o envio ao Firebase ao clicar no botão "Enviar"
+card.querySelector(`#btn-send-comment-${postId}`).addEventListener('click', () => {
+    enviarComentario(postId);
+});
 
-
-        }
 
         // Atualiza lastVisible com o último documento da página atual
         lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
