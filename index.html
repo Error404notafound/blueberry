@@ -1825,7 +1825,6 @@ async function carregarSugestoesAleatorias() {
     suggestionsWrapper.innerHTML = "";
 
     try {
-        // Buscamos uma amostragem de usuários
         const q = query(collection(db, "usuarios"), limit(30));
         const snapshot = await getDocs(q);
 
@@ -1837,15 +1836,26 @@ async function carregarSugestoesAleatorias() {
 
             const userData = userDoc.data();
             
-            // 2. FILTRO CRUCIAL: Se o usuário não tiver nome ou username preenchido, 
-            // significa que o perfil não foi criado/configurado ainda. Ignoramos ele.
-            if (!userData.nome && !userData.nomeCompleto && !userData.username) {
+            // 🔍 AJUDA EXTRA: Esse log vai mostrar no Console do F12 do navegador o que tem no seu banco
+            console.log("Dados do usuário lido do Firestore:", userData);
+
+            // 2. Filtro Inteligente Expandido: Tenta mapear qualquer variação de nome que você possa ter usado
+            const nomeReal = userData.nome || 
+                             userData.nomeCompleto || 
+                             userData.username || 
+                             userData.name || 
+                             userData.displayName;
+
+            // Se realmente não tiver nenhum campo de nome preenchido, aí sim ignoramos
+            if (!nomeReal) {
                 return; 
             }
 
-            // Define os dados reais validados
-            const nomeReal = userData.nome || userData.nomeCompleto || userData.username;
-            const fotoReal = userData.fotoPerfil || userData.avatarUrl || "https://placeholder.com";
+            // Mapeia as variações de foto cadastrada
+            const fotoReal = userData.fotoPerfil || 
+                             userData.avatarUrl || 
+                             userData.photoURL || 
+                             "https://placeholder.com";
 
             const row = document.createElement('div');
             row.className = "friend-row";
@@ -1870,7 +1880,7 @@ async function carregarSugestoesAleatorias() {
             });
         });
 
-        // Caso todos os lidos tenham sido filtrados e a lista fique vazia
+        // Caso a lista continue vazia após o filtro
         if (suggestionsWrapper.children.length === 0) {
             suggestionsWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Nenhuma sugestão de perfil configurado no momento.</p>';
         }
@@ -1879,6 +1889,7 @@ async function carregarSugestoesAleatorias() {
         console.error("Erro ao puxar sugestões reais:", error); 
     }
 }
+
 
 // Atualização da lista de solicitações reais recebidas
 async function carregarPedidosDeAmizade() {
