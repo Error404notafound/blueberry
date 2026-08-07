@@ -1048,13 +1048,11 @@
     </div>
 </header>
 
-
-
         <!-- Barra de Pesquisa (Escondida por padrão) -->
-        <div id="search-bar-container" class="search-bar-container">
-            <input type="text" placeholder="Pesquisar no Blueberry...">
-        </div>
-
+<div id="search-bar-container" class="search-bar-container" style="position: absolute; top: 60px; left: 0; right: 0; background-color: var(--bg-card); padding: 10px 15px; border-bottom: 1px solid #3e4042; display: none; z-index: 1000;">
+    <input type="text" id="search-input" placeholder="Digite o e-mail do usuário...">
+    <div id="search-results" style="background-color: var(--bg-card); border: 1px solid #3e4042; border-top: none; max-height: 250px; overflow-y: auto; display: none; border-radius: 0 0 6px 6px;"></div>
+</div>
         <!-- Gaveta Lateral (Side Drawer) -->
         <div id="side-drawer" class="side-drawer">
             <div class="drawer-header">
@@ -1541,14 +1539,9 @@
 
         // Importações do Firebase SDK v9 modular
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
-
+        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer, deleteDoc, startAt, endAt } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
-
-        // import { getStorage } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js';
-
-
-
+        
         // 1. CONFIGURAÇÃO DO FIREBASE (SEUS DADOS DE PROJETO)
         const firebaseConfig = {
             apiKey: 'AIzaSyBbcnTj1PxAclN0E0Fc9GlDI_MhCS0hP7Y',
@@ -1583,8 +1576,93 @@ const btnRegister = document.getElementById('btn-register');
 const searchIcon = document.getElementById('search-icon');
 const searchBarContainer = document.getElementById('search-bar-container');
 const logoLink = document.getElementById('logo-link'); // <-- LINHA ADICIONADA
-// ... restante do código igual ...
+// Seletores dos elementos da busca
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+let searchTimeout;
 
+// Monitora a digitação no campo de pesquisa
+searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const queryText = e.target.value.trim().toLowerCase();
+
+    // Se tiver menos de 3 letras, limpa e esconde os resultados
+    if (queryText.length < 3) {
+        searchResults.innerHTML = '';
+        searchResults.style.display = 'none';
+        return;
+    }
+
+    // Debounce de 500ms para evitar requisições repetidas a cada tecla (economiza plano Spark!)
+    searchTimeout = setTimeout(async () => {
+        try {
+            // Busca usuários cujos IDs de documento (e-mails) comecem com o texto digitado
+            const q = query(
+                collection(db, 'usuarios'),
+                orderBy('__name__'), // Filtra diretamente pelo ID do documento (e-mail)
+                startAt(queryText),
+                endAt(queryText + '\uf8ff'),
+                limit(5)
+            );
+
+            const querySnapshot = await getDocs(q);
+            searchResults.innerHTML = '';
+
+            if (querySnapshot.empty) {
+                searchResults.innerHTML = '<div style="padding: 12px; color: #b0b3b8; font-size: 14px; text-align: center;">Nenhum usuário encontrado</div>';
+                searchResults.style.display = 'block';
+                return;
+            }
+
+            querySnapshot.forEach((docSnap) => {
+                const email = docSnap.id;
+                const userData = docSnap.data();
+                const nomeBase = email.split('@')[0];
+                const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
+                
+                // Exibe foto salva no banco ou gera um avatar padrão do Dicebear
+                const avatar = userData.fotoPerfil || `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
+
+                // Cria o elemento visual do resultado
+                const userItem = document.createElement('div');
+                userItem.style.cssText = "display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; border-bottom: 1px solid #2f3031; transition: background 0.2s;";
+                userItem.innerHTML = `
+                    <img src="${avatar}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #242526;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-weight: bold; color: white; font-size: 14px;">${nomeFormatado}</span>
+                        <span style="color: #b0b3b8; font-size: 12px;">${email}</span>
+                    </div>
+                `;
+
+                // Quando clicar no usuário encontrado, abre o perfil dele!
+                userItem.addEventListener('click', () => {
+                    openUserProfilePage(email); // Sua função de perfil existente!
+                    searchResults.style.display = 'none';
+                    searchInput.value = '';
+                    searchBarContainer.classList.remove('active'); // Fecha a barra de pesquisa
+                });
+
+                // Efeito visual de hover
+                userItem.addEventListener('mouseenter', () => userItem.style.backgroundColor = 'var(--bg-hover)');
+                userItem.addEventListener('mouseleave', () => userItem.style.backgroundColor = 'transparent');
+
+                searchResults.appendChild(userItem);
+            });
+
+            searchResults.style.display = 'block';
+
+        } catch (error) {
+            console.error("Erro ao pesquisar usuários no Firestore:", error);
+        }
+    }, 500);
+});
+
+// Limpa resultados ao fechar a barra de busca se clicar fora
+document.addEventListener('click', (e) => {
+    if (!searchBarContainer.contains(e.target) && e.target !== searchIcon) {
+        searchResults.style.display = 'none';
+    }
+});
 // ... restante do código viu caraio ...
 
         const menuHamburguerIcon = document.getElementById('menu-hamburguer-icon');
