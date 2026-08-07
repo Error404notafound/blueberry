@@ -1865,7 +1865,77 @@ document.body.addEventListener('click', function(event) {
         }
     }
 });
-// 🟢 COLE TODO ESTE BLOCO ABAIXO BEM AQUI NO FINAL DO SCRIPT:
+// Função para alternar visualização e escutar comentários do post em tempo real
+function abrirJanelaComentarios(postId) {
+    const commentsSection = document.getElementById(`comments-section-${postId}`);
+    const commentsList = document.getElementById(`comments-list-${postId}`);
+    
+    if (!commentsSection) return;
+
+    // Se estiver aberto, apenas fecha
+    if (commentsSection.style.display === 'block') {
+        commentsSection.style.display = 'none';
+        return;
+    }
+
+    // Caso contrário, abre e escuta as mudanças no Firebase
+    commentsSection.style.display = 'block';
+
+    const q = query(collection(db, 'posts', postId, 'comentarios'), orderBy('createdAt', 'asc'));
+    
+    onSnapshot(q, (snapshot) => {
+        commentsList.innerHTML = '';
+        if (snapshot.empty) {
+            commentsList.innerHTML = `
+                <div class="comments-empty-state" style="text-align: center; padding: 15px 0;">
+                    <p class="empty-state-title" style="margin:0; font-weight:bold; color:#e4e6eb;">Ainda não há nenhum comentário</p>
+                    <p class="empty-state-subtitle" style="margin:4px 0 0 0; font-size:13px; color:#8696a0;">Seja a primeira pessoa a comentar.</p>
+                </div>`;
+            return;
+        }
+
+        snapshot.forEach((docSnap) => {
+            const coment = docSnap.data();
+            const autorNome = coment.autor ? coment.autor.split('@')[0] : 'Anônimo';
+            const divComentario = document.createElement('div');
+            divComentario.style = "display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start;";
+            divComentario.innerHTML = `
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${autorNome}" style="width: 28px; height: 28px; border-radius: 50%;">
+                <div style="background: #242526; padding: 8px 12px; border-radius: 12px; color: white; max-width: 80%;">
+                    <strong style="font-size: 12px; color: #2f80ed;">@${autorNome}</strong>
+                    <p style="margin: 3px 0 0 0; font-size: 14px;">${coment.text}</p>
+                </div>
+            `;
+            commentsList.appendChild(divComentario);
+        });
+    });
+}
+
+// Função para enviar um novo comentário ao Firestore
+async function enviarComentario(postId) {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const texto = input.value.trim();
+    if (!texto) return;
+
+    if (!auth.currentUser) {
+        alert("Você precisa fazer login para comentar!");
+        return;
+    }
+
+    try {
+        await addDoc(collection(db, 'posts', postId, 'comentarios'), {
+            text: texto,
+            autor: auth.currentUser.email,
+            createdAt: Date.now()
+        });
+        input.value = '';
+    } catch (err) {
+        console.error("Erro ao enviar comentário:", err);
+    }
+}
+
+// Expõe a função globalmente para ser encontrada pelas tags HTML
+window.abrirJanelaComentarios = abrirJanelaComentarios;
 
 // 1. Vincula o botão da câmera da foto de CAPAL
 if (btnEditCover) {
@@ -2462,8 +2532,6 @@ async function loadMorePosts() {
     </div>
     `;
 
-
-        feed.appendChild(card);
 
         // Processador de clique do Curtir Dinâmico
         let curtidasLocais = [...curtidasArray];
