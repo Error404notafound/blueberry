@@ -1011,89 +1011,7 @@
     color: white;
     transition: bottom 0.3s ease-in-out;
 }
-/* Transição de subida da Gaveta do Post */
-.post-drawer-animated {
-    /* ... regras existentes ... */
-    transition: bottom 0.3s ease-in-out;
-}
 
-/* ================= NOVOS ESTILOS DOS COMENTÁRIOS ================= */
-.post-comments-section {
-    background-color: #18191a;
-    border-top: 1px solid #2f3031;
-    padding: 20px 15px 10px 15px;
-    text-align: left;
-}
-.comments-empty-state {
-    text-align: center;
-    padding: 30px 0;
-    color: #b0b3b8;
-}
-.empty-comment-icon {
-    width: 50px;
-    height: 50px;
-    fill: #8696a0;
-    margin-bottom: 12px;
-    opacity: 0.6;
-    display: inline-block;
-}
-.empty-state-title {
-    font-size: 15px;
-    font-weight: bold;
-    color: #e4e6eb;
-    margin: 0 0 4px 0;
-}
-.empty-state-subtitle {
-    font-size: 13px;
-    color: #8696a0;
-    margin: 0;
-}
-.comment-footer-input {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-top: 1px solid #2f3031;
-    padding-top: 12px;
-    margin-top: 15px;
-}
-.comment-user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-.comment-input-wrapper {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    background-color: #242526;
-    border-radius: 20px;
-    padding: 4px 12px;
-}
-.comment-input-wrapper input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: white;
-    padding: 6px 0;
-    font-size: 14px;
-}
-.comment-input-wrapper button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    padding: 0;
-    margin: 0 !important;
-    width: auto !important;
-}
-.comment-input-wrapper button svg {
-    width: 18px;
-    height: 18px;
-    fill: #8696a0;
-}
 </style>
 </head>
 
@@ -1384,83 +1302,9 @@
                 <button id="btn-publish" type="button">Publicar</button>
             </section> -->
 
-                        <section id="feed" class="feed">
-    <!-- Card de Exemplo para você testar visualmente -->
-    <div class="post-card main-container">
-        
-        <!-- Barra de Interações (Adaptada da pág 21) -->
-        <div class="post-footer-actions">
-            <button class="post-action-btn btn-comment-toggle" type="button">
-                <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                <span>Comentar</span>
-            </button>
-        </div>
-
-        <!-- SEÇÃO DE COMENTÁRIOS (Nova área que inicia escondida) -->
-        <div class="post-comments-section" style="display: none;">
-            <div class="comments-empty-state">
-                <svg viewBox="0 0 24 24" class="empty-comment-icon">
-                    <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
-                </svg>
-                <p class="empty-state-title">Ainda não há nenhum comentário</p>
-                <p class="empty-state-subtitle">Seja a primeira pessoa a comentar.</p>
-            </div>
-
-            <!-- Barra de Digitação Inferior -->
-            <div class="comment-footer-input">
-                <img src="https://dicebear.com" class="comment-user-avatar" alt="Sua foto">
-                <div class="comment-input-wrapper">
-                    <input type="text" placeholder="Comente...">
-                    <button class="btn-send-comment" type="button">
-                        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</section>
-
+                        <section id="feed" class="feed"></section>
         </main>
-<section id="feed" class="feed">
-
-    <!-- Card de Teste do Post (Agora com a classe correta .post-card) -->
-    <div class="post-card" style="background-color: var(--bg-card); border-radius: 8px; margin-bottom: 20px; padding: 15px;">
-        
-        <!-- Barra de Interações (Sua barra horizontal nativa) -->
-        <div class="post-footer-actions">
-            <!-- Adicionamos a classe 'btn-comment-toggle' aqui -->
-            <button class="post-action-btn btn-comment-toggle" type="button">
-                <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                <span>Comentar</span>
-            </button>
-        </div>
-
-        <!-- SEÇÃO DE COMENTÁRIOS (Nova área que inicia oculta) -->
-        <div class="post-comments-section" style="display: none;">
-            <div class="comments-empty-state">
-                <svg viewBox="0 0 24 24" class="empty-comment-icon">
-                    <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
-                </svg>
-                <p class="empty-state-title">Ainda não há nenhum comentário</p>
-                <p class="empty-state-subtitle">Seja a primeira pessoa a comentar.</p>
-            </div>
-
-            <!-- Barra de Digitação do Layout -->
-            <div class="comment-footer-input">
-                <img src="https://dicebear.com" class="comment-user-avatar" alt="Sua foto">
-                <div class="comment-input-wrapper">
-                    <input type="text" placeholder="Comente...">
-                    <button class="btn-send-comment" type="button">
-                        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-</section>
+<!-- TELA DE PERFIL DO USUÁRIO ESTILO FACEBOOK MOBILE -->
 <!-- TELA DE PERFIL DO USUÁRIO DINÂMICA -->
 <section id="profile-container" style="display: none;">
     <div class="profile-cover-wrapper">
@@ -1826,8 +1670,16 @@ if (docSnap.exists() && docSnap.data().fotoPerfil) {
         }
     }
 });
+
+
+
+
+
+
         
         // Limpa o feed e reseta a paginação ao fazer login
+
+
         // Clique Criar Conta
         btnRegister.addEventListener('click', () => {
             const email = document.getElementById('auth-email').value.trim();
@@ -1839,103 +1691,13 @@ if (docSnap.exists() && docSnap.data().fotoPerfil) {
             }
 
             createUserWithEmailAndPassword(auth, email, password)
-    .then(() => {
-        alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
-    })
-    .catch(error => alert('Erro ao criar conta: ' + error.message));
+.then(() => {
+alert('Conta criada com sucesso! Bem-vindo ao Blueberry.');
+})
+.catch(error => alert('Erro ao criar conta: ' + error.message));
 });
 
-// ================= LÓGICA PARA ABRIR/FECHAR COMENTÁRIOS =================
-// Delegação de evento direta no corpo do documento para ignorar qualquer trava de escopo modular
-document.body.addEventListener('click', function(event) {
-    const btn = event.target.closest('.btn-comment-toggle');
-    if (!btn) return; // Se não clicou no botão de comentar, ignora o resto do código
-
-    // Procura o card do post subindo a árvore de elementos
-    const post = btn.closest('.post-card');
-    if (post) {
-        const targetSection = post.querySelector('.post-comments-section');
-        if (targetSection) {
-            // Alterna entre block e none de forma forçada
-            if (targetSection.style.display === 'none' || targetSection.style.display === '') {
-                targetSection.style.display = 'block';
-            } else {
-                targetSection.style.display = 'none';
-            }
-        }
-    }
-});
-// Função para alternar visualização e escutar comentários do post em tempo real
-function abrirJanelaComentarios(postId) {
-    const commentsSection = document.getElementById(`comments-section-${postId}`);
-    const commentsList = document.getElementById(`comments-list-${postId}`);
-    
-    if (!commentsSection) return;
-
-    // Se estiver aberto, apenas fecha
-    if (commentsSection.style.display === 'block') {
-        commentsSection.style.display = 'none';
-        return;
-    }
-
-    // Caso contrário, abre e escuta as mudanças no Firebase
-    commentsSection.style.display = 'block';
-
-    const q = query(collection(db, 'posts', postId, 'comentarios'), orderBy('createdAt', 'asc'));
-    
-    onSnapshot(q, (snapshot) => {
-        commentsList.innerHTML = '';
-        if (snapshot.empty) {
-            commentsList.innerHTML = `
-                <div class="comments-empty-state" style="text-align: center; padding: 15px 0;">
-                    <p class="empty-state-title" style="margin:0; font-weight:bold; color:#e4e6eb;">Ainda não há nenhum comentário</p>
-                    <p class="empty-state-subtitle" style="margin:4px 0 0 0; font-size:13px; color:#8696a0;">Seja a primeira pessoa a comentar.</p>
-                </div>`;
-            return;
-        }
-
-        snapshot.forEach((docSnap) => {
-            const coment = docSnap.data();
-            const autorNome = coment.autor ? coment.autor.split('@')[0] : 'Anônimo';
-            const divComentario = document.createElement('div');
-            divComentario.style = "display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start;";
-            divComentario.innerHTML = `
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${autorNome}" style="width: 28px; height: 28px; border-radius: 50%;">
-                <div style="background: #242526; padding: 8px 12px; border-radius: 12px; color: white; max-width: 80%;">
-                    <strong style="font-size: 12px; color: #2f80ed;">@${autorNome}</strong>
-                    <p style="margin: 3px 0 0 0; font-size: 14px;">${coment.text}</p>
-                </div>
-            `;
-            commentsList.appendChild(divComentario);
-        });
-    });
-}
-
-// Função para enviar um novo comentário ao Firestore
-async function enviarComentario(postId) {
-    const input = document.getElementById(`comment-input-${postId}`);
-    const texto = input.value.trim();
-    if (!texto) return;
-
-    if (!auth.currentUser) {
-        alert("Você precisa fazer login para comentar!");
-        return;
-    }
-
-    try {
-        await addDoc(collection(db, 'posts', postId, 'comentarios'), {
-            text: texto,
-            autor: auth.currentUser.email,
-            createdAt: Date.now()
-        });
-        input.value = '';
-    } catch (err) {
-        console.error("Erro ao enviar comentário:", err);
-    }
-}
-
-// Expõe a função globalmente para ser encontrada pelas tags HTML
-window.abrirJanelaComentarios = abrirJanelaComentarios;
+// 🟢 COLE TODO ESTE BLOCO ABAIXO BEM AQUI NO FINAL DO SCRIPT:
 
 // 1. Vincula o botão da câmera da foto de CAPAL
 if (btnEditCover) {
@@ -2472,8 +2234,9 @@ async function loadMorePosts() {
             console.error("Erro ao contar comentários reais:", error);
         }
 
-                card.innerHTML = `
+        card.innerHTML = `
     <div class="user-feed-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px;">
+        <!-- Agrupa foto e textos na esquerda -->
         <div style="display:flex; align-items:center;">
             <img src="${fotoDoAutor}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">
             <div style="display:flex; flex-direction:column;">
@@ -2482,56 +2245,42 @@ async function loadMorePosts() {
             </div>
         </div>
         
-        <button class="post-options-btn class-trigger-options" data-id="${postId}">
-            <svg viewBox="0 0 24 24" width="22" height="22">
-                <path fill="currentColor" d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2z"/>
-            </svg>
-        </button>
+        <!-- Mude para ficar exatamente assim: -->
+<button class="post-options-btn class-trigger-options" data-id="${postId}">
+    <svg viewBox="0 0 24 24" width="22" height="22">
+        <path fill="currentColor" d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2s2-.9 2-2s-.9-2-2-2z"/>
+    </svg>
+</button>
+
     </div>
 
-    <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
-    
-    ${videoHTML}
-    
-    <div class="post-footer-actions">
-        <button class="post-action-btn" id="btn-curtir-${postId}" style="color: ${corBotaoCurtir};">
-            <svg viewBox="0 0 24 24" style="fill: ${preenchimentoIcone};"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
-            <span id="texto-curtir-${postId}">${totalCurtidas > 0 ? totalCurtidas : 'Curtir'}</span>
-        </button>
-        
-        <!-- CORREÇÃO: Adicionada a classe btn-comment-toggle -->
-        <button class="post-action-btn btn-comment-toggle" id="btn-comentar-${postId}">
-            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span id="texto-comentar-${postId}">${totalComentarios > 0 ? totalComentarios : 'Comentar'}</span>
-        </button>
-        
-        <button class="post-action-btn" id="btn-compartilhar-${postId}">
-            <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
-            <span>Compartilhar</span>
-        </button>
-    </div>
 
-    <!-- CORREÇÃO: Nova seção de comentários real e injetada no post -->
-    <div class="post-comments-section" id="comments-section-${postId}" style="display: none; padding: 15px; border-top: 1px solid #2f3031;">
-        <div class="comments-list-container" id="comments-list-${postId}">
-            <div class="comments-empty-state" style="text-align: center; padding: 15px 0;">
-                <p class="empty-state-title" style="margin: 0; font-weight: bold; color: #e4e6eb;">Ainda não há nenhum comentário</p>
-                <p class="empty-state-subtitle" style="margin: 4px 0 0 0; font-size: 13px; color: #8696a0;">Seja a primeira pessoa a comentar.</p>
-            </div>
-        </div>
-
-        <div class="comment-footer-input" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; border-top: 1px solid #2f3031; padding-top: 12px;">
-            <img src="${fotoDoAutor}" class="comment-user-avatar" alt="Sua foto" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-            <div class="comment-input-wrapper" style="flex: 1; display: flex; align-items: center; background-color: #242526; border-radius: 20px; padding: 4px 12px;">
-                <input type="text" id="comment-input-${postId}" placeholder="Comente..." style="flex: 1; background: transparent; border: none; outline: none; color: white; padding: 6px 0; font-size: 14px;">
-                <button class="btn-send-comment" id="btn-send-comment-${postId}" type="button" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; padding: 0; width: auto; margin: 0;">
-                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #8696a0;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            
+            <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
+            
+            <!-- Injeção de mídias nativa do Blueberry -->
+            ${videoHTML}
+            
+            <!-- Barra de ações 100% real (Sem números artificiais) -->
+            <div class="post-footer-actions">
+                <button class="post-action-btn" id="btn-curtir-${postId}" style="color: ${corBotaoCurtir};">
+                    <svg viewBox="0 0 24 24" style="fill: ${preenchimentoIcone};"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
+                    <span id="texto-curtir-${postId}">${totalCurtidas > 0 ? totalCurtidas : 'Curtir'}</span>
+                </button>
+                
+                <button class="post-action-btn" id="btn-comentar-${postId}">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span id="texto-comentar-${postId}">${totalComentarios > 0 ? totalComentarios : 'Comentar'}</span>
+                </button>
+                
+                <button class="post-action-btn" id="btn-compartilhar-${postId}">
+                    <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
+                    <span>Compartilhar</span>
                 </button>
             </div>
-        </div>
-    </div>
-    `;
+        `;
 
+        feed.appendChild(card);
 
         // Processador de clique do Curtir Dinâmico
         let curtidasLocais = [...curtidasArray];
@@ -2574,16 +2323,15 @@ async function loadMorePosts() {
             alert("Link copiado para a área de transferência!");
         });
 
-        // 1. Alterna a visibilidade e puxa os comentários do Firebase
-card.querySelector(`#btn-comentar-${postId}`).addEventListener('click', () => {
-    abrirJanelaComentarios(postId);
-});
+        // Evento de clique do Comentar (Gatilho para você criar a caixinha depois)
+        card.querySelector(`#btn-comentar-${postId}`).addEventListener('click', () => {
+            // Disparar abertura de comentários reais futuramente
+            abrirJanelaComentarios(postId); 
+        });
 
-// 2. Dispara o envio ao Firebase ao clicar no botão "Enviar"
-card.querySelector(`#btn-send-comment-${postId}`).addEventListener('click', () => {
-    enviarComentario(postId);
-});
 
+
+        }
 
         // Atualiza lastVisible com o último documento da página atual
         lastVisible = documentSnapshots.docs[documentSnapshots.docs.length - 1];
