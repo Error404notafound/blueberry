@@ -2424,25 +2424,22 @@ async function loadMorePosts() {
 
 
             
-    <p>${post.text}</p>
-    ${videoHTML}
-    <div class="post-footer-actions">
-        <!-- O botão agora tem a classe btn-comment-toggle -->
-        <button class="post-action-btn btn-comment-toggle" id="btn-comentar-${postId}">
-            Comentar
-        </button>
-    </div>
-
-    <!-- Seção de comentários agora inserida corretamente -->
-    <div class="post-comments-section" id="comments-section-${postId}" style="display: none;">
-        <div id="comments-list-${postId}">
-            <!-- Lista de comentários carregada do Firebase -->
-        </div>
-        <input type="text" id="comment-input-${postId}">
-        <button id="btn-send-comment-${postId}">Enviar</button>
-    </div>
-`;
-
+            <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text}</p>
+            
+            <!-- Injeção de mídias nativa do Blueberry -->
+            ${videoHTML}
+            
+            <!-- Barra de ações 100% real (Sem números artificiais) -->
+            <div class="post-footer-actions">
+                <button class="post-action-btn" id="btn-curtir-${postId}" style="color: ${corBotaoCurtir};">
+                    <svg viewBox="0 0 24 24" style="fill: ${preenchimentoIcone};"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
+                    <span id="texto-curtir-${postId}">${totalCurtidas > 0 ? totalCurtidas : 'Curtir'}</span>
+                </button>
+                
+                <button class="post-action-btn" id="btn-comentar-${postId}">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span id="texto-comentar-${postId}">${totalComentarios > 0 ? totalComentarios : 'Comentar'}</span>
+                </button>
                 
                 <button class="post-action-btn" id="btn-compartilhar-${postId}">
                     <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
@@ -2494,16 +2491,11 @@ async function loadMorePosts() {
             alert("Link copiado para a área de transferência!");
         });
 
-        // 1. Alterna a visibilidade e puxa os comentários do Firebase
-card.querySelector(`#btn-comentar-${postId}`).addEventListener('click', () => {
-    abrirJanelaComentarios(postId);
-});
-
-// 2. Dispara o envio ao Firebase ao clicar no botão "Enviar"
-card.querySelector(`#btn-send-comment-${postId}`).addEventListener('click', () => {
-    enviarComentario(postId);
-});
-
+        // Evento de clique do Comentar (Gatilho para você criar a caixinha depois)
+        card.querySelector(`#btn-comentar-${postId}`).addEventListener('click', () => {
+            // Disparar abertura de comentários reais futuramente
+            abrirJanelaComentarios(postId); 
+        });
 
 
 
