@@ -3405,15 +3405,12 @@ function startChatListener() {
     const wrapper = document.getElementById('chat-messages-wrapper');
     if (!wrapper) return;
     
-    // Identifica quem é você e quem é o seu amigo ativo no chat
     const emailUsuarioLogado = auth.currentUser.email;
-    const emailAmigo = currentRoomId; // O código usa o email do amigo como identificador da sala
 
-    // Busca exata que bate com o seu índice ativado no Firebase (senderId + receiverId)
+    // Busca simplificada: pega todas as mensagens da sala, ordenadas pelo tempo
     const q = query(
         collection(db, 'messages'), 
-        where('senderId', '==', emailUsuarioLogado),
-        where('receiverId', '==', emailAmigo),
+        where('roomId', '==', currentRoomId),
         orderBy('createdAt', 'asc')
     );
     
@@ -3422,13 +3419,12 @@ function startChatListener() {
         
         snapshot.forEach((doc) => {
             const msg = doc.data();
-            // Verifica se a mensagem foi enviada por você ou pelo seu amigo
+            // Se o senderId for igual ao seu e-mail, o balão fica verde/azul (enviado)
             const isMe = msg.senderId === emailUsuarioLogado;
             
             const bubble = document.createElement('div');
             bubble.className = `msg-bubble ${isMe ? 'sent' : 'received'}`;
             
-            // Pega o texto da mensagem e a hora de envio
             const textoMensagem = msg.text || msg.mensagem || '';
             const dataHora = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
             
@@ -3440,7 +3436,6 @@ function startChatListener() {
             wrapper.appendChild(bubble);
         });
         
-        // Mantém a rolagem sempre travada no final da conversa
         wrapper.scrollTop = wrapper.scrollHeight;
     }, (error) => {
         console.error("Erro no chat do Firebase:", error);
@@ -3451,21 +3446,20 @@ function startChatListener() {
     });
 }
 
-
 async function enviarMensagemChat() {
     const input = document.getElementById('chat-input-message');
     const texto = input.value.trim();
     if (!texto) return;
 
     try {
-        // CORREÇÃO CRÍTICA: Salva na coleção 'messages' com os campos corretos do índice
+        // Salva vinculando diretamente ao ID da sala (como um comentário privado)
         await addDoc(collection(db, 'messages'), {
+            roomId: currentRoomId, 
             senderId: auth.currentUser.email,
-            receiverId: currentRoomId, // O identificador da sala que você está usando
             text: texto,
-            createdAt: Date.now() // Alinhado com o campo 'createdAt' do seu Firebase
+            createdAt: Date.now() 
         });
-        input.value = ''; // Limpa o campo de texto após enviar
+        input.value = ''; 
     } catch (error) {
         console.error("Erro ao enviar mensagem para o Firebase:", error);
     }
