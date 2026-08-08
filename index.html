@@ -643,11 +643,44 @@
     display: flex;
     flex-direction: column;
 }
-.chat-header { background-color: #202c33; padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #222e35; }
-.chat-user-info { display: flex; align-items: center; gap: 10px; color: #e9edef; }
+/* Cabeçalho ajustado */
+.chat-header { 
+    background-color: #202c33; 
+    padding: 10px 16px; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    border-bottom: 1px solid #222e35; 
+}
+.chat-user-info { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    color: #e9edef; 
+}
+/* CORREÇÃO DO AVATAR GIGANTE: Força tamanho fixo e impede que estoure */
+.chat-user-info img, 
+#chat-current-avatar { 
+    width: 40px !important; 
+    height: 40px !important; 
+    border-radius: 50% !important; 
+    object-fit: cover !important; 
+    flex-shrink: 0 !important; 
+}
 .chat-user-info h4 { margin: 0; font-size: 16px; color: #e9edef; }
 .chat-user-info span { font-size: 12px; color: #8696a0; }
-.chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background-image: url('https://githubusercontent.com'); background-blend-mode: overlay; background-color: #0b141a; }
+.chat-messages { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 20px; 
+    padding-bottom: 75px !important; /* Cria um vão livre para o rodapé não cobrir o texto */
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    background-image: url('https://githubusercontent.com'); 
+    background-blend-mode: overlay;
+    background-color: #0b141a; 
+}
 
 /* Balões de Conversa */
 .msg-bubble { max-width: 70%; padding: 8px 12px; border-radius: 8px; color: #e9edef; font-size: 14px; position: relative; line-height: 1.4; word-break: break-word; }
@@ -656,9 +689,52 @@
 .msg-time { font-size: 10px; color: #8696a0; text-align: right; margin-top: 4px; display: block; }
 
 /* Barra inferior de Digitação */
-.chat-footer { background-color: #202c33; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
-.chat-footer input { flex: 1; background-color: #2a3942; border: none; border-radius: 8px; padding: 12px; color: white; outline: none; font-size: 15px; }
-.chat-footer button { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+/* Torna o fundo invisível para desgrudar os elementos */
+.chat-footer { 
+    background: transparent !important; 
+    padding: 8px 10px; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    border: none !important;
+}
+
+/* Caixa oval onde digita a mensagem */
+.chat-footer input { 
+    flex: 1; 
+    background-color: #202c33 !important; 
+    border: none; 
+    border-radius: 25px !important; 
+    padding: 12px 20px; 
+    color: white; 
+    outline: none; 
+    font-size: 16px; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Botão de Enviar em formato de círculo verde flutuante */
+.chat-footer button { 
+    background-color: #00a884 !important; 
+    border: none; 
+    border-radius: 50% !important; 
+    width: 48px !important; 
+    height: 48px !important; 
+    display: flex !important; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    flex-shrink: 0 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Centraliza o ícone do aviãozinho dentro do círculo verde */
+.chat-footer button svg {
+    width: 22px !important;
+    height: 22px !important;
+    fill: #ffffff !important;
+}
 
 /* ==================== NOVO LAYOUT DO FACEBOOK REELS ==================== */
 .reel-actions {
