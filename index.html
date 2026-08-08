@@ -1682,14 +1682,12 @@ let activeChatListener = null;
 // VARIÁVEL DE CONTROLE PARA ADICIONAR FOTO DE PERFIL OU CAPA
 let activeUploadType = 'avatar'; // Pode ser 'avatar' ou 'cover'
 
-// =========================================================================
-// 👇 BLOCO DE AMIZADES ADICIONADO AQUI 👇
-// =========================================================================
+// 👇 BLOCO DE AMIZADES CORRIGIDO E UNIFICADO 👇
 async function enviarSolicitacaoAmizade(emailDestinatario) {
     const emailRemetente = auth.currentUser.email;
     if (emailRemetente === emailDestinatario) { alert("Você não pode adicionar a si mesmo!"); return; }
     try {
-        await addDoc(collection(db, 'amizades'), {
+        await addDoc(collection(db, 'pedidos_amizade'), {
             remetente: emailRemetente,
             destinatario: emailDestinatario,
             status: 'pendente',
@@ -1700,18 +1698,18 @@ async function enviarSolicitacaoAmizade(emailDestinatario) {
 }
 
 async function aceitarSolicitacao(idDocumento) {
-    try { await updateDoc(doc(db, 'amizades', idDocumento), { status: 'amigos' }); alert("Solicitação aceita!"); } catch (e) { console.error(e); }
+    try { await updateDoc(doc(db, 'pedidos_amizade', idDocumento), { status: 'aceito' }); alert("Solicitação aceita!"); } catch (e) { console.error(e); }
 }
 
 async function recusarOuDeletarAmizade(idDocumento) {
-    try { await deleteDoc(doc(db, 'amizades', idDocumento)); alert("Solicitação removida!"); } catch (e) { console.error(e); }
+    try { await deleteDoc(doc(db, 'pedidos_amizade', idDocumento)); alert("Solicitação removida!"); } catch (e) { console.error(e); }
 }
 
 function escutarPedidosDeAmizade() {
     const emailUsuarioLogado = auth.currentUser.email;
     const countRequestsEl = document.getElementById('count-requests');
     const requestsListEl = document.getElementById('friend-requests-list');
-    const q = query(collection(db, 'amizades'), where('destinatario', '==', emailUsuarioLogado), where('status', '==', 'pendente'));
+    const q = query(collection(db, 'pedidos_amizade'), where('destinatario', '==', emailUsuarioLogado), where('status', '==', 'pendente'));
 
     onSnapshot(q, (snapshot) => {
         requestsListEl.innerHTML = '';
@@ -1729,7 +1727,7 @@ function escutarPedidosDeAmizade() {
             row.className = 'friend-row';
             row.style.marginBottom = "15px";
             row.innerHTML = `
-                <img src="https://dicebear.com{nomeBase}" class="friend-avatar">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}" class="friend-avatar">
                 <div class="friend-info">
                     <span class="friend-name">${nomeFormatado}</span>
                     <div class="friend-actions-row">
@@ -1744,6 +1742,7 @@ function escutarPedidosDeAmizade() {
         });
     });
 }
+
 // =========================================================================
 // 👆 FIM DO BLOCO DE AMIZADES 👆
 // =========================================================================
@@ -1953,7 +1952,7 @@ async function carregarSugestoesAleatorias() {
                 try {
                     if (btnSug.textContent === "Adicionar aos amigos") {
                         // Envia solicitação real ao banco
-                        await setDoc(doc(db, "solicitacoes", docId), {
+                        await setDoc(doc(db, "pedidos_amizade", docId), {
                             remetente: meuEmail,
                             destinatario: emailUsuario,
                             status: "pendente",
@@ -1998,7 +1997,7 @@ async function carregarPedidosDeAmizade() {
     listWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Buscando solicitações...</p>';
     
     try {
-        const q = query(collection(db, "solicitacoes"), where("destinatario", "==", meuEmail), where("status", "==", "pendente"));
+        const q = query(collection(db, "pedidos_amizade"), where("destinatario", "==", meuEmail), where("status", "==", "pendente"));
         const snapshot = await getDocs(q);
         
         listWrapper.innerHTML = "";
@@ -2050,10 +2049,10 @@ async function carregarPedidosDeAmizade() {
 window.responderSolicitacao = async function(idDoc, acao) {
     try {
         if(acao === 'aceito') {
-            await updateDoc(doc(db, "solicitacoes", idDoc), { status: "aceito" });
+            await updateDoc(doc(db, "pedidos_amizade", idDoc), { status: "aceito" });
             alert("Solicitação aceita!");
         } else {
-            await deleteDoc(doc(db, "solicitacoes", idDoc));
+            await deleteDoc(doc(db, "pedidos_amizade", idDoc));
         }
         const elemento = document.getElementById(`request-${idDoc}`);
         if (elemento) elemento.remove();
@@ -2115,7 +2114,7 @@ btnAddFriend.addEventListener('click', async () => {
     try {
         if (!solicitacaoEnviada) {
             // Grava o documento da solicitação pendente no banco de dados
-            await setDoc(doc(db, "solicitacoes", docId), {
+            await setDoc(doc(db, "pedidos_amizade", docId), {
                 remetente: meuEmail,
                 destinatario: profileViewedEmail,
                 status: "pendente",
@@ -2125,7 +2124,7 @@ btnAddFriend.addEventListener('click', async () => {
             alert("Solicitação de amizade enviada!");
         } else {
             // Cancela a solicitação removendo o documento do banco de dados
-            await deleteDoc(doc(db, "solicitacoes", docId));
+            await deleteDoc(doc(db, "pedidos_amizade", docId));
             solicitacaoEnviada = false;
             alert("Solicitação cancelada!");
         }
@@ -2135,6 +2134,7 @@ btnAddFriend.addEventListener('click', async () => {
         alert("Erro ao processar solicitação: " + error.message);
     }
 });
+
 
 const modalEditProfile = document.getElementById('modal-edit-profile');
 const closeModalEditP = document.getElementById('close-modal-edit-p');
@@ -3369,12 +3369,12 @@ if (auth.currentUser && auth.currentUser.email === profileViewedEmail) {
     btnAddFriend.style.display = 'flex';          
     btnSendMessageProfile.style.display = 'flex'; 
 
-    // VERIFICA SE JÁ EXISTE UMA SOLICITAÇÃO ENVIADA NO FIRESTORE
+        // VERIFICA SE JÁ EXISTE UMA SOLICITAÇÃO ENVIADA NO FIRESTORE
     const meuEmail = auth.currentUser.email;
     const docId = `${meuEmail.replace(/\./g, '_')}_${profileViewedEmail.replace(/\./g, '_')}`;
     
     try {
-        const docSnap = await getDoc(doc(db, "solicitacoes", docId));
+        const docSnap = await getDoc(doc(db, "pedidos_amizade", docId));
         solicitacaoEnviada = docSnap.exists() && docSnap.data().status === "pendente";
         atualizarBotaoAmizade(solicitacaoEnviada);
     } catch(e) {
