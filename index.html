@@ -1669,6 +1669,7 @@
         };
 
         // ... CONFIGURAÇÃO DO FIREBASE ...
+// ... CONFIGURAÇÃO DO FIREBASE ...
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -1681,8 +1682,75 @@ let activeChatListener = null;
 // VARIÁVEL DE CONTROLE PARA ADICIONAR FOTO DE PERFIL OU CAPA
 let activeUploadType = 'avatar'; // Pode ser 'avatar' ou 'cover'
 
+// =========================================================================
+// 👇 BLOCO DE AMIZADES ADICIONADO AQUI 👇
+// =========================================================================
+async function enviarSolicitacaoAmizade(emailDestinatario) {
+    const emailRemetente = auth.currentUser.email;
+    if (emailRemetente === emailDestinatario) { alert("Você não pode adicionar a si mesmo!"); return; }
+    try {
+        await addDoc(collection(db, 'amizades'), {
+            remetente: emailRemetente,
+            destinatario: emailDestinatario,
+            status: 'pendente',
+            dataEnvio: new Date()
+        });
+        alert("Solicitação de amizade enviada!");
+    } catch (e) { console.error(e); }
+}
+
+async function aceitarSolicitacao(idDocumento) {
+    try { await updateDoc(doc(db, 'amizades', idDocumento), { status: 'amigos' }); alert("Solicitação aceita!"); } catch (e) { console.error(e); }
+}
+
+async function recusarOuDeletarAmizade(idDocumento) {
+    try { await deleteDoc(doc(db, 'amizades', idDocumento)); alert("Solicitação removida!"); } catch (e) { console.error(e); }
+}
+
+function escutarPedidosDeAmizade() {
+    const emailUsuarioLogado = auth.currentUser.email;
+    const countRequestsEl = document.getElementById('count-requests');
+    const requestsListEl = document.getElementById('friend-requests-list');
+    const q = query(collection(db, 'amizades'), where('destinatario', '==', emailUsuarioLogado), where('status', '==', 'pendente'));
+
+    onSnapshot(q, (snapshot) => {
+        requestsListEl.innerHTML = '';
+        countRequestsEl.innerText = snapshot.size;
+        if (snapshot.empty) {
+            requestsListEl.innerHTML = '<p style="color: #b0b3b8; font-size: 14px; text-align: center; width:100%;">Nenhum pedido pendente</p>';
+            return;
+        }
+        snapshot.forEach((docSnap) => {
+            const id = docSnap.id;
+            const dados = docSnap.data();
+            const nomeBase = dados.remetente.split('@')[0];
+            const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
+            const row = document.createElement('div');
+            row.className = 'friend-row';
+            row.style.marginBottom = "15px";
+            row.innerHTML = `
+                <img src="https://dicebear.com{nomeBase}" class="friend-avatar">
+                <div class="friend-info">
+                    <span class="friend-name">${nomeFormatado}</span>
+                    <div class="friend-actions-row">
+                        <button class="btn-confirm-add" id="accept-${id}">Confirmar</button>
+                        <button class="btn-delete-ignore" id="reject-${id}">Excluir</button>
+                    </div>
+                </div>
+            `;
+            requestsListEl.appendChild(row);
+            document.getElementById(`accept-${id}`).addEventListener('click', () => aceitarSolicitacao(id));
+            document.getElementById(`reject-${id}`).addEventListener('click', () => recusarOuDeletarAmizade(id));
+        });
+    });
+}
+// =========================================================================
+// 👆 FIM DO BLOCO DE AMIZADES 👆
+// =========================================================================
+
 //  ADICIONE ESSAS LINHAS DE VOLTA BEM AQUI:
 const authContainer = document.getElementById('auth-container');
+
 
 const appContainer = document.getElementById('app-container');
 const btnLogin = document.getElementById('btn-login');
@@ -2269,6 +2337,9 @@ onAuthStateChanged(auth, async (user) => {
         authContainer.style.display = 'none';
         appContainer.style.display = 'block';
         drawerUserName.textContent = user.email;
+        
+        // 👇 LINHA ADICIONADA AQUI: Ativa o monitor de solicitações em tempo real assim que loga
+        escutarPedidosDeAmizade();
         
                 // 📸 BUSCAR A FOTO DE PERFIL DIRETO NO BANCO (Otimizado para o plano Spark)
         try {
