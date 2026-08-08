@@ -2753,6 +2753,37 @@ btnPublicarFoto.addEventListener('click', async () => {
 
         // Criamos um cache fora da função para não cobrar leituras repetidas do mesmo usuário no Spark!
 const cacheUsuarios = {};
+// FUNÇÃO AUXILIAR PARA FORMATAR A DATA DO POST DE FORMA DINÂMICA E AMIGÁVEL
+function formatarDataFriendly(timestamp) {
+    if (!timestamp) return "Postado recentemente";
+    const agora = Date.now();
+    const diferencaMs = agora - timestamp;
+
+    // Tratamento básico para variações de relógio
+    if (diferencaMs < 0) return "Agora mesmo";
+
+    const diferencaSegundos = Math.floor(diferencaMs / 1000);
+    const diferencaMinutos = Math.floor(diferencaSegundos / 60);
+    const diferencaHoras = Math.floor(diferencaMinutos / 60);
+    const diferencaDias = Math.floor(diferencaHoras / 24);
+
+    if (diferencaSegundos < 60) {
+        return "Agora mesmo";
+    } else if (diferencaMinutos < 60) {
+        return `${diferencaMinutos} min`;
+    } else if (diferencaHoras < 24) {
+        return `${diferencaHoras} h`;
+    } else if (diferencaDias < 7) {
+        return `${diferencaDias} d`;
+    } else {
+        // Há mais de uma semana, mostra Dia e Mês por extenso (ex: "8 de ago")
+        const data = new Date(timestamp);
+        const dia = data.getDate();
+        const meses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+        const mes = meses[data.getMonth()];
+        return `${dia} de ${mes}`;
+    }
+}
 
 async function loadMorePosts() {
     if (isFetchingPosts) return; // Evita múltiplas chamadas simultâneas
@@ -2875,16 +2906,17 @@ async function loadMorePosts() {
             console.error("Erro ao contar comentários reais:", error);
         }
 
-        card.innerHTML = `
+                card.innerHTML = `
     <div class="user-feed-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px;">
         <!-- Agrupa foto e textos na esquerda -->
         <div style="display:flex; align-items:center;">
             <img src="${fotoDoAutor}" alt="Avatar" style="width:40px; height:40px; border-radius:50%; margin-right:10px; object-fit:cover; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">
             <div style="display:flex; flex-direction:column;">
                 <small style="color:var(--accent-blue); font-weight:bold; cursor:pointer;" onclick="window.openUserProfilePage('${autorEmail}')">${autorEmail || 'Anônimo'}</small>
-                <span style="font-size:10px; color:#b0b3b8;">Postado recentemente</span>
+                <span style="font-size:10px; color:#b0b3b8;">${formatarDataFriendly(post.createdAt)}</span>
             </div>
         </div>
+
         
         <!-- Mude para ficar exatamente assim: -->
 <button class="post-options-btn class-trigger-options" data-id="${postId}">
