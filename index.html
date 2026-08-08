@@ -1880,7 +1880,6 @@ friendsIcon.addEventListener('click', () => {
     // Exibe a tela de recomendações/pedidos
     friendsScreen.style.display = 'block';
     
-    carregarPedidosDeAmizade();
     carregarSugestoesAleatorias();
 });
 
@@ -1962,12 +1961,13 @@ async function carregarSugestoesAleatorias() {
                         btnSug.style.color = '#ffffff';
                         btnSug.textContent = "Cancelar pedido";
                     } else {
-                        // Remove solicitação se clicar novamente
-                        await deleteDoc(doc(db, "solicitacoes", docId));
-                        btnSug.style.backgroundColor = '#2374e1';
-                        btnSug.style.color = '#ffffff';
-                        btnSug.textContent = "Adicionar aos amigos";
-                    }
+    // Remove solicitação se clicar novamente
+    await deleteDoc(doc(db, "pedidos_amizade", docId)); // Corrigido para a coleção correta!
+    btnSug.style.backgroundColor = '#2374e1';
+    btnSug.style.color = '#ffffff';
+    btnSug.textContent = "Adicionar aos amigos";
+}
+
                                 } catch (error) {
                     console.error("Erro ao gerenciar solicitação nas sugestões:", error);
                     alert("Erro ao enviar: " + error.message);
@@ -3283,7 +3283,7 @@ function startChatListener() {
     const q = query(collection(db, 'chats'), where('roomId', '==', currentRoomId), orderBy('timestamp', 'asc'));
     
     // O onSnapshot garante que se o amigo enviar uma mensagem, ela entra instantaneamente sem dar refresh
-    activeChatListener = onSnapshot(q, (snapshot) => {
+        activeChatListener = onSnapshot(q, (snapshot) => {
         wrapper.innerHTML = '';
         
         snapshot.forEach((doc) => {
@@ -3303,8 +3303,25 @@ function startChatListener() {
         
         // Mantém a rolagem sempre travada no final da conversa
         wrapper.scrollTop = wrapper.scrollHeight;
+    }, (error) => {
+        console.error("Erro no chat do Firebase:", error);
+        
+        // Verifica se o erro é de índice composto ausente (failed-precondition)
+        if (error.code === 'failed-precondition') {
+            wrapper.innerHTML = `
+                <div style="color: #ff4444; text-align: center; padding: 20px; font-family: sans-serif; font-size: 14px;">
+                    ⚠️ <strong>Erro de Configuração:</strong> Índice composto ausente.<br>
+                    Abra o console de desenvolvedor (F12) do navegador e clique no link gerado pelo Firebase para criar o índice do chat.
+                </div>`;
+        } else {
+            wrapper.innerHTML = `
+                <div style="color: #ff4444; text-align: center; padding: 20px; font-family: sans-serif; font-size: 14px;">
+                    Erro ao carregar mensagens: ${error.message}
+                </div>`;
+        }
     });
 }
+
 
 // 3. Enviar a Mensagem para a Coleção "chats" do Firestore
 document.getElementById('btn-send-message').addEventListener('click', enviarMensagemChat);
