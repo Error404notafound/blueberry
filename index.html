@@ -1681,6 +1681,9 @@ let activeChatListener = null;
 
 // VARIÁVEL DE CONTROLE PARA ADICIONAR FOTO DE PERFIL OU CAPA
 let activeUploadType = 'avatar'; // Pode ser 'avatar' ou 'cover'
+// --- VARIÁVEIS GLOBAIS DE CONTROLE DO PERFIL ---
+let amizadeStatus = 'nenhum'; // Pode ser: 'nenhum', 'pendente_enviado', 'pendente_recebido', 'amigos'
+let amizadeDocId = null;
 
 // 👇 BLOCO DE AMIZADES CORRIGIDO E UNIFICADO 👇
 async function enviarSolicitacaoAmizade(emailDestinatario) {
@@ -2105,36 +2108,48 @@ function atualizarBotaoAmizade(enviado) {
 }
 
 // Evento que escuta o clique do usuário no botão
-// Evento que escuta o clique do usuário no botão e salva no Firestore
 btnAddFriend.addEventListener('click', async () => {
     if (!auth.currentUser || !profileViewedEmail) return;
     const meuEmail = auth.currentUser.email;
-    const docId = `${meuEmail.replace(/\./g, '_')}_${profileViewedEmail.replace(/\./g, '_')}`;
 
     try {
-        if (!solicitacaoEnviada) {
-            // Grava o documento da solicitação pendente no banco de dados
+        if (amizadeStatus === 'nenhum') {
+            // Envia um pedido novo
+            const docId = `${meuEmail.replace(/\./g, '_')}_${profileViewedEmail.replace(/\./g, '_')}`;
             await setDoc(doc(db, "pedidos_amizade", docId), {
                 remetente: meuEmail,
                 destinatario: profileViewedEmail,
                 status: "pendente",
                 createdAt: Date.now()
             });
-            solicitacaoEnviada = true;
+            amizadeStatus = 'pendente_enviado';
+            amizadeDocId = docId;
             alert("Solicitação de amizade enviada!");
-        } else {
-            // Cancela a solicitação removendo o documento do banco de dados
-            await deleteDoc(doc(db, "pedidos_amizade", docId));
-            solicitacaoEnviada = false;
-            alert("Solicitação cancelada!");
+            
+        } else if (amizadeStatus === 'pendente_enviado' || amizadeStatus === 'amigos') {
+            // Cancela o pedido enviado ou remove a amizade atual
+            if (amizadeDocId) {
+                await deleteDoc(doc(db, "pedidos_amizade", amizadeDocId));
+                const eraAmigo = amizadeStatus === 'amigos';
+                amizadeStatus = 'nenhum';
+                amizadeDocId = null;
+                alert(eraAmigo ? "Vocês não são mais amigos!" : "Solicitação cancelada!");
+            }
+            
+        } else if (amizadeStatus === 'pendente_recebido') {
+            // Aceita o convite que outra pessoa te mandou diretamente da tela de perfil dela!
+            if (amizadeDocId) {
+                await updateDoc(doc(db, "pedidos_amizade", amizadeDocId), { status: "aceito" });
+                amizadeStatus = 'amigos';
+                alert("Vocês agora são amigos!");
+            }
         }
-        atualizarBotaoAmizade(solicitacaoEnviada);
+        atualizarLayoutAmizade(amizadeStatus);
     } catch (error) {
-        console.error("Erro ao processar amizade no Firestore:", error);
-        alert("Erro ao processar solicitação: " + error.message);
+        console.error("Erro ao gerenciar amizade no Firestore:", error);
+        alert("Não foi possível processar a ação: " + error.message);
     }
 });
-
 
 const modalEditProfile = document.getElementById('modal-edit-profile');
 const closeModalEditP = document.getElementById('close-modal-edit-p');
@@ -3347,6 +3362,54 @@ async function enviarMensagemChat() {
         console.error("Erro ao enviar mensagem para o Firebase:", error);
     }
 }
+function atualizarLayoutAmizade(status) {
+    if (status === 'amigos') {
+        btnAddFriend.style.display = 'flex';
+        btnAddFriend.style.backgroundColor = '#3a3b3c';
+        btnAddFriend.style.color = '#ffffff';
+        btnAddFriend.innerHTML = `
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="white" style="flex-shrink: 0;">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            Amigos
+        `;
+        btnSendMessageProfile.style.display = 'flex'; // Exibe o botão Mensagem!
+    } else if (status === 'pendente_enviado') {
+        btnAddFriend.style.display = 'flex';
+        btnAddFriend.style.backgroundColor = '#3a3b3c';
+        btnAddFriend.style.color = '#ffffff';
+        btnAddFriend.innerHTML = `
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="white" style="flex-shrink: 0;">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+            Cancelar pedido
+        `;
+        btnSendMessageProfile.style.display = 'none';
+    } else if (status === 'pendente_recebido') {
+        btnAddFriend.style.display = 'flex';
+        btnAddFriend.style.backgroundColor = '#2374e1';
+        btnAddFriend.style.color = '#ffffff';
+        btnAddFriend.innerHTML = `
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="white" style="flex-shrink: 0;">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            Confirmar pedido
+        `;
+        btnSendMessageProfile.style.display = 'none';
+    } else { // 'nenhum'
+        btnAddFriend.style.display = 'flex';
+        btnAddFriend.style.backgroundColor = '#2374e1';
+        btnAddFriend.style.color = '#ffffff';
+        btnAddFriend.innerHTML = `
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="white" style="flex-shrink: 0;">
+                <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            Adicionar aos amigos
+        `;
+        btnSendMessageProfile.style.display = 'none';
+    }
+}
+
         async function openUserProfilePage(email) {
     if (!email) return;
     profileViewedEmail = email; // Define de quem é o perfil em exibição
@@ -3390,14 +3453,32 @@ if (auth.currentUser && auth.currentUser.email === profileViewedEmail) {
     const meuEmail = auth.currentUser.email;
     const docId = `${meuEmail.replace(/\./g, '_')}_${profileViewedEmail.replace(/\./g, '_')}`;
     
-    try {
-        const docSnap = await getDoc(doc(db, "pedidos_amizade", docId));
-        solicitacaoEnviada = docSnap.exists() && docSnap.data().status === "pendente";
-        atualizarBotaoAmizade(solicitacaoEnviada);
+        try {
+        // Consultas em ambas direções para descobrir o estado de relacionamento atual
+        const q1 = query(collection(db, "pedidos_amizade"), where("remetente", "==", meuEmail), where("destinatario", "==", profileViewedEmail));
+        const q2 = query(collection(db, "pedidos_amizade"), where("remetente", "==", profileViewedEmail), where("destinatario", "==", meuEmail));
+
+        const snap1 = await getDocs(q1);
+        const snap2 = await getDocs(q2);
+
+        amizadeStatus = 'nenhum';
+        amizadeDocId = null;
+
+        if (!snap1.empty) {
+            const docSnap = snap1.docs[0];
+            amizadeDocId = docSnap.id;
+            amizadeStatus = docSnap.data().status === 'aceito' ? 'amigos' : 'pendente_enviado';
+        } else if (!snap2.empty) {
+            const docSnap = snap2.docs[0];
+            amizadeDocId = docSnap.id;
+            amizadeStatus = docSnap.data().status === 'aceito' ? 'amigos' : 'pendente_recebido';
+        }
+
+        atualizarLayoutAmizade(amizadeStatus);
     } catch(e) {
-        console.error("Erro ao carregar estado de amizade prévio:", e);
+        console.error("Erro ao carregar estado de amizade do Firestore:", e);
     }
-}
+
 
 
     
