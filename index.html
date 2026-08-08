@@ -3217,78 +3217,81 @@ async function loadReels() {
 // 1. Carrega a lista intermediária puxando usuários únicos que já postaram na rede
 async function loadConversationsList() {
     const listWrapper = document.getElementById('conversations-list-wrapper');
-    listWrapper.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">Carregando conversas...</p>';
+    listWrapper.innerHTML = '<p style="text-align:center; padding:20px; color:#b0b3b8;">Buscando seus amigos...</p>';
     
     try {
-        // Puxa posts recentes para capturar usuários ativos na rede Blueberry
-        const q = query(collection(db, 'posts'), limit(30));
-        const querySnapshot = await getDocs(q);
-        
-        listWrapper.innerHTML = '';
-        const emailsAdicionados = new Set();
         const meuEmail = auth.currentUser.email;
 
-        querySnapshot.forEach((docSnap) => {
-            const post = docSnap.data();
-            const emailAmigo = post.autor;
+        // Executamos duas consultas para pegar amizades onde você enviou OU recebeu e foram aceitas
+        const q1 = query(collection(db, 'pedidos_amizade'), where('remetente', '==', meuEmail), where('status', '==', 'aceito'));
+        const q2 = query(collection(db, 'pedidos_amizade'), where('destinatario', '==', meuEmail), where('status', '==', 'aceito'));
 
-            // Ignora você mesmo e impede duplicar a linha do mesmo contato
-            if (emailAmigo && emailAmigo !== meuEmail && !emailsAdicionados.has(emailAmigo)) {
-                emailsAdicionados.add(emailAmigo);
-                
-                // CORREÇÃO CLÍNICA: Isolamos a string do nome corretamente
-                const partesEmail = emailAmigo.split('@');
-                const nomeAmigo = partesEmail[0]; 
-                const nomeFormatado = nomeAmigo.charAt(0).toUpperCase() + nomeAmigo.slice(1);
+        const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        
+        listWrapper.innerHTML = '';
+        const amigosEmails = [];
 
-                const row = document.createElement('div');
-                row.className = 'chat-row';
-                
-                // CORREÇÃO: Link do Dicebear ajustado com a barra certa para renderizar os avatares
-row.innerHTML = `
-    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${nomeAmigo}" class="chat-row-avatar">
-    <div class="chat-row-content">
-        <div class="chat-row-top">
-            <h4 class="chat-row-name">${nomeFormatado}</h4>
-            <span class="chat-row-time">15:12</span>
-        </div>
-        <div class="chat-row-bottom">
-            <p class="chat-row-msg">Clique para abrir o chat em tempo real...</p>
-            <div class="chat-row-badge">1</div>
-        </div>
-    </div>
-`;
+        // Extrai o e-mail do amigo de cada documento de amizade aceito
+        snap1.forEach(docSnap => amigosEmails.push(docSnap.data().destinatario));
+        snap2.forEach(docSnap => amigosEmails.push(docSnap.data().remetente));
 
-                
-                // Evento ao clicar no contato: Abre o chat escuro em tempo real com ele
-                //  Agora, ao clicar em uma conversa, as atribuições funcionam perfeitamente:
-row.addEventListener('click', () => {
-    currentChatRecipient = emailAmigo; //  Funciona! O JavaScript já conhece a variável
-    currentRoomId = meuEmail < emailAmigo ? `${meuEmail}_${emailAmigo}` : `${emailAmigo}_${meuEmail}`; //  Funciona!                    
-                    // Monta o ID da sala privada em ordem alfabética estável
-                    currentRoomId = meuEmail < emailAmigo ? `${meuEmail}_${emailAmigo}` : `${emailAmigo}_${meuEmail}`;
-                    
-                    document.getElementById('chat-list-container').style.display = 'none';
-                    document.getElementById('chat-container').style.display = 'flex';
-                    document.getElementById('chat-current-user-name').innerText = nomeFormatado;
-                    document.getElementById('chat-current-avatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeAmigo}`;
-                    // Liga os motores do onSnapshot do Firebase
-                    startChatListener();
-                });
+        if (amigosEmails.length === 0) {
+            listWrapper.innerHTML = '<p style="text-align:center; padding:20px; color:#b0b3b8;">Você ainda não adicionou nenhum amigo.</p>';
+            document.querySelector('.badge-total').innerText = "0";
+            return;
+        }
 
-                listWrapper.appendChild(row);
+        // Busca o cadastro de cada amigo no Firestore para pegar fotos e nomes verdadeiros
+        for (const emailAmigo of amigosEmails) {
+            const userRef = doc(db, 'usuarios', emailAmigo);
+            const userSnap = await getDoc(userRef);
+            
+            const nomeAmigo = emailAmigo.split('@')[0];
+            let nomeFormatado = nomeAmigo.charAt(0).toUpperCase() + nomeAmigo.slice(1);
+            let fotoAmigo = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeAmigo}`;
+
+            if (userSnap.exists()) {
+                const uData = userSnap.data();
+                nomeFormatado = uData.nome || uData.nomeCompleto || nomeFormatado;
+                fotoAmigo = uData.fotoPerfil || fotoAmigo;
             }
-        });
 
-        // Altera a numeração de notificações vermelha/verde do topo dinamicamente
-        document.querySelector('.badge-total').innerText = emailsAdicionados.size;
+            const row = document.createElement('div');
+            row.className = 'chat-row';
+            row.innerHTML = `
+                <img src="${fotoAmigo}" class="chat-row-avatar">
+                <div class="chat-row-content">
+                    <div class="chat-row-top">
+                        <h4 class="chat-row-name">${nomeFormatado}</h4>
+                        <span class="chat-row-time">Online</span>
+                    </div>
+                    <div class="chat-row-bottom">
+                        <p class="chat-row-msg">Clique para iniciar a conversa...</p>
+                    </div>
+                </div>
+            `;
+
+            row.addEventListener('click', () => {
+                currentChatRecipient = emailAmigo;
+                currentRoomId = meuEmail < emailAmigo ? `${meuEmail}_${emailAmigo}` : `${emailAmigo}_${meuEmail}`;
+                
+                document.getElementById('chat-list-container').style.display = 'none';
+                document.getElementById('chat-container').style.display = 'flex';
+                document.getElementById('chat-current-user-name').innerText = nomeFormatado;
+                document.getElementById('chat-current-avatar').src = fotoAmigo;
+                startChatListener();
+            });
+
+            listWrapper.appendChild(row);
+        }
+
+        document.querySelector('.badge-total').innerText = amigosEmails.length;
 
     } catch (error) {
-        console.error("Erro ao processar lista de conversas:", error);
-        listWrapper.innerHTML = `<p style="text-align:center; color:red; padding:20px;">Erro: ${error.message}</p>`;
+        console.error("Erro ao carregar amigos na lista de conversas:", error);
+        listWrapper.innerHTML = `<p style="text-align:center; color:red; padding:20px;">Erro ao carregar: ${error.message}</p>`;
     }
 }
-
 
 // 2. Escuta ativa em Tempo Real na sala específica selecionada
 function startChatListener() {
@@ -3683,12 +3686,6 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
     }
 });
 
-
-
-        // Usa o e-mail do usuário
-
-
-
 async function curtirReel(postId, curtidas) {
     if (!auth.currentUser) {
         alert("Você precisa fazer login para curtir!");
@@ -3708,6 +3705,29 @@ async function curtirReel(postId, curtidas) {
 window.curtirReel = curtirReel;
 window.loadReels = loadReels;
 window.loadConversationsList = loadConversationsList;
+
+// Ativa o botão "Mensagem" do perfil para iniciar uma sala privada com o amigo
+btnSendMessageProfile.addEventListener('click', () => {
+    if (!auth.currentUser || !profileViewedEmail) return;
+    
+    const meuEmail = auth.currentUser.email;
+    const nomeAmigo = profileViewedEmail.split('@')[0];
+    const nomeFormatado = pUserTitle.textContent;
+    const fotoAmigo = pAvatarImg.src;
+
+    // Configura o receptor e a sala de chat privada em ordem alfabética estável
+    currentChatRecipient = profileViewedEmail;
+    currentRoomId = meuEmail < profileViewedEmail ? `${meuEmail}_${profileViewedEmail}` : `${profileViewedEmail}_${meuEmail}`;
+
+    // Fecha o container de perfil e abre o container escuro do chat
+    profileContainer.style.display = 'none';
+    document.getElementById('chat-container').style.display = 'flex';
+    document.getElementById('chat-current-user-name').innerText = nomeFormatado;
+    document.getElementById('chat-current-avatar').src = fotoAmigo;
+
+    // Inicializa a escuta de mensagens em tempo real
+    startChatListener();
+});
 
 </script>
 </body>
