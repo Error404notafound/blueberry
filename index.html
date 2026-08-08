@@ -1872,13 +1872,41 @@ async function carregarSugestoesAleatorias() {
             suggestionsWrapper.appendChild(row);
             
             // Comportamento visual ao clicar para adicionar
+                        // Comportamento ao clicar para adicionar salvando no Firestore
             const btnSug = row.querySelector('.btn-confirm-add');
-            btnSug.addEventListener('click', () => {
-                btnSug.style.backgroundColor = '#3a3b3c';
-                btnSug.style.color = '#ffffff';
-                btnSug.textContent = "Cancelar pedido";
+            btnSug.addEventListener('click', async () => {
+                if (!auth.currentUser) {
+                    alert("Você precisa estar logado!");
+                    return;
+                }
+                const meuEmail = auth.currentUser.email;
+                const docId = `${meuEmail.replace(/\./g, '_')}_${emailUsuario.replace(/\./g, '_')}`;
+
+                try {
+                    if (btnSug.textContent === "Adicionar aos amigos") {
+                        // Envia solicitação real ao banco
+                        await setDoc(doc(db, "solicitacoes", docId), {
+                            remetente: meuEmail,
+                            destinatario: emailUsuario,
+                            status: "pendente",
+                            createdAt: Date.now()
+                        });
+                        btnSug.style.backgroundColor = '#3a3b3c';
+                        btnSug.style.color = '#ffffff';
+                        btnSug.textContent = "Cancelar pedido";
+                    } else {
+                        // Remove solicitação se clicar novamente
+                        await deleteDoc(doc(db, "solicitacoes", docId));
+                        btnSug.style.backgroundColor = '#2374e1';
+                        btnSug.style.color = '#ffffff';
+                        btnSug.textContent = "Adicionar aos amigos";
+                    }
+                } catch (error) {
+                    console.error("Erro ao gerenciar solicitação nas sugestões:", error);
+                    alert("Erro ao enviar: " + error.message);
+                }
             });
-        });
+
 
         // Caso a lista continue vazia após o filtro
         if (suggestionsWrapper.children.length === 0) {
@@ -2008,10 +2036,36 @@ function atualizarBotaoAmizade(enviado) {
 }
 
 // Evento que escuta o clique do usuário no botão
-btnAddFriend.addEventListener('click', () => {
-    solicitacaoEnviada = !solicitacaoEnviada;
-    atualizarBotaoAmizade(solicitacaoEnviada);
+// Evento que escuta o clique do usuário no botão e salva no Firestore
+btnAddFriend.addEventListener('click', async () => {
+    if (!auth.currentUser || !profileViewedEmail) return;
+    const meuEmail = auth.currentUser.email;
+    const docId = `${meuEmail.replace(/\./g, '_')}_${profileViewedEmail.replace(/\./g, '_')}`;
+
+    try {
+        if (!solicitacaoEnviada) {
+            // Grava o documento da solicitação pendente no banco de dados
+            await setDoc(doc(db, "solicitacoes", docId), {
+                remetente: meuEmail,
+                destinatario: profileViewedEmail,
+                status: "pendente",
+                createdAt: Date.now()
+            });
+            solicitacaoEnviada = true;
+            alert("Solicitação de amizade enviada!");
+        } else {
+            // Cancela a solicitação removendo o documento do banco de dados
+            await deleteDoc(doc(db, "solicitacoes", docId));
+            solicitacaoEnviada = false;
+            alert("Solicitação cancelada!");
+        }
+        atualizarBotaoAmizade(solicitacaoEnviada);
+    } catch (error) {
+        console.error("Erro ao processar amizade no Firestore:", error);
+        alert("Erro ao processar solicitação: " + error.message);
+    }
 });
+
 const modalEditProfile = document.getElementById('modal-edit-profile');
 const closeModalEditP = document.getElementById('close-modal-edit-p');
 const rowTriggerBio = document.getElementById('row-trigger-bio');
@@ -3211,7 +3265,20 @@ if (auth.currentUser && auth.currentUser.email === profileViewedEmail) {
     // Exibe os novos botões que você viu no print
     btnAddFriend.style.display = 'flex';          
     btnSendMessageProfile.style.display = 'flex'; 
+
+    // VERIFICA SE JÁ EXISTE UMA SOLICITAÇÃO ENVIADA NO FIRESTORE
+    const meuEmail = auth.currentUser.email;
+    const docId = `${meuEmail.replace(/\./g, '_')}_${profileViewedEmail.replace(/\./g, '_')}`;
+    
+    try {
+        const docSnap = await getDoc(doc(db, "solicitacoes", docId));
+        solicitacaoEnviada = docSnap.exists() && docSnap.data().status === "pendente";
+        atualizarBotaoAmizade(solicitacaoEnviada);
+    } catch(e) {
+        console.error("Erro ao carregar estado de amizade prévio:", e);
+    }
 }
+
 
     
         // 5. BANCO DE DADOS: Recupera a Biografia e Foto Personalizada no Firestore
