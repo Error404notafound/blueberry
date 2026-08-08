@@ -2270,42 +2270,24 @@ onAuthStateChanged(auth, async (user) => {
         appContainer.style.display = 'block';
         drawerUserName.textContent = user.email;
         
-        // 📸 BUSCAR A FOTO DE PERFIL DIRETO NO BANCO
+                // 📸 BUSCAR A FOTO DE PERFIL DIRETO NO BANCO (Otimizado para o plano Spark)
         try {
-            // Puxa a coleção 'usuarios' usando o que seu app já tem
-            const querySnapshot = await getDocs(collection(db, 'usuarios'));
-            
-            let fotoEncontrada = null;
+            const userDocRef = doc(db, 'usuarios', user.email);
+            const docSnap = await getDoc(userDocRef);
 
-            // Acessa diretamente o documento correspondente ao e-mail do usuário logado [1].
-// Faz apenas uma leitura no banco de dados [1].
-const userDocRef = doc(db, 'usuarios', user.email);
-const docSnap = await getDoc(userDocRef);
-
-if (docSnap.exists() && docSnap.data().fotoPerfil) {
-    const fotoUrl = docSnap.data().fotoPerfil;
-    pAvatarImg.src = fotoUrl;
-    if (postAreaAvatar) postAreaAvatar.src = fotoUrl; // Atualiza a barra de postagem
-} else {
-    const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
-    pAvatarImg.src = defaultAvatar;
-    if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; // Atualiza com o padrão
-}
-
-
-
-            // Se achou o seu e-mail no meio dos documentos, aplica a foto correspondente
-            if (fotoEncontrada && typeof pAvatarImg !== 'undefined') {
-                pAvatarImg.src = fotoEncontrada;
+            if (docSnap.exists() && docSnap.data().fotoPerfil) {
+                const fotoUrl = docSnap.data().fotoPerfil;
+                pAvatarImg.src = fotoUrl;
+                if (postAreaAvatar) postAreaAvatar.src = fotoUrl; 
             } else {
-                // Se não achar, mantém o avatar padrão em SVG (sem links para o Google cortar)
-                if (typeof pAvatarImg !== 'undefined') {
-                    pAvatarImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ccc'/></svg>";
-                }
+                const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
+                pAvatarImg.src = defaultAvatar;
+                if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; 
             }
         } catch (erro) {
             console.error("Erro ao recuperar foto do Firebase:", erro);
         }
+
         
         document.getElementById('feed').innerHTML = '';
         lastVisible = null;
@@ -3029,11 +3011,14 @@ async function loadReels() {
             if (post.video && post.video.trim() !== "") {
                 let videoUrl = post.video.trim();
                 
-                if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
+                                if (videoUrl.includes('://youtube.com') || videoUrl.includes('youtu.be/')) {
                     let videoId = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
-                    if(videoId.includes('&')) videoId = videoId.split('&');
-                    videoUrl = `https://youtube.com{videoId}?autoplay=1&mute=1`;
+                    // Garante a extração correta se houver parâmetros adicionais na URL
+                    if(Array.isArray(videoId)) videoId = videoId[0];
+                    if(videoId.includes('&')) videoId = videoId.split('&')[0];
+                    videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
                 }
+
 
                 const reelCard = document.createElement('div');
                 reelCard.className = 'reel-card';
