@@ -1901,15 +1901,17 @@ async function carregarSugestoesAleatorias() {
                         btnSug.style.color = '#ffffff';
                         btnSug.textContent = "Adicionar aos amigos";
                     }
-                } catch (error) {
+                                } catch (error) {
                     console.error("Erro ao gerenciar solicitação nas sugestões:", error);
                     alert("Erro ao enviar: " + error.message);
                 }
             });
 
+        }); // 👈 ADICIONE ESTE FECHAMENTO EXATAMENTE AQUI!
 
         // Caso a lista continue vazia após o filtro
         if (suggestionsWrapper.children.length === 0) {
+
             suggestionsWrapper.innerHTML = '<p style="color: #b0b3b8; font-size: 14px;">Nenhuma sugestão de perfil configurado no momento.</p>';
         }
 
