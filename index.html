@@ -3462,13 +3462,13 @@ function startChatListener() {
     });
 }
 
+// 1. Mantém a sua função de envio original
 async function enviarMensagemChat() {
     const input = document.getElementById('chat-input-message');
     const texto = input.value.trim();
     if (!texto) return;
 
     try {
-        // Salva vinculando diretamente ao ID da sala (como um comentário privado)
         await addDoc(collection(db, 'messages'), {
             roomId: currentRoomId, 
             senderId: auth.currentUser.email,
@@ -3480,6 +3480,25 @@ async function enviarMensagemChat() {
         console.error("Erro ao enviar mensagem para o Firebase:", error);
     }
 }
+
+// 2. NOVO: Mapeia os elementos do HTML e ativa os ouvintes de evento
+const btnSendMessage = document.getElementById('btn-send-message');
+const chatInputMessage = document.getElementById('chat-input-message');
+
+// Dispara o envio ao clicar no botão físico de enviar (ícone de avião)
+if (btnSendMessage) {
+    btnSendMessage.addEventListener('click', enviarMensagemChat);
+}
+
+// Dispara o envio direto ao pressionar a tecla Enter dentro do campo de texto
+if (chatInputMessage) {
+    chatInputMessage.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            enviarMensagemChat();
+        }
+    });
+}
+
 
 function atualizarLayoutAmizade(status) {
     if (status === 'amigos') {
