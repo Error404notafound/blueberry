@@ -1776,8 +1776,18 @@
 
         // Importações do Firebase SDK v9 modular
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-        import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer, deleteDoc, startAt, endAt } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+import { getFirestore, collection, addDoc, query, orderBy, limit, startAfter, onSnapshot, getDocs, where, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, getCountFromServer, deleteDoc, startAt, endAt } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+
+// ADICIONADO: Importações do Realtime Database para gerenciar a presença offline/online
+import { getDatabase, ref as rtdbRef, onValue as onRtdbValue, set as rtdbSet, onDisconnect, serverTimestamp as rtdbTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// ADICIONADO: Inicialização do Realtime Database
+const rtdb = getDatabase(app);
         
         // 1. CONFIGURAÇÃO DO FIREBASE (SEUS DADOS DE PROJETO)
         const firebaseConfig = {
@@ -2508,6 +2518,43 @@ onAuthStateChanged(auth, async (user) => {
         }
     }
 });
+// Função para atualizar o status do usuário no Realtime Database
+function gerenciarPresencaUsuario(email) {
+    if (!email) return;
+    const emailChave = email.replace(/\./g, '_'); // Substitui os pontos do e-mail para não quebrar caminhos do RTDB
+    
+    const statusRef = rtdbRef(rtdb, `status/${emailChave}`);
+    const connectedRef = rtdbRef(rtdb, '.info/connected'); // Variável especial do Firebase que monitora conexão física do cliente
+
+    onRtdbValue(connectedRef, (snapshot) => {
+        if (snapshot.val() === true) {
+            // Regra do Servidor: Se eu perder a conexão física, defina automaticamente como offline e salve o horário
+            onDisconnect(statusRef).set({
+                state: 'offline',
+                lastOnline: rtdbTimestamp()
+            }).then(() => {
+                // Enquanto eu estiver conectado fisicamente, mantém meu estado online
+                rtdbSet(statusRef, {
+                    state: 'online',
+                    lastOnline: rtdbTimestamp()
+                });
+            });
+        }
+    });
+}
+
+// Modifique o seu onAuthStateChanged existente para chamar a função acima:
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        authContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        drawerUserName.textContent = user.email;
+        
+        // CHAMADA DA FUNÇÃO ADICIONADA AQUI:
+        gerenciarPresencaUsuario(user.email);
+        
+        escutarPedidosDeAmizade();
+        // ... restante da sua lógica de login
 
         
         // Limpa o feed e reseta a paginação ao fazer login
@@ -2578,8 +2625,20 @@ if (btnEditAvatar) {
                 .catch(error => alert('Erro ao entrar: ' + error.message));
         });
 
-        // Logout
-        drawerLogoutBtn.addEventListener('click', () => signOut(auth));
+        // Logout manual atualizado para desativar o status online imediatamente
+drawerLogoutBtn.addEventListener('click', async () => {
+    if (auth.currentUser) {
+        const emailChave = auth.currentUser.email.replace(/\./g, '_');
+        const statusRef = rtdbRef(rtdb, `status/${emailChave}`);
+        
+        // Grava que o usuário saiu manualmente usando o timestamp local
+        await rtdbSet(statusRef, {
+            state: 'offline',
+            lastOnline: Date.now()
+        });
+    }
+    signOut(auth);
+});
 
         // Funcionalidades da nova UI
 
@@ -2587,13 +2646,11 @@ if (btnEditAvatar) {
         searchIcon.addEventListener('click', () => {
             searchBarContainer.classList.toggle('active');
         });
-
         // Abrir gaveta lateral
         menuHamburguerIcon.addEventListener('click', () => {
             sideDrawer.classList.add('open');
             drawerOverlay.classList.add('active');
         });
-
         // Fechar gaveta lateral
         closeDrawerBtn.addEventListener('click', () => {
             sideDrawer.classList.remove('open');
@@ -3392,7 +3449,7 @@ async function loadConversationsList() {
                 </div>
             `;
 
-            row.addEventListener('click', () => {
+                        row.addEventListener('click', () => {
                 currentChatRecipient = emailAmigo;
                 currentRoomId = meuEmail < emailAmigo ? `${meuEmail}_${emailAmigo}` : `${emailAmigo}_${meuEmail}`;
                 
@@ -3401,7 +3458,11 @@ async function loadConversationsList() {
                 document.getElementById('chat-current-user-name').innerText = nomeFormatado;
                 document.getElementById('chat-current-avatar').src = fotoAmigo;
                 startChatListener();
+
+                // 🟢 ADICIONADO: Começa a monitorar em tempo real se o amigo está online ou offline
+                escutarPresencaAmigo(emailAmigo);
             });
+
 
             listWrapper.appendChild(row);
         }
@@ -3861,7 +3922,81 @@ btnSendMessageProfile.addEventListener('click', () => {
 
     // Inicializa a escuta de mensagens em tempo real
     startChatListener();
+
+    // 🟢 ADICIONADO: Começa a monitorar em tempo real se o amigo está online ou offline
+    escutarPresencaAmigo(profileViewedEmail);
 });
+// Função para converter o timestamp de saída em formato legível ("há X min", "há X dias")
+function formatarUltimaVezOnline(estado, timestamp) {
+    if (estado === 'online') return 'Online';
+    if (!timestamp) return 'Offline';
+    
+    const agora = Date.now();
+    const diferencaMs = agora - timestamp;
+    if (diferencaMs < 0) return 'Offline';
+
+    const diferencaSegundos = Math.floor(diferencaMs / 1000);
+    const diferencaMinutos = Math.floor(diferencaSegundos / 60);
+    const diferencaHoras = Math.floor(diferencaMinutos / 60);
+    const diferencaDias = Math.floor(diferencaHoras / 24);
+
+    if (diferencaSegundos < 60) {
+        return 'Visto por último há segundos';
+    } else if (diferencaMinutos < 60) {
+        return `Online há ${diferencaMinutos} min`;
+    } else if (diferencaHoras < 24) {
+        return `Online há ${diferencaHoras} h`;
+    } else if (diferencaDias < 7) {
+        return `Online há ${diferencaDias} d`;
+    } else {
+        const data = new Date(timestamp);
+        return `Online em ${data.toLocaleDateString()}`;
+    }
+}
+
+// Ouvinte ativo de presença para o amigo com quem você está conversando
+let activePresenceListener = null;
+
+function escutarPresencaAmigo(emailAmigo) {
+    const statusSpan = document.querySelector('#chat-container .chat-user-info span');
+    if (!statusSpan) return;
+
+    // Cancela o ouvinte anterior para não gastar leituras no plano Spark sem custo
+    if (activePresenceListener) {
+        activePresenceListener();
+    }
+
+    const emailChave = emailAmigo.replace(/\./g, '_');
+    const statusRef = rtdbRef(rtdb, `status/${emailChave}`);
+
+    // Cria escuta em tempo real no Realtime Database
+    activePresenceListener = onRtdbValue(statusRef, (snapshot) => {
+        const dados = snapshot.val();
+        if (dados) {
+            statusSpan.innerText = formatarUltimaVezOnline(dados.state, dados.lastOnline);
+            // Altera a cor do status para dar mais realismo
+            statusSpan.style.color = dados.state === 'online' ? '#25d366' : '#8696a0';
+        } else {
+            statusSpan.innerText = 'Offline';
+            statusSpan.style.color = '#8696a0';
+        }
+    });
+}
+// 🟢 ADICIONADO: Configura o botão de Voltar do Chat e cancela o ouvinte de presença
+const btnVoltarChat = document.getElementById('btn-voltar-chat');
+if (btnVoltarChat) {
+    btnVoltarChat.addEventListener('click', () => {
+        // Oculta a janela de chat ativo e apresenta de volta a lista de amigos
+        document.getElementById('chat-container').style.display = 'none';
+        document.getElementById('chat-list-container').style.display = 'block';
+        
+        // Cancela o ouvinte ativo de presença para economizar conexões no plano Spark sem custo
+        if (activePresenceListener) {
+            activePresenceListener();
+            activePresenceListener = null;
+        }
+    });
+}
 
 </script>
 </body>
