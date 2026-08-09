@@ -3412,6 +3412,8 @@ async function loadConversationsList() {
                 fotoAmigo = uData.fotoPerfil || fotoAmigo;
             }
 
+                        const amigoChave = emailAmigo.replace(/\./g, '_'); // Cria chave única para o ID do elemento HTML
+
             const row = document.createElement('div');
             row.className = 'chat-row';
             row.innerHTML = `
@@ -3419,7 +3421,8 @@ async function loadConversationsList() {
                 <div class="chat-row-content">
                     <div class="chat-row-top">
                         <h4 class="chat-row-name">${nomeFormatado}</h4>
-                        <span class="chat-row-time">Online</span>
+                        <!-- MODIFICADO: Adicionado um ID dinâmico e iniciamos com o status 'Offline' padrão -->
+                        <span class="chat-row-time" id="status-lista-${amigoChave}" style="color: #8696a0;">Offline</span>
                     </div>
                     <div class="chat-row-bottom">
                         <p class="chat-row-msg">Clique para iniciar a conversa...</p>
@@ -3427,7 +3430,7 @@ async function loadConversationsList() {
                 </div>
             `;
 
-                        row.addEventListener('click', () => {
+            row.addEventListener('click', () => {
                 currentChatRecipient = emailAmigo;
                 currentRoomId = meuEmail < emailAmigo ? `${meuEmail}_${emailAmigo}` : `${emailAmigo}_${meuEmail}`;
                 
@@ -3437,12 +3440,28 @@ async function loadConversationsList() {
                 document.getElementById('chat-current-avatar').src = fotoAmigo;
                 startChatListener();
 
-                // 🟢 ADICIONADO: Começa a monitorar em tempo real se o amigo está online ou offline
+                // Começa a monitorar em tempo real se o amigo está online ou offline
                 escutarPresencaAmigo(emailAmigo);
             });
 
-
             listWrapper.appendChild(row);
+
+            // 🟢 ADICIONADO: Escuta ativa no Realtime Database para atualizar o status do amigo na própria lista de contatos [2]
+            const statusAmigoRef = rtdbRef(rtdb, `status/${amigoChave}`);
+            onRtdbValue(statusAmigoRef, (statusSnap) => {
+                const statusData = statusSnap.val();
+                const statusSpan = document.getElementById(`status-lista-${amigoChave}`);
+                if (statusSpan) {
+                    if (statusData && statusData.state === 'online') {
+                        statusSpan.innerText = 'Online';
+                        statusSpan.style.color = '#25d366'; // Cor verde para online
+                    } else {
+                        statusSpan.innerText = 'Offline';
+                        statusSpan.style.color = '#8696a0'; // Cor cinza para offline
+                    }
+                }
+            });
+
         }
 
         document.querySelector('.badge-total').innerText = amigosEmails.length;
