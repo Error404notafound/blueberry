@@ -1782,28 +1782,22 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 // ADICIONADO: Importações do Realtime Database para gerenciar a presença offline/online
 import { getDatabase, ref as rtdbRef, onValue as onRtdbValue, set as rtdbSet, onDisconnect, serverTimestamp as rtdbTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js';
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// ADICIONADO: Inicialização do Realtime Database
-const rtdb = getDatabase(app);
-        
-        // 1. CONFIGURAÇÃO DO FIREBASE (SEUS DADOS DE PROJETO)
+        // 1. CONFIGURAÇÃO DO FIREBASE
         const firebaseConfig = {
             apiKey: 'AIzaSyBbcnTj1PxAclN0E0Fc9GlDI_MhCS0hP7Y',
-            authDomain: 'blueberry-c6d6f.firebaseapp.com', // CORRIGIDO: Agora aponta para o domínio correto do seu projeto.
+            authDomain: 'blueberry-c6d6f.firebaseapp.com', 
             projectId: 'blueberry-c6d6f',
             storageBucket: 'blueberry-c6d6f.firebasestorage.app',
             messagingSenderId: '907567492761',
             appId: '1:907567492761:web:6c9ee873357ceb68b25208'
         };
 
-        // ... CONFIGURAÇÃO DO FIREBASE ...
-// ... CONFIGURAÇÃO DO FIREBASE ...
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
+        // 2. INICIALIZAÇÃO ÚNICA (Sem duplicatas ou variáveis nulas)
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const rtdb = getDatabase(app);
+
 
 // As variáveis do chat que adicionamos:
 let currentChatRecipient = null;
@@ -2476,18 +2470,41 @@ let isFetchingPosts = false; // Flag para evitar múltiplas chamadas de fetch
 
 // Monitor de Login
 
-        // Monitor de Login
-// Monitor de Login
+        // 1. FUNÇÃO AUXILIAR DE PRESENÇA (Adicionada de forma limpa)
+function gerenciarPresencaUsuario(email) {
+    if (!email) return;
+    const emailChave = email.replace(/\./g, '_');
+    
+    const statusRef = rtdbRef(rtdb, `status/${emailChave}`);
+    const connectedRef = rtdbRef(rtdb, '.info/connected');
+
+    onRtdbValue(connectedRef, (snapshot) => {
+        if (snapshot.val() === true) {
+            onDisconnect(statusRef).set({
+                state: 'offline',
+                lastOnline: rtdbTimestamp()
+            }).then(() => {
+                rtdbSet(statusRef, {
+                    state: 'online',
+                    lastOnline: rtdbTimestamp()
+                });
+            });
+        }
+    });
+}
+
+// 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         authContainer.style.display = 'none';
         appContainer.style.display = 'block';
         drawerUserName.textContent = user.email;
         
-        // 👇 LINHA ADICIONADA AQUI: Ativa o monitor de solicitações em tempo real assim que loga
+        // Ativa os monitores em tempo real
         escutarPedidosDeAmizade();
+        gerenciarPresencaUsuario(user.email);
         
-                // 📸 BUSCAR A FOTO DE PERFIL DIRETO NO BANCO (Otimizado para o plano Spark)
+        // Busca foto de perfil customizada
         try {
             const userDocRef = doc(db, 'usuarios', user.email);
             const docSnap = await getDoc(userDocRef);
@@ -2505,7 +2522,7 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Erro ao recuperar foto do Firebase:", erro);
         }
 
-        
+        // Carrega o feed inicial do Blueberry
         document.getElementById('feed').innerHTML = '';
         lastVisible = null;
         isFetchingPosts = false;
@@ -2518,46 +2535,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     }
 });
-// Função para atualizar o status do usuário no Realtime Database
-function gerenciarPresencaUsuario(email) {
-    if (!email) return;
-    const emailChave = email.replace(/\./g, '_'); // Substitui os pontos do e-mail para não quebrar caminhos do RTDB
-    
-    const statusRef = rtdbRef(rtdb, `status/${emailChave}`);
-    const connectedRef = rtdbRef(rtdb, '.info/connected'); // Variável especial do Firebase que monitora conexão física do cliente
 
-    onRtdbValue(connectedRef, (snapshot) => {
-        if (snapshot.val() === true) {
-            // Regra do Servidor: Se eu perder a conexão física, defina automaticamente como offline e salve o horário
-            onDisconnect(statusRef).set({
-                state: 'offline',
-                lastOnline: rtdbTimestamp()
-            }).then(() => {
-                // Enquanto eu estiver conectado fisicamente, mantém meu estado online
-                rtdbSet(statusRef, {
-                    state: 'online',
-                    lastOnline: rtdbTimestamp()
-                });
-            });
-        }
-    });
-}
-
-// Modifique o seu onAuthStateChanged existente para chamar a função acima:
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        authContainer.style.display = 'none';
-        appContainer.style.display = 'block';
-        drawerUserName.textContent = user.email;
-        
-        // CHAMADA DA FUNÇÃO ADICIONADA AQUI:
-        gerenciarPresencaUsuario(user.email);
-        
-        escutarPedidosDeAmizade();
-        // ... restante da sua lógica de login
-
-        
-        // Limpa o feed e reseta a paginação ao fazer login
 
 
         // Clique Criar Conta
