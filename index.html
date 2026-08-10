@@ -644,13 +644,14 @@
     flex-direction: column;
 }
 /* Cabeçalho ajustado */
-.chat-header { 
-    background-color: #202c33; 
-    padding: 10px 16px; 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-    border-bottom: 1px solid #222e35; 
+.chat-header {
+    background-color: #202c33;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Empurra os blocos para os cantos opostos */
+    border-bottom: 1px solid #222e35;
+    box-sizing: border-box;
 }
 .chat-user-info { 
     display: flex; 
@@ -1729,6 +1730,8 @@
 <!-- 2. Tela de Balões de Chat Privado (WhatsApp Dark) -->
 <section id="chat-container" style="display: none;">
     <div class="chat-header">
+    <!-- Lado Esquerdo: Voltar + Info do Usuário -->
+    <div style="display: flex; align-items: center; gap: 10px;">
         <span id="btn-voltar-chat" style="cursor:pointer; font-size: 22px; color: white; padding-right: 5px;">&larr;</span>
         <div class="chat-user-info">
             <img src="https://placeholder.com" alt="Avatar" class="user-avatar" id="chat-current-avatar">
@@ -1738,6 +1741,34 @@
             </div>
         </div>
     </div>
+
+    <!-- Lado Direito: Os 3 botões do Print (Vídeo, Voz e Menu) -->
+    <div class="chat-header-actions" style="display: flex; align-items: center; gap: 20px;">
+        <!-- Ícone de Vídeo -->
+        <div id="btn-chat-video" style="cursor: pointer; display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+                <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55-.45 1-1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+            </svg>
+        </div>
+        
+        <!-- Ícone de Telefone/Voz -->
+        <div id="btn-chat-voice" style="cursor: pointer; display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+                <path d="M20.01 15.38c-1.23-.13-2.42-.33-3.57-.7l-2.42 2.42c2.95 1.5 6.32 2.33 9.87 2.43v-4.15zM6.9 8.9L9.32 6.48c-.37-1.15-.57-2.35-.7-3.57H4.46c.1 3.55.93 6.92 2.44 9.87zM22 3h-4.15c-.11 3.55-.94 6.92-2.43 9.88l2.42 2.42c1.15-.35 2.34-.55 3.57-.68V3zM3 4.46v4.15c3.55.1 6.92.93 9.87 2.44l2.42-2.42c-1.15-.37-2.35-.57-3.57-.7H3z" style="display:none;"/>
+                <!-- Opção simplificada e limpa de ícone de telefone padrão -->
+                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
+        </div>
+
+        <!-- Ícone dos Três Pontinhos -->
+        <div id="btn-chat-options" style="cursor: pointer; display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            </svg>
+        </div>
+    </div>
+</div>
+
     <div class="chat-messages" id="chat-messages-wrapper">
         <!-- Balões de conversa dinâmicos via JS -->
     </div>
@@ -3994,6 +4025,18 @@ if (btnVoltarChat) {
         }
     });
 }
+// Executar esses seletores após carregar sua tela ou dentro do fluxo do chat
+document.getElementById('btn-chat-video').addEventListener('click', () => {
+    alert('Iniciando sinalização de chamada de vídeo pelo Firebase...');
+});
+
+document.getElementById('btn-chat-voice').addEventListener('click', () => {
+    alert('Iniciando chamada de voz...');
+});
+
+document.getElementById('btn-chat-options').addEventListener('click', () => {
+    alert('Abrindo menu de opções do chat...');
+});
 
 </script>
 </body>
