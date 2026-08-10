@@ -833,52 +833,59 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 }
 
 /* Rodapé agora se comporta como um elemento fixo normal no fluxo do Flexbox */
-.chat-footer { 
-    background: #0b141a !important; /* Fundo sólido para cobrir as mensagens ao rolar */
-    padding: 10px; 
-    display: flex !important; 
-    align-items: center; 
-    gap: 8px; 
-    border-top: 1px solid #202c33 !important; /* Linha sutil para separar do chat */
-    box-sizing: border-box;
-    width: 100%;
-    z-index: 2000;
-    /* Removido position: absolute, bottom e left! */
+.chat-footer {
+    background: #0b141a !important;
+    padding: 10px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border-top: 1px solid #202c33 !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+
+/* 2. Garante que o campo de texto não empurre os ícones para fora */
+.chat-footer input {
+    flex: 1 !important;
+    background-color: #2a3942 !important;
+    border: none !important;
+    padding: 10px 15px !important;
+    border-radius: 20px !important;
+    color: #fff !important;
+    font-size: 15px !important;
+    outline: none !important;
+    min-width: 0 !important; /* Impede o input de estourar a tela */
 }
 
-/* Garante que o input mantenha a altura oval correta */
-.chat-footer input { 
-    flex: 1; 
-    background-color: #202c33 !important; 
-    border: none !important; 
-    border-radius: 25px !important; 
-    padding: 14px 20px !important; 
-    color: #ffffff !important; 
-    outline: none; 
-    font-size: 16px; 
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
-/* Botão circular verde flutuante perfeito */
-.chat-footer button { 
-    background-color: #00a884 !important; 
-    border: none !important; 
-    border-radius: 50% !important; 
-    width: 50px !important; 
-    height: 50px !important; 
-    display: flex !important; 
-    align-items: center !important; 
-    justify-content: center !important; 
-    cursor: pointer; 
+/* 3. Estiliza os ícones de Clipe e Câmera para ficarem alinhados */
+.chat-footer-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     flex-shrink: 0 !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-    padding: 0 !important;
+    width: 28px !important;
+    height: 28px !important;
 }
 
-/* Ajusta o tamanho do ícone de enviar do WhatsApp */
+/* 4. Força o botão verde a ser um círculo perfeito e centralizar os SVGs */
+.chat-footer button {
+    background-color: #00a884 !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 45px !important;
+    height: 45px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+}
+
+/* 5. Ajusta o tamanho dos ícones dentro do botão verde */
 .chat-footer button svg {
-    width: 24px !important;
-    height: 24px !important;
+    width: 22px !important;
+    height: 22px !important;
     fill: #ffffff !important;
 }
 /* ==================== NOVO LAYOUT DO FACEBOOK REELS ==================== */
