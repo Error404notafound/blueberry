@@ -647,14 +647,15 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 }
 /* Cabeçalho ajustado */
 .chat-header {
-    background-color: #202c33;
+    background-color: var(--bg-card); /* 🌟 Mudado para usar a mesma cor do X amarelo */
     padding: 10px 16px;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Empurra os blocos para os cantos opostos */
-    border-bottom: 1px solid #222e35;
+    justify-content: space-between; /* Mantém o alinhamento correto dos novos botões */
+    border-bottom: 1px solid #3e4042; /* Ajustado a linha de baixo para combinar com o topo */
     box-sizing: border-box;
 }
+
 .chat-user-info { 
     display: flex; 
     align-items: center; 
