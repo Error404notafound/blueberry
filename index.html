@@ -1884,41 +1884,22 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
      BARRA DO CHAT COM ÍCONE DE CÂMERA ATUALIZADO
      ========================================== -->
 <div class="chat-footer-zap" style="background: #0b141a !important; padding: 8px 10px !important; display: flex !important; align-items: center !important; gap: 8px !important; border-top: 1px solid #202c33 !important; box-sizing: border-box !important; width: 100% !important; position: relative !important; z-index: 999 !important;">
-    
-    <!-- Caixa que envelopa o Input e os Ícones na mesma linha -->
     <div style="flex: 1 !important; display: flex !important; align-items: center !important; background-color: #2a3942 !important; border-radius: 22px !important; padding: 0 12px !important; height: 40px !important; box-sizing: border-box !important;">
-        
-        <!-- Campo de texto -->
         <input type="text" id="chat-message-input-unique" placeholder="Mensagem" style="flex: 1 !important; background: transparent !important; border: none !important; color: #ffffff !important; font-size: 15px !important; outline: none !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; height: 100% !important;">
-        
-        <!-- Ícone de Clipe -->
         <div style="display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 28px !important; height: 28px !important; cursor: pointer; margin-left: 5px;">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="#8696a0"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.59 2.91 6.5 6.5 6.5s6.5-2.91 6.5-6.5V6h-1.5z"/></svg>
         </div>
-
-        <!-- NOVO ÍCONE DE CÂMERA (ESTILO MINIMALISTA IGUAL AO EXEMPLO) -->
+        <!-- Câmera com ID e evento de clique mapeado -->
         <div id="chat-camera-btn" style="display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; width: 28px !important; height: 28px !important; cursor: pointer; margin-left: 5px;">
-            <svg viewBox="0 0 24 24" width="23" height="23" fill="#8696a0">
-                <!-- Corpo da câmera e lente circular centralizada -->
-                <path d="M4 5h3l1.5-2h7L17 5h3c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2zm8 13c3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6 2.69 6 6 6zm0-2c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
-            </svg>
+            <svg viewBox="0 0 24 24" width="23" height="23" fill="#8696a0"><path d="M4 5h3l1.5-2h7L17 5h3c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2zm8 13c3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6 2.69 6 6 6zm0-2c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>
         </div>
     </div>
-
-    <!-- Botão Verde de Ação Externa -->
     <button class="zap-btn-action" type="button" style="background-color: #00a884 !important; border: none !important; border-radius: 50% !important; width: 42px !important; height: 42px !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; flex-shrink: 0 !important; padding: 0 !important; margin: 0 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important;">
-        <svg id="icon-mic" viewBox="0 0 24 24" style="width: 22px !important; height: 22px !important; fill: #ffffff !important; display: block;">
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1.2-9c0-.66.54-1.2 1.2-1.2s1.2 0 1.2 1.2v6c0 .66-.54 1.2-1.2 1.2s-1.2 0-1.2-1.2V5zm6.2 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-        </svg>
-        <svg id="icon-send" viewBox="0 0 24 24" style="width: 22px !important; height: 22px !important; fill: #ffffff !important; display: none;">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-        </svg>
+        <svg id="icon-mic" viewBox="0 0 24 24" style="width: 22px !important; height: 22px !important; fill: #ffffff !important; display: block;"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1.2-9c0-.66.54-1.2 1.2-1.2s1.2 0 1.2 1.2v6c0 .66-.54 1.2-1.2 1.2s-1.2 0-1.2-1.2V5zm6.2 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+        <svg id="icon-send" viewBox="0 0 24 24" style="width: 22px !important; height: 22px !important; fill: #ffffff !important; display: none;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
 </div>
-
 </section>
-
-
 
 <!-- Modal para Criar Reel -->
 <div id="reel-modal" class="modal-reel">
@@ -1992,6 +1973,27 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
                 <path d="M12 9c-2.2 0-4.3.4-6.2 1.1-.5.2-.8.7-.8 1.3v2.2c0 .5.3.9.7 1.1l2.3.9c.3.1.6.1.9-.1l1.6-1.6c.3-.3.5-.7.5-1.1v-2.2c1.2-.3 2.5-.4 3.9-.4s2.7.1 3.9.4v2.2c0 .4.2.8.5 1.1l1.6 1.6c.3.2.6.2.9.1l2.3-.9c.4-.2.7-.6.7-1.1v-2.2c0-.5-.3-1-.8-1.3-1.9-.7-4-1.1-6.2-1.1z"/>
             </svg>
         </button>
+    </div>
+</div>
+<!-- ==========================================
+     MODAL DE MÍDIA DO CHAT (HTML)
+     ========================================== -->
+<div id="chat-media-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+    <div style="background: #242526; width: 100%; max-width: 450px; border-radius: 12px; padding: 20px; box-sizing: border-box; position: relative; color: #fff; font-family: sans-serif;">
+        
+        <!-- Botão de Fechar X -->
+        <span id="close-chat-modal" style="position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #b0b3b8;">&times;</span>
+        
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px; font-weight: bold;">Enviar Foto/Vídeo no Chat</h3>
+        
+        <!-- Campo para Link da Imagem/Vídeo -->
+        <input type="text" id="chat-media-url" placeholder="Cole o link da imagem ou embed aqui" style="width: 100%; background: #3a3b3c; border: none; border-radius: 8px; padding: 12px; color: #fff; margin-bottom: 15px; box-sizing: border-box; outline: none; font-size: 14px;">
+        
+        <!-- Campo Opcional de Legenda -->
+        <textarea id="chat-media-caption" placeholder="Escreva uma legenda (opcional)..." rows="3" style="width: 100%; background: #3a3b3c; border: none; border-radius: 8px; padding: 12px; color: #fff; margin-bottom: 20px; box-sizing: border-box; outline: none; font-size: 14px; resize: none; font-family: sans-serif;"></textarea>
+        
+        <!-- Botão Compartilhar Azul -->
+        <button id="btn-chat-share-media" style="width: 100%; background: #0077ff; color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s;">Compartilhar no Chat</button>
     </div>
 </div>
 
@@ -4761,7 +4763,7 @@ function monitorarChamadasVozEntrantes(userId) {
 }
 
 // ==========================================
-// LOGICA DINÂMICA COMPATÍVEL (JS)
+// LOGICA DINÂMICA COM MODAL DE MÍDIA (JS)
 // ==========================================
 const zapContainer = document.querySelector(".chat-footer-zap");
 
@@ -4772,10 +4774,17 @@ if (zapContainer) {
     const iconMic = document.getElementById("icon-mic");
     const iconSend = document.getElementById("icon-send");
 
+    // Elementos do novo Modal
+    const mediaModal = document.getElementById("chat-media-modal");
+    const closeModalBtn = document.getElementById("close-chat-modal");
+    const shareMediaBtn = document.getElementById("btn-chat-share-media");
+    const mediaUrlInput = document.getElementById("chat-media-url");
+    const mediaCaptionInput = document.getElementById("chat-media-caption");
+
+    // 1. Alterna entre Microfone e Seta de Enviar
     if (messageInput && actionBtn) {
         messageInput.addEventListener("input", () => {
             const hasText = messageInput.value.trim().length > 0;
-            
             if (hasText) {
                 if (cameraBtn) cameraBtn.style.display = "none";
                 if (iconMic) iconMic.style.display = "none";
@@ -4789,8 +4798,46 @@ if (zapContainer) {
 
         actionBtn.addEventListener("click", () => {
             if (messageInput.value.trim().length > 0) {
+                // Aqui roda a função padrão de envio de texto do seu app
                 messageInput.value = "";
                 messageInput.dispatchEvent(new Event("input"));
+            }
+        });
+    }
+
+    // 2. Controle de Abertura e Fechamento do Modal da Câmera
+    if (cameraBtn && mediaModal) {
+        cameraBtn.addEventListener("click", () => {
+            mediaModal.style.display = "flex";
+        });
+    }
+
+    if (closeModalBtn && mediaModal) {
+        closeModalBtn.addEventListener("click", () => {
+            mediaModal.style.display = "none";
+            mediaUrlInput.value = "";
+            mediaCaptionInput.value = "";
+        });
+    }
+
+    // 3. Ação de Compartilhar Mídia no Chat
+    if (shareMediaBtn) {
+        shareMediaBtn.addEventListener("click", () => {
+            const url = mediaUrlInput.value.trim();
+            const caption = mediaCaptionInput.value.trim();
+
+            if (url.length > 0) {
+                console.log("Mídia enviada ao chat:", { url, caption });
+                
+                // Integre aqui com a sua função do Firebase se necessário
+                // Exemplo: enviarMensagemAoFirebase(url, caption);
+
+                // Limpa e fecha o modal
+                mediaModal.style.display = "none";
+                mediaUrlInput.value = "";
+                mediaCaptionInput.value = "";
+            } else {
+                alert("Por favor, cole um link válido!");
             }
         });
     }
