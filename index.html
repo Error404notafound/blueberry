@@ -695,12 +695,13 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 /* Balões de Conversa */
 /* Container que junta o balão e as ações laterais */
 /* Container que junta a mensagem e impede quebra de layout */
+/* Container que junta a mensagem e impede quebra de layout */
 .msg-wrapper {
     display: flex;
     flex-direction: column;
-    position: relative;
+    position: relative; /* Mantém as ações presas ao balão correto */
     max-width: 75%;
-    margin-bottom: 8px;
+    margin-bottom: 25px !important; /* Aumentado o espaço para os botões não baterem na mensagem de cima */
 }
 .msg-wrapper.sent {
     align-self: flex-end;
@@ -711,7 +712,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     align-items: flex-start;
 }
 
-/* O Balão original mantém o tamanho perfeito */
+/* O Balão original mantém o tamanho perfeito e sem esmagar */
 .msg-bubble { 
     padding: 10px 14px; 
     border-radius: 18px; 
@@ -722,37 +723,46 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     cursor: pointer;
     user-select: none;
     position: relative;
-    width: 100%;
+    width: fit-content !important; /* Impede o balão de esticar ou encolher por causa dos botões */
     box-sizing: border-box;
 }
 .msg-bubble.sent { background-color: #005c4b; border-bottom-right-radius: 4px; }
 .msg-bubble.received { background-color: #202c33; border-bottom-left-radius: 4px; }
 
-/* 🚀 Solução do Bug: Container flutuante que aparece ACIMA da mensagem */
+/* 🌟 A CORREÇÃO: Container flutuante que aparece ACIMA da mensagem */
 .msg-actions {
     display: none;
-    position: absolute;
-    top: -38px; /* Joga os botões flutuando para cima do balão */
-    background-color: #22252a;
-    padding: 6px 12px;
-    border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    position: absolute !important; /* Força a saída do fluxo do balão */
+    top: -34px !important; /* Fixa exatamente acima do balão */
+    background-color: #3a3f47 !important; /* Cinza mais claro para dar contraste igual ao print */
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;
     align-items: center;
     gap: 14px;
-    z-index: 100;
+    z-index: 999 !important;
+    height: auto !important;
+    width: auto !important;
 }
-/* Posicionamento dos botões flutuantes para mensagens enviadas e recebidas */
+
+/* Posicionamento horizontal dos botões flutuantes */
 .msg-wrapper.sent .msg-actions {
-    right: 0;
+    right: 10px !important;
 }
 .msg-wrapper.received .msg-actions {
-    left: 0;
+    left: 10px !important;
+}
+
+/* Força os ícones SVG a ficarem brancos/claros dentro do menu */
+.msg-actions svg {
+    fill: #e4e6eb !important;
 }
 
 /* Disparador visual ao clicar */
 .msg-wrapper.active-msg .msg-actions {
-    display: flex;
+    display: flex !important;
 }
+
 /* Estilo do Menu Flutuante Escuro (Idêntico ao Print) */
 .msg-popover {
     position: absolute;
