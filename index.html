@@ -1876,33 +1876,37 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     <div class="chat-messages" id="chat-messages-wrapper">
         <!-- Balões de conversa dinâmicos via JS -->
     </div>
-        <div class="chat-footer">
-        <!-- Caixa de texto com ID atualizado -->
-        <input type="text" id="chat-message-input" placeholder="Mensagem">
+            <!-- ==========================================
+         NOVA BARRA DE DIGITAÇÃO DINÂMICA (HTML)
+         ========================================== -->
+    <div class="chat-footer">
+        <!-- Caixa de texto -->
+        <input type="text" placeholder="Mensagem">
         
         <!-- Ícone de Clipe (Anexo) -->
-        <div class="chat-footer-icon" id="chat-attachment-btn" style="cursor: pointer; padding: 0 5px; display: flex; align-items: center;">
+        <div class="chat-footer-icon" style="cursor: pointer; padding: 0 5px; display: flex; align-items: center;">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="#8696a0"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.59 2.91 6.5 6.5 6.5s6.5-2.91 6.5-6.5V6h-1.5z"/></svg>
         </div>
 
-        <!-- Ícone de Câmera (Que some ao digitar) -->
+        <!-- Ícone de Câmera (Identificado como id="chat-camera-btn") -->
         <div class="chat-footer-icon" id="chat-camera-btn" style="cursor: pointer; padding: 0 5px; display: flex; align-items: center;">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="#8696a0"><path d="M12 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm0-4.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm9-1.5h-3.17L16 4H8L6.17 6H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm.5 14c0 .28-.22.5-.5.5H3c-.28 0-.5-.22-.5-.5V8c0-.28.22-.5.5-.5h3.67l1.83-2h5l1.83 2H21c.28 0 .5.22.5.5v12z"/></svg>
         </div>
 
-        <!-- Botão verde agora com ID novo e os dois ícones alternáveis dentro -->
-        <button id="chat-action-btn" type="button">
-            <!-- Ícone do Microfone -->
+        <!-- Botão Verde contendo o Microfone e o Enviar por dentro -->
+        <button type="button">
+            <!-- Ícone do Microfone (id="icon-mic") -->
             <svg id="icon-mic" viewBox="0 0 24 24">
                 <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1.2-9c0-.66.54-1.2 1.2-1.2s1.2 0 1.2 1.2v6c0 .66-.54 1.2-1.2 1.2s-1.2 0-1.2-1.2V5zm6.2 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z"/>
             </svg>
-            <!-- Ícone de Enviar (Escondido por padrão) -->
+            <!-- Ícone de Enviar (id="icon-send" - escondido por padrão) -->
             <svg id="icon-send" viewBox="0 0 24 24" style="display: none;">
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
         </button>
     </div>
 </section>
+
 
 
 <!-- Modal para Criar Reel -->
@@ -4745,33 +4749,41 @@ function monitorarChamadasVozEntrantes(userId) {
     });
 }
 
-// LOGICA DA BARRA DE DIGITAÇÃO DINÂMICA
-const messageInput = document.getElementById("chat-message-input");
-const cameraBtn = document.getElementById("chat-camera-btn");
-const actionBtn = document.getElementById("chat-action-btn");
-const iconMic = document.getElementById("icon-mic");
-const iconSend = document.getElementById("icon-send");
+// ==========================================
+// LOGICA DA BARRA DE DIGITAÇÃO DINÂMICA (JS)
+// ==========================================
+const footerContainer = document.querySelector(".chat-footer");
 
-if (messageInput && actionBtn) {
-    messageInput.addEventListener("input", () => {
-        const hasText = messageInput.value.trim().length > 0;
-        if (hasText) {
-            cameraBtn.style.display = "none";
-            iconMic.style.display = "none";
-            iconSend.style.display = "block";
-        } else {
-            cameraBtn.style.display = "flex";
-            iconMic.style.display = "block";
-            iconSend.style.display = "none";
-        }
-    });
+if (footerContainer) {
+    const messageInput = footerContainer.querySelector("input");
+    const actionBtn = document.querySelector(".chat-footer button");
+    const cameraBtn = document.getElementById("chat-camera-btn");
+    const iconMic = document.getElementById("icon-mic");
+    const iconSend = document.getElementById("icon-send");
 
-    actionBtn.addEventListener("click", () => {
-        if (messageInput.value.trim().length > 0) {
-            messageInput.value = "";
-            messageInput.dispatchEvent(new Event("input"));
-        }
-    });
+    if (messageInput && actionBtn) {
+        messageInput.addEventListener("input", () => {
+            const hasText = messageInput.value.trim().length > 0;
+            
+            if (hasText) {
+                if (cameraBtn) cameraBtn.style.display = "none";
+                if (iconMic) iconMic.style.display = "none";
+                if (iconSend) iconSend.style.display = "block";
+            } else {
+                if (cameraBtn) cameraBtn.style.display = "flex";
+                if (iconMic) iconMic.style.display = "block";
+                if (iconSend) iconSend.style.display = "none";
+            }
+        });
+
+        // Evento de clique para limpar o campo ao enviar
+        actionBtn.addEventListener("click", () => {
+            if (messageInput.value.trim().length > 0) {
+                messageInput.value = "";
+                messageInput.dispatchEvent(new Event("input"));
+            }
+        });
+    }
 }
 // 3. FUNÇÃO PARA DESLIGAR E LIMPAR A CONEXÃO DE VOZ (O código que você já tinha)
 async function fecharFluxosDeVoz() {
