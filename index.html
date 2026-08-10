@@ -684,9 +684,71 @@
 }
 
 /* Balões de Conversa */
-.msg-bubble { max-width: 70%; padding: 8px 12px; border-radius: 8px; color: #e9edef; font-size: 14px; position: relative; line-height: 1.4; word-break: break-word; }
-.msg-bubble.sent { background-color: #005c4b; align-self: flex-end; border-top-right-radius: 0; }
-.msg-bubble.received { background-color: #202c33; align-self: flex-start; border-top-left-radius: 0; }
+/* Container que junta o balão e as ações laterais */
+.msg-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 85%;
+    position: relative;
+}
+.msg-wrapper.sent {
+    align-self: flex-end;
+    flex-direction: row-reverse; /* Coloca os botões à esquerda do balão enviado */
+}
+.msg-wrapper.received {
+    align-self: flex-start;
+    flex-direction: row; /* Coloca os botões à direita do balão recebido */
+}
+
+/* Ajuste sutil no balão original */
+.msg-bubble { 
+    padding: 10px 14px; 
+    border-radius: 18px; 
+    color: #e9edef; 
+    font-size: 15px; 
+    line-height: 1.4; 
+    word-break: break-word; 
+    cursor: pointer;
+    user-select: none;
+}
+.msg-bubble.sent { background-color: #005c4b; border-bottom-right-radius: 4px; }
+.msg-bubble.received { background-color: #202c33; border-bottom-left-radius: 4px; }
+
+/* Container de ações escondido por padrão */
+.msg-actions {
+    display: none;
+    align-items: center;
+    gap: 12px;
+}
+/* Classe ativa disparada pelo clique na mensagem */
+.msg-wrapper.active-msg .msg-actions {
+    display: flex;
+}
+
+/* Estilo do Menu Flutuante Escuro (Idêntico ao Print) */
+.msg-popover {
+    position: absolute;
+    background-color: #22252a;
+    border-radius: 12px;
+    padding: 6px 0;
+    min-width: 160px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    z-index: 3000;
+    display: none;
+    flex-direction: column;
+}
+.msg-popover-item {
+    padding: 12px 16px;
+    color: #e4e6eb;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+}
+.msg-popover-item:hover {
+    background-color: #3a3f47;
+}
 .msg-time { font-size: 10px; color: #8696a0; text-align: right; margin-top: 4px; display: block; }
 
 /* Barra inferior de Digitação */
@@ -3776,23 +3838,47 @@ function startChatListener() {
         wrapper.innerHTML = '';
         
         snapshot.forEach((doc) => {
-            const msg = doc.data();
-            // Se o senderId for igual ao seu e-mail, o balão fica verde/azul (enviado)
-            const isMe = msg.senderId === emailUsuarioLogado;
-            
-            const bubble = document.createElement('div');
-            bubble.className = `msg-bubble ${isMe ? 'sent' : 'received'}`;
-            
-            const textoMensagem = msg.text || msg.mensagem || '';
-            const dataHora = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
-            
-            bubble.innerHTML = `
-                <div>${textoMensagem}</div>
-                <span class="msg-time">${dataHora}</span>
-            `;
-            
-            wrapper.appendChild(bubble);
-        });
+    const msg = doc.data();
+    const isMe = msg.senderId === emailUsuarioLogado;
+    const msgId = doc.id; // Guarda o ID da mensagem para poder Editar/Excluir
+
+    const textoMensagem = msg.text || msg.mensagem || '';
+    const dataHora = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
+    
+    // Criamos o wrapper externo que une o balão e os botões
+    const containerMensagem = document.createElement('div');
+    containerMensagem.className = `msg-wrapper ${isMe ? 'sent' : 'received'}`;
+    containerMensagem.setAttribute('data-msg-id', msgId);
+    containerMensagem.setAttribute('data-text', textoMensagem);
+    
+    containerMensagem.innerHTML = `
+        <!-- O seu balão original adaptado -->
+        <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+            <div>${textoMensagem}</div>
+            <span class="msg-time">${dataHora}</span>
+        </div>
+
+        <!-- Os 2 novos botões que aparecem ao clicar (Três Pontinhos e Seta) -->
+        <div class="msg-actions">
+            <!-- Três Pontinhos (Mais Opções) -->
+            <div class="btn-msg-dots" style="cursor: pointer; display: flex; align-items: center; padding: 4px;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#b0b3b8">
+                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+            </div>
+            <!-- Setinha de Responder -->
+            <div class="btn-msg-reply" style="cursor: pointer; display: flex; align-items: center; padding: 4px;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#b0b3b8">
+                    <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                </svg>
+            </div>
+        </div>
+    `;
+    
+    // Adiciona o bloco completo na tela
+    wrapper.appendChild(containerMensagem);
+});
+
         
         wrapper.scrollTop = wrapper.scrollHeight;
     }, (error) => {
@@ -4290,6 +4376,98 @@ document.getElementById('btn-chat-voice').addEventListener('click', () => {
 
 document.getElementById('btn-chat-options').addEventListener('click', () => {
     alert('Abrindo menu de opções do chat...');
+});
+// Elemento único do Menu Flutuante que se move pela tela
+const popoverMenu = document.createElement('div');
+popoverMenu.className = 'msg-popover';
+popoverMenu.innerHTML = `
+    <div class="msg-popover-item" id="pop-editar">Editar mensagem</div>
+    <div class="msg-popover-item" id="pop-cancelar" style="color: #ff4d4d;">Cancelar envio</div>
+    <div class="msg-popover-item" id="pop-encaminhar">Encaminhar</div>
+    <div class="msg-popover-item" id="pop-denunciar">Denunciar</div>
+`;
+document.body.appendChild(popoverMenu);
+
+let msgSelecionadaId = null;
+let msgSelecionadaTexto = null;
+let msgSelecionadaElemento = null;
+
+// 1. GERENCIAR CLIQUE NA MENSAGEM (Mostra os 3 pontinhos e a seta)
+document.getElementById('chat-messages-wrapper').addEventListener('click', (e) => {
+    const bubble = e.target.closest('.msg-bubble');
+    if (!bubble) return;
+
+    const wrapper = bubble.closest('.msg-wrapper');
+    
+    // Remove o estado ativo de qualquer outra mensagem aberta
+    document.querySelectorAll('.msg-wrapper').forEach(el => {
+        if (el !== wrapper) el.classList.remove('active-msg');
+    });
+
+    // Alterna a exibição dos botões na mensagem clicada
+    wrapper.classList.toggle('active-msg');
+    popoverMenu.style.display = 'none'; // Fecha o menu flutuante se estava aberto
+});
+
+// 2. GERENCIAR CLIQUE NOS 3 PONTINHOS (Abre o menu flutuante exatamente no local certo)
+document.getElementById('chat-messages-wrapper').addEventListener('click', (e) => {
+    const btnDots = e.target.closest('.btn-msg-dots');
+    if (!btnDots) return;
+
+    const wrapper = btnDots.closest('.msg-wrapper');
+    msgSelecionadaId = wrapper.getAttribute('data-msg-id');
+    msgSelecionadaTexto = wrapper.getAttribute('data-text');
+    msgSelecionadaElemento = wrapper;
+
+    // Se a mensagem não for nossa, esconde as opções de Editar e Cancelar Envio
+    const ehMinhaMsg = wrapper.classList.contains('sent');
+    document.getElementById('pop-editar').style.display = ehMinhaMsg ? 'block' : 'none';
+    document.getElementById('pop-cancelar').style.display = ehMinhaMsg ? 'block' : 'none';
+
+    // Posiciona o menu flutuante colado nos 3 pontinhos
+    const rect = btnDots.getBoundingClientRect();
+    popoverMenu.style.top = `${rect.top + window.scrollY - 10}px`;
+    popoverMenu.style.left = `${rect.left + window.scrollX - 170}px`;
+    popoverMenu.style.display = 'flex';
+});
+
+// Fechar menus se clicar em qualquer outra parte vazia da tela
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.msg-bubble') && !e.target.closest('.btn-msg-dots') && !e.target.closest('.msg-popover')) {
+        popoverMenu.style.display = 'none';
+        document.querySelectorAll('.msg-wrapper').forEach(el => el.classList.remove('active-msg'));
+    }
+});
+
+// 3. AÇÃO DE REALMENTE EDITAR A MENSAGEM NO FIRESTORE
+document.getElementById('pop-editar').addEventListener('click', async () => {
+    popoverMenu.style.display = 'none';
+    
+    const novoTexto = prompt("Edite sua mensagem:", msgSelecionadaTexto);
+    if (novoTexto === null || novoTexto.trim() === "" || novoTexto === msgSelecionadaTexto) return;
+
+    try {
+        const msgDocRef = doc(db, 'chats', currentRoomId, 'messages', msgSelecionadaId);
+        await updateDoc(msgDocRef, {
+            text: novoTexto.trim() + " (editada)"
+        });
+        msgSelecionadaElemento.classList.remove('active-msg');
+    } catch (err) {
+        console.error("Erro ao editar mensagem:", err);
+    }
+});
+
+// 4. AÇÃO DE REALMENTE CANCELAR O ENVIO (DELETAR NO FIRESTORE)
+document.getElementById('pop-cancelar').addEventListener('click', async () => {
+    popoverMenu.style.display = 'none';
+    if (!confirm("Deseja realmente cancelar o envio desta mensagem?")) return;
+
+    try {
+        const msgDocRef = doc(db, 'chats', currentRoomId, 'messages', msgSelecionadaId);
+        await deleteDoc(msgDocRef);
+    } catch (err) {
+        console.error("Erro ao deletar mensagem:", err);
+    }
 });
 
 </script>
