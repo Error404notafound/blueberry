@@ -1802,6 +1802,34 @@
         <button id="btn-publicar-foto" type="button" style="background-color: #45bd62;">Compartilhar Foto</button>
     </div>
 </div>
+<!-- Interface de Videochamada (Tela Cheia) -->
+<div id="video-call-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #0b141a; z-index: 9999; flex-direction: column; justify-content: space-between; font-family: sans-serif; box-sizing: border-box;">
+    
+    <!-- Status / Nome do Usuário -->
+    <div style="text-align: center; padding-top: 40px; color: white; z-index: 10;">
+        <h2 id="call-status-title" style="margin: 0; font-size: 24px;">Chamando...</h2>
+        <p id="call-recipient-name" style="margin: 5px 0 0 0; color: #8696a0; font-size: 16px;">Usuário</p>
+    </div>
+
+    <!-- Container dos Vídeos -->
+    <div style="position: relative; flex: 1; width: 100%; display: flex; align-items: center; justify-content: center;">
+        <!-- Vídeo Remoto (A outra pessoa - Ocupa a tela inteira) -->
+        <video id="remote-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; background-color: #111b21;"></video>
+        
+        <!-- Vídeo Local (Sua Câmera - Flutuando no cantinho igual ao WhatsApp) -->
+        <video id="local-video" autoplay playsinline muted style="position: absolute; bottom: 20px; right: 20px; width: 120px; height: 160px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); background-color: #202c33; border: 1px solid #3b4a54;"></video>
+    </div>
+
+    <!-- Barra de Controles Inferior -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 30px; padding-bottom: 40px; z-index: 10;">
+        <!-- Botão Desligar -->
+        <button id="btn-hangup" style="background-color: #ea0038; border: none; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); margin: 0; width: auto !important; padding: 0 20px;">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="white">
+                <path d="M12 9c-2.2 0-4.3.4-6.2 1.1-.5.2-.8.7-.8 1.3v2.2c0 .5.3.9.7 1.1l2.3.9c.3.1.6.1.9-.1l1.6-1.6c.3-.3.5-.7.5-1.1v-2.2c1.2-.3 2.5-.4 3.9-.4s2.7.1 3.9.4v2.2c0 .4.2.8.5 1.1l1.6 1.6c.3.2.6.2.9.1l2.3-.9c.4-.2.7-.6.7-1.1v-2.2c0-.5-.3-1-.8-1.3-1.9-.7-4-1.1-6.2-1.1z"/>
+            </svg>
+        </button>
+    </div>
+</div>
 
             <!-- Scripts Firebase e Lógica da Aplicação -->
 <script type="module">
@@ -1841,6 +1869,227 @@ let activeUploadType = 'avatar'; // Pode ser 'avatar' ou 'cover'
 // --- VARIÁVEIS GLOBAIS DE CONTROLE DO PERFIL ---
 let amizadeStatus = 'nenhum'; // Pode ser: 'nenhum', 'pendente_enviado', 'pendente_recebido', 'amigos'
 let amizadeDocId = null;
+// ==================== SISTEMA DE VIDEOCHAMADA WEBRTC ====================
+let localStream = null;
+let remoteStream = null;
+let peerConnection = null;
+let activeCallId = null; // Controla ID da sala de chamada ativa no Firestore
+
+// Configuração padrão de servidores STUN públicos do Google (Gratuitos)
+const rtcConfig = {
+    iceServers: [
+        { urls: ['stun:://google.com', 'stun:://google.com'] }
+    ],
+    iceCandidatePoolSize: 10,
+};
+
+// Elementos da Interface
+const videoOverlay = document.getElementById('video-call-overlay');
+const localVideo = document.getElementById('local-video');
+const remoteVideo = document.getElementById('remote-video');
+const callStatusTitle = document.getElementById('call-status-title');
+const callRecipientName = document.getElementById('call-recipient-name');
+
+// 1. INICIAR CHAMADA DE VÍDEO (Quem clica no botão de câmera)
+document.getElementById('btn-chat-video').addEventListener('click', async () => {
+    if (!currentChatRecipient) return alert("Selecione um contato para ligar.");
+    
+    // Atualiza interface gráfica
+    videoOverlay.style.display = 'flex';
+    callStatusTitle.innerText = "Chamando...";
+    callRecipientName.innerText = document.getElementById('chat-current-user-name').innerText;
+
+    // Configura os fluxos de mídia local (Câmera e Microfone)
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    remoteStream = new MediaStream();
+    
+    localVideo.srcObject = localStream;
+    remoteVideo.srcObject = remoteStream;
+
+    // Inicializa a conexão WebRTC
+    peerConnection = new RTCPeerConnection(rtcConfig);
+
+    // Adiciona faixas de áudio/vídeo locais à conexão
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+    // Captura o fluxo de vídeo remoto quando a outra pessoa responder
+    peerConnection.ontrack = (event) => {
+        event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+    };
+
+    // Criar uma referência de sala de chamada compartilhada no Firestore
+    // Usamos uma estrutura limpa dentro de uma coleção "calls"
+    const callDocRef = doc(collection(db, 'calls'));
+    activeCallId = callDocRef.id;
+
+    // Coleta candidatos ICE do remetente e envia ao Firestore
+    const offerCandidates = collection(db, 'calls', activeCallId, 'offerCandidates');
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            addDoc(offerCandidates, event.candidate.toJSON());
+        }
+    };
+
+    // Criar oferta SDP de conexão WebRTC
+    const offerDescription = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offerDescription);
+
+    const offer = {
+        sdp: offerDescription.sdp,
+        type: offerDescription.type,
+        callerId: auth.currentUser.uid,
+        receiverId: currentChatRecipient,
+        status: 'calling'
+    };
+
+    await setDoc(callDocRef, { offer });
+
+    // Enviar alerta sutil/mensagem no chat informando a ligação (Opcional)
+    const chatMsgRef = collection(db, 'chats', currentRoomId, 'messages');
+    await addDoc(chatMsgRef, {
+        senderId: auth.currentUser.uid,
+        text: `📞 Tentando iniciar uma chamada de vídeo... Link de resposta ativa.`,
+        timestamp: new Date().getTime()
+    });
+
+    // Ficar ouvindo se a outra pessoa aceitou a chamada (Aguarda a resposta SDP)
+    onSnapshot(callDocRef, (snapshot) => {
+        const data = snapshot.data();
+        if (data && data.answer && !peerConnection.currentRemoteDescription) {
+            const answerDescription = new RTCSessionDescription(data.answer);
+            peerConnection.setRemoteDescription(answerDescription);
+            callStatusTitle.innerText = "Em chamada";
+        }
+        if (data && data.status === 'ended') {
+            fecharFluxosDeChamada();
+        }
+    });
+
+    // Ficar ouvindo candidatos ICE que vem do receptor
+    const answerCandidates = collection(db, 'calls', activeCallId, 'answerCandidates');
+    onSnapshot(answerCandidates, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+                const candidate = new RTCIceCandidate(change.doc.data());
+                peerConnection.addIceCandidate(candidate);
+            }
+        });
+    });
+});
+
+// 2. MONITORAR SE ALGUÉM ESTÁ TE LIGANDO (Roda continuamente em background)
+// Coloque esta chamada de monitoramento dentro da sua função "onAuthStateChanged"
+function monitorarChamadasEntrantes(userId) {
+    const q = query(collection(db, 'calls'), where('offer.receiverId', '==', userId), where('offer.status', '==', 'calling'));
+    
+    onSnapshot(q, async (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+            if (change.type === 'added') {
+                const callId = change.doc.id;
+                activeCallId = callId;
+                const callData = change.doc.data();
+
+                // Pergunta ao usuário se ele deseja aceitar a chamada recebida
+                if (confirm("Recebendo chamada de vídeo. Deseja aceitar?")) {
+                    videoOverlay.style.display = 'flex';
+                    callStatusTitle.innerText = "Conectando...";
+                    
+                    // Liga a câmera do receptor
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    remoteStream = new MediaStream();
+                    
+                    localVideo.srcObject = localStream;
+                    remoteVideo.srcObject = remoteStream;
+
+                    peerConnection = new RTCPeerConnection(rtcConfig);
+                    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+                    peerConnection.ontrack = (event) => {
+                        event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+                    };
+
+                    const callDocRef = doc(db, 'calls', callId);
+                    
+                    // Envia candidatos ICE do receptor para o Firestore
+                    const answerCandidates = collection(db, 'calls', callId, 'answerCandidates');
+                    peerConnection.onicecandidate = (event) => {
+                        if (event.candidate) {
+                            addDoc(answerCandidates, event.candidate.toJSON());
+                        }
+                    };
+
+                    // Processa a oferta recebida
+                    const offerDescription = callData.offer;
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(offerDescription));
+
+                    // Cria e define a resposta SDP
+                    const answerDescription = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answerDescription);
+
+                    const answer = {
+                        type: answerDescription.type,
+                        sdp: answerDescription.sdp,
+                    };
+
+                    // Atualiza o documento no Firestore aceitando a chamada
+                    await updateDoc(callDocRef, { answer, 'offer.status': 'accepted' });
+                    callStatusTitle.innerText = "Em chamada";
+
+                    // Escuta se o criador desligar a chamada
+                    onSnapshot(callDocRef, (snap) => {
+                        if (snap.data() && snap.data().status === 'ended') {
+                            fecharFluxosDeChamada();
+                        }
+                    });
+
+                    // Escuta candidatos ICE vindos do criador da chamada
+                    const offerCandidates = collection(db, 'calls', callId, 'offerCandidates');
+                    onSnapshot(offerCandidates, (snap) => {
+                        snap.docChanges().forEach((chg) => {
+                            if (chg.type === 'added') {
+                                peerConnection.addIceCandidate(new RTCIceCandidate(chg.doc.data()));
+                            }
+                        });
+                    });
+
+                } else {
+                    // Se rejeitar, atualiza status para finalizar sinalização
+                    await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+                }
+            }
+        });
+    });
+}
+
+// 3. FUNÇÃO PARA DESLIGAR E LIMPAR CONEXÃO
+async function fecharFluxosDeChamada() {
+    videoOverlay.style.display = 'none';
+
+    // Desliga câmera e microfone fisicamente no aparelho celular
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+    }
+    if (peerConnection) {
+        peerConnection.close();
+    }
+
+    localStream = null;
+    remoteStream = null;
+    peerConnection = null;
+
+    // Atualiza o banco para avisar o outro lado que a chamada encerrou
+    if (activeCallId) {
+        const callDocRef = doc(db, 'calls', activeCallId);
+        await updateDoc(callDocRef, { status: 'ended' });
+        
+        // Opcional: deleta o documento da chamada para poupar espaço no plano Spark
+        await deleteDoc(callDocRef).catch(() => {});
+        activeCallId = null;
+    }
+}
+
+// Ouvinte do botão Desligar da Interface
+document.getElementById('btn-hangup').addEventListener('click', fecharFluxosDeChamada);
 
 // 👇 BLOCO DE AMIZADES CORRIGIDO E UNIFICADO 👇
 async function enviarSolicitacaoAmizade(emailDestinatario) {
@@ -2526,6 +2775,7 @@ function gerenciarPresencaUsuario(email) {
 }
 
 // 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
+// 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         authContainer.style.display = 'none';
@@ -2535,6 +2785,9 @@ onAuthStateChanged(auth, async (user) => {
         // Ativa os monitores em tempo real
         escutarPedidosDeAmizade();
         gerenciarPresencaUsuario(user.email);
+        
+        // 👇 LINHA ADICIONADA AQUI: Ativa o sistema para receber chamadas de vídeo em tempo real
+        monitorarChamadasEntrantes(user.uid);
         
         // Busca foto de perfil customizada
         try {
