@@ -1923,6 +1923,31 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         </button>
     </div>
 </div>
+<!-- Interface de Chamada de Voz (Tela Cheia) -->
+<div id="voice-call-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #0b141a; z-index: 9999; flex-direction: column; justify-content: space-between; font-family: sans-serif; box-sizing: border-box; align-items: center; padding: 60px 20px;">
+    
+    <!-- Info do Usuário -->
+    <div style="text-align: center; color: white;">
+        <h2 id="voice-call-status" style="margin: 0; font-size: 24px;">Chamando por voz...</h2>
+        <p id="voice-call-name" style="margin: 10px 0 0 0; color: #8696a0; font-size: 18px;">Usuário</p>
+    </div>
+
+    <!-- Ícone Central Flutuante -->
+    <div style="background-color: #202c33; width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.4);">
+        <svg viewBox="0 0 24 24" width="60 height="60" fill="#8696a0">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z"/>
+        </svg>
+    </div>
+
+    <!-- Botão Vermelho de Desligar -->
+    <div>
+        <button id="btn-voice-hangup" style="background-color: #ea0038; border: none; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="white">
+                <path d="M12 9c-2.2 0-4.3.4-6.2 1.1-.5.2-.8.7-.8 1.3v2.2c0 .5.3.9.7 1.1l2.3.9c.3.1.6.1.9-.1l1.6-1.6c.3-.3.5-.7.5-1.1v-2.2c1.2-.3 2.5-.4 3.9-.4s2.7.1 3.9.4v2.2c0 .4.2.8.5 1.1l1.6 1.6c.3.2.6.2.9.1l2.3-.9c.4-.2.7-.6.7-1.1v-2.2c0-.5-.3-1-.8-1.3-1.9-.7-4-1.1-6.2-1.1z"/>
+            </svg>
+        </button>
+    </div>
+</div>
 
             <!-- Scripts Firebase e Lógica da Aplicação -->
 <script type="module">
@@ -2869,6 +2894,7 @@ function gerenciarPresencaUsuario(email) {
 
 // 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
 // 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
+// 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         authContainer.style.display = 'none';
@@ -2879,12 +2905,16 @@ onAuthStateChanged(auth, async (user) => {
         escutarPedidosDeAmizade();
         gerenciarPresencaUsuario(user.email);
         
-        // 👇 LINHA ADICIONADA AQUI: Ativa o sistema para receber chamadas de vídeo em tempo real
+        // Ativa o sistema para receber chamadas de vídeo em tempo real
         monitorarChamadasEntrantes(user.uid);
+        
+        // 👇 NOVA LINHA ADICIONADA AQUI: Ativa o sistema para receber chamadas de VOZ em tempo real
+        monitorarChamadasVozEntrantes(user.uid);
         
         // Busca foto de perfil customizada
         try {
             const userDocRef = doc(db, 'usuarios', user.email);
+
             const docSnap = await getDoc(userDocRef);
 
             if (docSnap.exists() && docSnap.data().fotoPerfil) {
@@ -4501,6 +4531,163 @@ document.getElementById('pop-cancelar').addEventListener('click', async () => {
         console.error("Erro ao deletar mensagem:", err);
     }
 });
+// ==================== SISTEMA DE CHAMADA DE VOZ WEBRTC ====================
+let voiceLocalStream = null;
+let voicePeerConnection = null;
+let activeVoiceCallId = null;
+
+const voiceOverlay = document.getElementById('voice-call-overlay');
+const voiceCallStatus = document.getElementById('voice-call-status');
+const voiceCallName = document.getElementById('voice-call-name');
+
+// 1. AÇÃO AO CLICAR NO BOTÃO DE TELEFONE (INICIAR CHAMADA)
+document.getElementById('btn-chat-voice').addEventListener('click', async () => {
+    if (!currentChatRecipient) return alert("Selecione um contato para ligar.");
+    
+    voiceOverlay.style.display = 'flex';
+    voiceCallStatus.innerText = "Chamando por voz...";
+    voiceCallName.innerText = document.getElementById('chat-current-user-name').innerText;
+
+    // 🚀 CHAVE DO SUCESSO: Ativa apenas o áudio e desliga o vídeo
+    voiceLocalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+
+    voicePeerConnection = new RTCPeerConnection(rtcConfig);
+    voiceLocalStream.getTracks().forEach(track => voicePeerConnection.addTrack(track, voiceLocalStream));
+
+    // Cria elemento de áudio oculto para tocar a voz de quem responder
+    const remoteAudio = document.createElement('audio');
+    remoteAudio.autoplay = true;
+    const voiceRemoteStream = new MediaStream();
+    remoteAudio.srcObject = voiceRemoteStream;
+
+    voicePeerConnection.ontrack = (event) => {
+        event.streams.getTracks().forEach(track => voiceRemoteStream.addTrack(track));
+    };
+
+    const callDocRef = doc(collection(db, 'calls'));
+    activeVoiceCallId = callDocRef.id;
+
+    const offerCandidates = collection(db, 'calls', activeVoiceCallId, 'offerCandidates');
+    voicePeerConnection.onicecandidate = (event) => {
+        if (event.candidate) addDoc(offerCandidates, event.candidate.toJSON());
+    };
+
+    const offerDescription = await voicePeerConnection.createOffer();
+    await voicePeerConnection.setLocalDescription(offerDescription);
+
+    await setDoc(callDocRef, {
+        offer: {
+            sdp: offerDescription.sdp,
+            type: offerDescription.type,
+            callerId: auth.currentUser.uid,
+            receiverId: currentChatRecipient,
+            status: 'calling_voice' // Tag diferente para o app saber que é só voz
+        }
+    });
+
+    onSnapshot(callDocRef, (snapshot) => {
+        const data = snapshot.data();
+        if (data && data.answer && !voicePeerConnection.currentRemoteDescription) {
+            voicePeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            voiceCallStatus.innerText = "Em chamada de voz";
+        }
+        if (data && data.status === 'ended') fecharFluxosDeVoz();
+    });
+
+    const answerCandidates = collection(db, 'calls', activeVoiceCallId, 'answerCandidates');
+    onSnapshot(answerCandidates, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+                voicePeerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+            }
+        });
+    });
+});
+
+// 2. ADICIONE ESSA VALIDAÇÃO DENTRO DA SUA FUNÇÃO EXISTENTE 'monitorarChamadasEntrantes'
+// Procure onde está o snapshot de chamadas recebidas e adicione esse "if" para chamadas de voz:
+function monitorarChamadasVozEntrantes(userId) {
+    const q = query(collection(db, 'calls'), where('offer.receiverId', '==', userId), where('offer.status', '==', 'calling_voice'));
+    
+    onSnapshot(q, async (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+            if (change.type === 'added') {
+                const callId = change.doc.id;
+                activeVoiceCallId = callId;
+                const callData = change.doc.data();
+
+                if (confirm("Recebendo chamada de VOZ. Deseja atender?")) {
+                    voiceOverlay.style.display = 'flex';
+                    voiceCallStatus.innerText = "Conectando...";
+                    
+                    voiceLocalStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                    
+                    const remoteAudio = document.createElement('audio');
+                    remoteAudio.autoplay = true;
+                    const voiceRemoteStream = new MediaStream();
+                    remoteAudio.srcObject = voiceRemoteStream;
+
+                    voicePeerConnection = new RTCPeerConnection(rtcConfig);
+                    voiceLocalStream.getTracks().forEach(track => voicePeerConnection.addTrack(track, voiceLocalStream));
+
+                    voicePeerConnection.ontrack = (event) => {
+                        event.streams.getTracks().forEach(track => voiceRemoteStream.addTrack(track));
+                    };
+
+                    const callDocRef = doc(db, 'calls', callId);
+                    const answerCandidates = collection(db, 'calls', callId, 'answerCandidates');
+                    
+                    voicePeerConnection.onicecandidate = (event) => {
+                        if (event.candidate) addDoc(answerCandidates, event.candidate.toJSON());
+                    };
+
+                    await voicePeerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
+                    const answerDescription = await voicePeerConnection.createAnswer();
+                    await voicePeerConnection.setLocalDescription(answerDescription);
+
+                    await updateDoc(callDocRef, { 
+                        answer: { type: answerDescription.type, sdp: answerDescription.sdp }, 
+                        'offer.status': 'accepted_voice' 
+                    });
+                    
+                    voiceCallStatus.innerText = "Em chamada de voz";
+
+                    onSnapshot(callDocRef, (snap) => {
+                        if (snap.data() && snap.data().status === 'ended') fecharFluxosDeVoz();
+                    });
+
+                    const offerCandidates = collection(db, 'calls', callId, 'offerCandidates');
+                    onSnapshot(offerCandidates, (snap) => {
+                        snap.docChanges().forEach((chg) => {
+                            if (chg.type === 'added') voicePeerConnection.addIceCandidate(new RTCIceCandidate(chg.doc.data()));
+                        });
+                    });
+                } else {
+                    await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+                }
+            }
+        });
+    });
+}
+
+// 3. FUNÇÃO PARA DESLIGAR E LIMPAR A CONEXÃO DE VOZ
+async function fecharFluxosDeVoz() {
+    voiceOverlay.style.display = 'none';
+    if (voiceLocalStream) voiceLocalStream.getTracks().forEach(track => track.stop());
+    if (voicePeerConnection) voicePeerConnection.close();
+
+    voiceLocalStream = null;
+    voicePeerConnection = null;
+
+    if (activeVoiceCallId) {
+        const callDocRef = doc(db, 'calls', activeVoiceCallId);
+        await updateDoc(callDocRef, { status: 'ended' });
+        await deleteDoc(callDocRef).catch(() => {});
+        activeVoiceCallId = null;
+    }
+}
+
+document.getElementById('btn-voice-hangup').addEventListener('click', fecharFluxosDeVoz);
 
 </script>
 </body>
