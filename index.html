@@ -3898,49 +3898,54 @@ function startChatListener() {
     activeChatListener = onSnapshot(q, (snapshot) => {
         wrapper.innerHTML = '';
         
+        // 🟢 Recupera a lista de mensagens apagadas localmente antes de rodar o loop
+        const ocultas = JSON.parse(localStorage.getItem('blueberry_msg_ocultas') || '[]');
+        
         snapshot.forEach((doc) => {
-    const msg = doc.data();
-    const isMe = msg.senderId === emailUsuarioLogado;
-    const msgId = doc.id; // Guarda o ID da mensagem para poder Editar/Excluir
+            const msg = doc.data();
+            const msgId = doc.id; // Guarda o ID da mensagem para poder Editar/Excluir
 
-    const textoMensagem = msg.text || msg.mensagem || '';
-    const dataHora = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
-    
-    // Criamos o wrapper externo que une o balão e os botões
-    // Dentro do seu snapshot.forEach da função startChatListener():
-const containerMensagem = document.createElement('div');
-containerMensagem.className = `msg-wrapper ${isMe ? 'sent' : 'received'}`;
-containerMensagem.setAttribute('data-msg-id', msgId);
-containerMensagem.setAttribute('data-text', textoMensagem);
+            // 🟢 TRAVA DE LEITURA: Se o ID da mensagem estiver na lista de apagadas localmente, ignora e pula
+            if (ocultas.includes(msgId)) {
+                return; 
+            }
 
-containerMensagem.innerHTML = `
-    <!-- 1. Caixa de ações flutuando logo acima -->
-    <div class="msg-actions">
-        <!-- Três Pontinhos -->
-        <div class="btn-msg-dots" style="cursor: pointer; display: flex; align-items: center;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
-                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-            </svg>
-        </div>
-        <!-- Setinha de Responder -->
-        <div class="btn-msg-reply" style="cursor: pointer; display: flex; align-items: center;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
-                <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
-            </svg>
-        </div>
-    </div>
+            const isMe = msg.senderId === emailUsuarioLogado;
+            const textoMensagem = msg.text || msg.mensagem || '';
+            const dataHora = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
+            
+            // Criamos o wrapper externo que une o balão e os botões de ação flutuantes
+            const containerMensagem = document.createElement('div');
+            containerMensagem.className = `msg-wrapper ${isMe ? 'sent' : 'received'}`;
+            containerMensagem.setAttribute('data-msg-id', msgId);
+            containerMensagem.setAttribute('data-text', textoMensagem);
 
-    <!-- 2. Seu balão de mensagem original intacto embaixo -->
-    <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
-        <div>${textoMensagem}</div>
-        <span class="msg-time">${dataHora}</span>
-    </div>
-`;
+            containerMensagem.innerHTML = `
+                <!-- 1. Caixa de ações flutuando logo acima -->
+                <div class="msg-actions">
+                    <!-- Três Pontinhos -->
+                    <div class="btn-msg-dots" style="cursor: pointer; display: flex; align-items: center;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
+                            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                        </svg>
+                    </div>
+                    <!-- Setinha de Responder -->
+                    <div class="btn-msg-reply" style="cursor: pointer; display: flex; align-items: center;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
+                            <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                        </svg>
+                    </div>
+                </div>
 
-wrapper.appendChild(containerMensagem);
+                <!-- 2. Seu balão de mensagem original intacto embaixo -->
+                <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+                    <div>${textoMensagem}</div>
+                    <span class="msg-time">${dataHora}</span>
+                </div>
+            `;
 
-});
-
+            wrapper.appendChild(containerMensagem);
+        });
         
         wrapper.scrollTop = wrapper.scrollHeight;
     }, (error) => {
@@ -3951,6 +3956,7 @@ wrapper.appendChild(containerMensagem);
             </div>`;
     });
 }
+
 
 // 1. Mantém a sua função de envio original
 async function enviarMensagemChat() {
@@ -4445,6 +4451,8 @@ popoverMenu.className = 'msg-popover';
 popoverMenu.innerHTML = `
     <div class="msg-popover-item" id="pop-editar">Editar mensagem</div>
     <div class="msg-popover-item" id="pop-cancelar" style="color: #ff4d4d;">Cancelar envio</div>
+    <!-- 🟢 ADICIONADO: Nova opção no HTML do menu -->
+    <div class="msg-popover-item" id="pop-apagar-mim" style="color: #ff4d4d;">Apagar para mim</div>
     <div class="msg-popover-item" id="pop-encaminhar">Encaminhar</div>
     <div class="msg-popover-item" id="pop-denunciar">Denunciar</div>
 `;
@@ -4476,18 +4484,23 @@ document.getElementById('chat-messages-wrapper').addEventListener('click', (e) =
     const btnDots = e.target.closest('.btn-msg-dots');
     if (!btnDots) return;
 
-    const wrapper = btnDots.closest('.msg-wrapper');
+        const wrapper = btnDots.closest('.msg-wrapper');
     msgSelecionadaId = wrapper.getAttribute('data-msg-id');
     msgSelecionadaTexto = wrapper.getAttribute('data-text');
     msgSelecionadaElemento = wrapper;
 
-    // Se a mensagem não for nossa, esconde as opções de Editar e Cancelar Envio
+    // 🟢 INJETADO AQUI: Regra para ocultar/exibir botões com base no dono da mensagem
     const ehMinhaMsg = wrapper.classList.contains('sent');
+    
+    // Se for minha: mostra Editar e Cancelar, esconde Apagar para Mim.
+    // Se for do amigo: esconde Editar e Cancelar, mostra Apagar para Mim.
     document.getElementById('pop-editar').style.display = ehMinhaMsg ? 'block' : 'none';
     document.getElementById('pop-cancelar').style.display = ehMinhaMsg ? 'block' : 'none';
+    document.getElementById('pop-apagar-mim').style.display = ehMinhaMsg ? 'none' : 'block';
 
     // Posiciona o menu flutuante colado nos 3 pontinhos
     const rect = btnDots.getBoundingClientRect();
+
     popoverMenu.style.top = `${rect.top + window.scrollY - 10}px`;
     popoverMenu.style.left = `${rect.left + window.scrollX - 170}px`;
     popoverMenu.style.display = 'flex';
@@ -4520,6 +4533,7 @@ document.getElementById('pop-editar').addEventListener('click', async () => {
 });
 
 // 4. AÇÃO DE REALMENTE CANCELAR O ENVIO (DELETAR NO FIRESTORE)
+// 4. AÇÃO DE REALMENTE CANCELAR O ENVIO (DELETAR NO FIRESTORE)
 document.getElementById('pop-cancelar').addEventListener('click', async () => {
     popoverMenu.style.display = 'none';
     if (!confirm("Deseja realmente cancelar o envio desta mensagem?")) return;
@@ -4530,7 +4544,37 @@ document.getElementById('pop-cancelar').addEventListener('click', async () => {
     } catch (err) {
         console.error("Erro ao deletar mensagem:", err);
     }
+}); // 🌟 Seu bloco termina aqui...
+
+// 🟢 ...E O NOVO CÓDIGO DA EXCLUSÃO LOCAL ENTRA LOGO ABAIXO DA CHAVE:
+
+// 5. OPERAÇÃO DE APAGAR APENAS PARA MIM (LOCAL)
+document.getElementById('pop-apagar-mim').addEventListener('click', () => {
+    popoverMenu.style.display = 'none';
+    if (!msgSelecionadaId) return;
+
+    // Recupera a lista de mensagens ocultadas salvas no navegador
+    let ocultas = JSON.parse(localStorage.getItem('blueberry_msg_ocultas') || '[]');
+    
+    // Adiciona o ID desta mensagem na lista local
+    if (!ocultas.includes(msgSelecionadaId)) {
+        ocultas.push(msgSelecionadaId);
+        localStorage.setItem('blueberry_msg_ocultas', JSON.stringify(ocultas));
+    }
+
+    // Esconde o balão da tela imediatamente com animação sutil
+    if (msgSelecionadaElemento) {
+        msgSelecionadaElemento.style.transition = 'all 0.2s ease';
+        msgSelecionadaElemento.style.opacity = '0';
+        msgSelecionadaElemento.style.height = '0';
+        msgSelecionadaElemento.style.margin = '0';
+        setTimeout(() => msgSelecionadaElemento.remove(), 200);
+    }
+    
+    // Fecha as opçõezinhas que ficaram abertas
+    document.querySelectorAll('.msg-wrapper').forEach(el => el.classList.remove('active-msg'));
 });
+
 // ==================== SISTEMA DE CHAMADA DE VOZ WEBRTC ====================
 let voiceLocalStream = null;
 let voicePeerConnection = null;
