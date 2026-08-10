@@ -647,14 +647,19 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 }
 /* Cabeçalho ajustado */
 .chat-header {
-    background-color: #242526 !important; /* 🌟 Cor cinza real idêntica ao cabeçalho superior */
+    background-color: #242526 !important;
     padding: 10px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between; 
-    border-bottom: 1px solid #3e4042 !important; /* 🌟 Linha divisória igual à da barra de cima */
+    
+    /* 🌟 SOLUÇÃO: Linha fina cinza dividindo o topo do site e o chat */
+    border-top: 1px solid #3e4042 !important; 
+    
+    border-bottom: 1px solid #3e4042 !important; /* Mantém a linha de baixo do chat ativa */
     box-sizing: border-box;
 }
+
 
 
 .chat-user-info { 
