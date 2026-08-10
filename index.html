@@ -685,23 +685,24 @@
 
 /* Balões de Conversa */
 /* Container que junta o balão e as ações laterais */
+/* Container que junta a mensagem e impede quebra de layout */
 .msg-wrapper {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    max-width: 85%;
+    flex-direction: column;
     position: relative;
+    max-width: 75%;
+    margin-bottom: 8px;
 }
 .msg-wrapper.sent {
     align-self: flex-end;
-    flex-direction: row-reverse; /* Coloca os botões à esquerda do balão enviado */
+    align-items: flex-end;
 }
 .msg-wrapper.received {
     align-self: flex-start;
-    flex-direction: row; /* Coloca os botões à direita do balão recebido */
+    align-items: flex-start;
 }
 
-/* Ajuste sutil no balão original */
+/* O Balão original mantém o tamanho perfeito */
 .msg-bubble { 
     padding: 10px 14px; 
     border-radius: 18px; 
@@ -711,21 +712,38 @@
     word-break: break-word; 
     cursor: pointer;
     user-select: none;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
 }
 .msg-bubble.sent { background-color: #005c4b; border-bottom-right-radius: 4px; }
 .msg-bubble.received { background-color: #202c33; border-bottom-left-radius: 4px; }
 
-/* Container de ações escondido por padrão */
+/* 🚀 Solução do Bug: Container flutuante que aparece ACIMA da mensagem */
 .msg-actions {
     display: none;
+    position: absolute;
+    top: -38px; /* Joga os botões flutuando para cima do balão */
+    background-color: #22252a;
+    padding: 6px 12px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     align-items: center;
-    gap: 12px;
+    gap: 14px;
+    z-index: 100;
 }
-/* Classe ativa disparada pelo clique na mensagem */
+/* Posicionamento dos botões flutuantes para mensagens enviadas e recebidas */
+.msg-wrapper.sent .msg-actions {
+    right: 0;
+}
+.msg-wrapper.received .msg-actions {
+    left: 0;
+}
+
+/* Disparador visual ao clicar */
 .msg-wrapper.active-msg .msg-actions {
     display: flex;
 }
-
 /* Estilo do Menu Flutuante Escuro (Idêntico ao Print) */
 .msg-popover {
     position: absolute;
@@ -3846,37 +3864,38 @@ function startChatListener() {
     const dataHora = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
     
     // Criamos o wrapper externo que une o balão e os botões
-    const containerMensagem = document.createElement('div');
-    containerMensagem.className = `msg-wrapper ${isMe ? 'sent' : 'received'}`;
-    containerMensagem.setAttribute('data-msg-id', msgId);
-    containerMensagem.setAttribute('data-text', textoMensagem);
-    
-    containerMensagem.innerHTML = `
-        <!-- O seu balão original adaptado -->
-        <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
-            <div>${textoMensagem}</div>
-            <span class="msg-time">${dataHora}</span>
-        </div>
+    // Dentro do seu snapshot.forEach da função startChatListener():
+const containerMensagem = document.createElement('div');
+containerMensagem.className = `msg-wrapper ${isMe ? 'sent' : 'received'}`;
+containerMensagem.setAttribute('data-msg-id', msgId);
+containerMensagem.setAttribute('data-text', textoMensagem);
 
-        <!-- Os 2 novos botões que aparecem ao clicar (Três Pontinhos e Seta) -->
-        <div class="msg-actions">
-            <!-- Três Pontinhos (Mais Opções) -->
-            <div class="btn-msg-dots" style="cursor: pointer; display: flex; align-items: center; padding: 4px;">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="#b0b3b8">
-                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                </svg>
-            </div>
-            <!-- Setinha de Responder -->
-            <div class="btn-msg-reply" style="cursor: pointer; display: flex; align-items: center; padding: 4px;">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="#b0b3b8">
-                    <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
-                </svg>
-            </div>
+containerMensagem.innerHTML = `
+    <!-- 1. Caixa de ações flutuando logo acima -->
+    <div class="msg-actions">
+        <!-- Três Pontinhos -->
+        <div class="btn-msg-dots" style="cursor: pointer; display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
+                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            </svg>
         </div>
-    `;
-    
-    // Adiciona o bloco completo na tela
-    wrapper.appendChild(containerMensagem);
+        <!-- Setinha de Responder -->
+        <div class="btn-msg-reply" style="cursor: pointer; display: flex; align-items: center;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
+                <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- 2. Seu balão de mensagem original intacto embaixo -->
+    <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+        <div>${textoMensagem}</div>
+        <span class="msg-time">${dataHora}</span>
+    </div>
+`;
+
+wrapper.appendChild(containerMensagem);
+
 });
 
         
