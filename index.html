@@ -1619,27 +1619,45 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 
 
                 <!-- O BOTÃO DE REEL ENTRA BEM AQUI -->
-                <div class="reel-upload-btn" id="btn-abrir-modal-reel" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
-                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #e4405f; margin-bottom: 2px;">
-                        <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
-                    </svg>
-                    <span>Reel</span>
-                </div>
-            </section>
+    <div class="reel-upload-btn" id="btn-abrir-modal-reel" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #e4405f; margin-bottom: 2px;">
+            <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+        </svg>
+        <span>Reel</span>
+    </div>
+</section>
 
+<!-- 👇 COLE ESTE BLOCO AQUI POR CIMA DA LINHA DO FEED SECO 👇 -->
+<section id="feed" class="feed">
+    <div class="post-card" style="background-color: var(--bg-card); border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #3e4042;">
+        
+        <!-- Cabeçalho com dados do Errol -->
+        <div class="post-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <img src="https://placeholder.com" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+            <div>
+                <strong style="color: white; display: block; text-align: left;">Errol Notafound</strong>
+                <small style="color: #b0b3b8; display: block; text-align: left;">Agora mesmo • 👥</small>
+            </div>
+        </div>
 
-            <!-- Antiga área de postagem, agora substituída ou ajustada -->
-            <!-- <section class="share-box">
-                <textarea id="post-text" placeholder="No que você está pensando?"></textarea>
-                <div class="file-inputs">
-                    <input type="text" id="video-link-input" placeholder="🌐 Cole o link de um vídeo aqui (opcional)">
-                </div>
-                <button id="btn-publish" type="button">Publicar</button>
-            </section> -->
+        <!-- Conteúdo do post contendo o texto e a foto -->
+        <div class="post-body" style="color: var(--text-main); font-size: 15px; text-align: left;">
+            <p style="margin: 0 0 10px 0;">Atualizando o status com foto nova direto pelo código estruturado do Blueberry! 🫐</p>
+            <img src="https://picsum.photos" style="width: 100%; border-radius: 8px; margin-top: 10px; max-height: 350px; object-fit: cover;">
+        </div>
 
-                        <section id="feed" class="feed"></section>
-        <!-- 👇 [TRECHO NOVO DE HTML ADICIONADO AQUI] 👇 -->
-            <section id="friends-screen-container" style="display: none; padding-bottom: 30px;">
+        <!-- Botões de curtir e comentar padrões -->
+        <div class="post-footer-actions" style="display: flex; justify-content: space-around; margin-top: 12px; padding-top: 8px; border-top: 1px solid #2f3031;">
+            <button class="post-action-btn" style="background: none; border: none; color: #b0b3b8; cursor: pointer;">👍 Curtir</button>
+            <button class="post-action-btn" style="background: none; border: none; color: #b0b3b8; cursor: pointer;">💬 Comentar</button>
+        </div>
+
+    </div>
+</section>
+<!-- 👆 FIM O BLOCO QUE SUBSTITUIU O FEED 👆 -->
+
+<section id="friends-screen-container" style="display: none; padding-bottom: 30px;">
+
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <button class="pill-btn active-pill">Sugestões / Pedidos</button>
                     <button class="pill-btn">Seus amigos</button>
@@ -4863,128 +4881,6 @@ async function fecharFluxosDeVoz() {
 }
 
 document.getElementById('btn-voice-hangup').addEventListener('click', fecharFluxosDeVoz);
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. MAPEAMENTO DE ELEMENTOS REAIS DO SEU PDF
-    const postInput = document.getElementById('post-text');
-    const feedContainer = document.getElementById('feed');
-    const postCountElement = document.getElementById('p-user-post-count');
-    const photosContainer = document.getElementById('content-conversas'); // Div real da página 43
-
-    // 2. BANCO DE DADOS LOCAL (Salva e não some ao atualizar a página)
-    let appData = JSON.parse(localStorage.getItem('blueberry_data')) || {
-        posts: [],
-        photos: []
-    };
-
-    // 3. FUNÇÃO PARA PUBLICAR STATUS (Disparada pelo Enter)
-    function criarNovaPublicacao() {
-        const textoValido = postInput.value.trim();
-        if (!textoValido) {
-            alert("No que você está pensando? Digite algo antes de postar!");
-            return;
-        }
-
-        // Gera uma URL de imagem de teste dinâmica para alimentar o álbum de Fotos
-        const imagemGerada = "https://picsum.photos" + Date.now();
-
-        const novoPost = {
-            id: Date.now(),
-            author: "Errol Notafound",
-            avatar: "https://placeholder.com",
-            time: "Agora mesmo",
-            text: textoValido,
-            image: imagemGerada
-        };
-
-        // Salva nos arrays locais do ecossistema
-        appData.posts.unshift(novoPost);
-        appData.photos.unshift(imagemGerada);
-
-        // Atualiza o armazenamento do navegador
-        localStorage.setItem('blueberry_data', JSON.stringify(appData));
-        
-        // Limpa o campo de texto
-        postInput.value = "";
-        
-        // Renderiza as alterações na tela
-        renderizarTudo();
-    }
-
-    // 4. INJETA O CARD EXATO DENTRO DA SECTION ID="FEED"
-    function renderizarFeed() {
-        if (!feedContainer) return;
-
-        if (appData.posts.length === 0) {
-            feedContainer.innerHTML = `<p style="color: #b0b3b8; text-align: center; padding: 20px;">Nenhuma publicação ainda.</p>`;
-            return;
-        }
-
-        feedContainer.innerHTML = appData.posts.map(post => `
-            <div class="post-card" style="background-color: #242526; border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #3e4042;">
-                <div class="post-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                    <img src="${post.avatar}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    <div>
-                        <strong style="color: white; display: block;">${post.author}</strong>
-                        <small style="color: #b0b3b8;">${post.time} • 👥</small>
-                    </div>
-                </div>
-                <div class="post-body" style="color: #e4e6eb; font-size: 15px;">
-                    <p style="margin: 0 0 10px 0;">${post.text}</p>
-                    <img src="${post.image}" style="width: 100%; border-radius: 8px; margin-top: 10px; max-height: 350px; object-fit: cover;">
-                </div>
-                <div class="post-footer-actions" style="display: flex; justify-content: space-around; margin-top: 12px; padding-top: 8px; border-top: 1px solid #2f3031;">
-                    <button style="background: none; border: none; color: #b0b3b8; cursor: pointer;">👍 Curtir</button>
-                    <button style="background: none; border: none; color: #b0b3b8; cursor: pointer;">💬 Comentar</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // 5. ENVIAR FOTOS AUTOMATICAMENTE PARA A SEÇÃO DE CONVERSAS/ÁLBUM (PÁG 43)
-    function renderizarFotosNoAlbum() {
-        if (!photosContainer) return;
-
-        // Se houver fotos guardadas, vamos criar uma grade visual bonita dentro da aba de fotos
-        if (appData.photos.length > 0) {
-            let gradeHtml = '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px;">';
-            appData.photos.forEach(urlFoto => {
-                gradeHtml += `<img src="${urlFoto}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:6px; border: 1px solid #3e4042;">`;
-            });
-            gradeHtml += '</div>';
-            
-            // Injeta o álbum logo no topo do contêiner de mídias/conversas
-            photosContainer.innerHTML = gradeHtml;
-        }
-    }
-
-    // 6. ATUALIZA O CONTADOR DO PERFIL ID="P-USER-POST-COUNT"
-    function atualizarContadorPosts() {
-        if (postCountElement) {
-            const total = appData.posts.length;
-            postCountElement.textContent = `${total} ${total === 1 ? 'post' : 'posts'}`;
-        }
-    }
-
-    // Centralizador de renderização
-    function renderizarTudo() {
-        renderizarFeed();
-        renderizarFotosNoAlbum();
-        atualizarContadorPosts();
-    }
-
-    // 7. ESCUTADOR DO ENTER NO INPUT DO COMPONENT
-    if (postInput) {
-        postInput.addEventListener('keypress', (evento) => {
-            if (evento.key === 'Enter') {
-                evento.preventDefault();
-                criarNovaPublicacao();
-            }
-        });
-    }
-
-    // Executa a leitura inicial para buscar os posts guardados na memória
-    renderizarTudo();
-});
 
 </script>
 </body>
