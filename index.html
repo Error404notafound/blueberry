@@ -2044,7 +2044,8 @@ let activeCallId = null; // Controla ID da sala de chamada ativa no Firestore
 // Configuração padrão de servidores STUN públicos do Google (Gratuitos)
 const rtcConfig = {
     iceServers: [
-        { urls: ['stun:://google.com', 'stun:://google.com'] }
+        { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302']
+ }
     ],
     iceCandidatePoolSize: 10,
 };
@@ -4027,7 +4028,7 @@ async function enviarMensagemChat() {
 
 // 2. NOVO: Mapeia os elementos do HTML e ativa os ouvintes de evento
 const btnSendMessage = document.getElementById('btn-send-message');
-const chatInputMessage = document.getElementById('chat-input-message');
+const chatInputMessage = document.getElementById('chat-message-input-unique');
 
 // Dispara o envio ao clicar no botão físico de enviar (ícone de avião)
 if (btnSendMessage) {
@@ -4570,7 +4571,7 @@ document.getElementById('pop-editar').addEventListener('click', async () => {
     if (novoTexto === null || novoTexto.trim() === "" || novoTexto === msgSelecionadaTexto) return;
 
     try {
-        const msgDocRef = doc(db, 'chats', currentRoomId, 'messages', msgSelecionadaId);
+        const msgDocRef = doc(db, 'messages', msgSelecionadaId);
         await updateDoc(msgDocRef, {
             text: novoTexto.trim() + " (editada)"
         });
@@ -4587,7 +4588,7 @@ document.getElementById('pop-cancelar').addEventListener('click', async () => {
     if (!confirm("Deseja realmente cancelar o envio desta mensagem?")) return;
 
     try {
-        const msgDocRef = doc(db, 'chats', currentRoomId, 'messages', msgSelecionadaId);
+        const msgDocRef = doc(db, 'messages', msgSelecionadaId);
         await deleteDoc(msgDocRef);
     } catch (err) {
         console.error("Erro ao deletar mensagem:", err);
