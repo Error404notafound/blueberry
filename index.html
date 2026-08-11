@@ -5043,31 +5043,19 @@ async function fecharFluxosDeVoz() {
 }
 
 document.getElementById('btn-voice-hangup').addEventListener('click', fecharFluxosDeVoz);
-// ... outras funções de carregar dados do usuário ...
-
 // 🌟 INÍCIO DO CÓDIGO DO LÁPIS (se der merda excluir) 🌟
-document.addEventListener("DOMContentLoaded", () => {
-    const pencilBtn = document.getElementById("btn-edit-personal-data");
-    
-    if (pencilBtn) {
-        pencilBtn.addEventListener("click", () => {
-            // 1. Procura o botão principal de "Editar perfil" que já existe na tela
-            // Se o seu botão usar outra classe ou texto, adaptamos o seletor abaixo
-            const mainEditBtn = document.querySelector(".profile-actions-bar button, [onclick*='edit'], .btn-edit-profile");
-            
-            if (mainEditBtn) {
-                // Se achou o botão oficial, clica nele automaticamente
-                mainEditBtn.click();
-            } else {
-                // Caso o seu app use o sistema de mudar de tela direto por função:
-                // Se a função se chamar showSection('edit-profile'), descomente a linha abaixo:
-                // showSection('edit-profile'); 
-                
-                alert("Redirecionando para a tela de edição...");
-            }
-        });
-    }
-});
+    updateOnlineStatusCounter();
+
+    // 🌟 DIRECIONAMENTO DO LÁPIS PARA EDITAR PERFIL 🌟
+    document.addEventListener("DOMContentLoaded", () => {
+        const pencilBtn = document.getElementById("btn-edit-personal-data");
+        if (pencilBtn) {
+            pencilBtn.addEventListener("click", () => {
+                // Aciona a função nativa do seu app para abrir a tela de edição
+                showSection('edit-profile-section');
+            });
+        }
+    });
 // 🌟 FIM DO CÓDIGO DO LÁPIS 🌟
 
 </script>
