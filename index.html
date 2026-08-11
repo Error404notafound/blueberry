@@ -4576,18 +4576,89 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
 
     
     // 6. BANCO DE DADOS: Conta em tempo real as publicações existentes deste usuário
+        // 6. BANCO DE DADOS: Conta e Renderiza os posts do usuário no Perfil dele
     pUserPostCount.textContent = "Calculando posts...";
+    
+    // Procura ou cria o container de listagem de posts abaixo da área de status do Perfil
+    let containerPostsPerfil = document.getElementById("profile-posts-list");
+    if (!containerPostsPerfil) {
+        containerPostsPerfil = document.createElement("div");
+        containerPostsPerfil.id = "profile-posts-list";
+        containerPostsPerfil.style.marginTop = "15px";
+        // Insere dinamicamente no final do container de perfil ativo
+        profileContainer.appendChild(containerPostsPerfil);
+    }
+    containerPostsPerfil.innerHTML = '<p style="color: #b0b3b8; text-align: center; padding: 10px;">Carregando publicações...</p>';
+
     try {
+        // Busca os posts ordenados do mais recente para o mais antigo
         const postsRef = collection(db, "posts");
-        const q = query(postsRef, where("autor", "==", email));
+        const q = query(postsRef, where("autor", "==", email), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(q);
+        
+        // Atualiza o contador de posts oficial do topo do perfil
         const totalPosts = querySnapshot.size;
         pUserPostCount.textContent = `${totalPosts} ${totalPosts === 1 ? 'post' : 'posts'}`;
+        
+        containerPostsPerfil.innerHTML = ""; // Limpa o texto de carregando
+
+        if (querySnapshot.empty) {
+            containerPostsPerfil.innerHTML = '<p style="color: #b0b3b8; text-align: center; padding: 20px;">Nenhuma publicação encontrada.</p>';
+            return;
+        }
+
+        // Loop real que monta os cards utilizando o mesmo padrão visual do seu feed nativo
+        querySnapshot.forEach((docSnap) => {
+            const post = docSnap.data();
+            const postId = docSnap.id;
+            
+            // Reutiliza a verificação de mídia/vídeo nativa do seu ecossistema Blueberry
+            let mídiaHTML = "";
+            if (post.video && post.video.trim() !== "") {
+                mídiaHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;">
+                    <img src="${post.video.trim()}" style="width: 100%; height:auto; border-radius:8px; display:block;">
+                </div>`;
+            }
+
+            const cardPost = document.createElement('div');
+            cardPost.className = 'post-card';
+            cardPost.style.marginBottom = "15px";
+            cardPost.innerHTML = `
+                <div class="user-feed-header" style="display: flex; align-items:center; justify-content:space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items:center;">
+                        <img src="${pAvatarImg.src}" alt="Avatar" style="width:40px; height:40px; border-radius: 50%; margin-right:10px; object-fit:cover;">
+                        <div style="display: flex; flex-direction:column;">
+                            <small style="color:var(--accent-blue); font-weight:bold;">${pUserTitle.textContent}</small>
+                            <span style="font-size:10px; color:#b0b3b8;">${formatarDataFriendly ? formatarDataFriendly(post.createdAt) : 'Postado recentemente'}</span>
+                        </div>
+                    </div>
+                    <button class="post-options-btn class-trigger-options" data-id="${postId}">
+                        <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    </button>
+                </div>
+                <p style="margin:5px 0 10px 0; font-size:16px; color: white;">${post.text || ""}</p>
+                ${mídiaHTML}
+                <div class="post-footer-actions">
+                    <button class="post-action-btn" id="profile-like-${postId}" style="color: #b0b3b8;">
+                        <svg viewBox="0 0 24 24" style="fill: none;"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
+                        <span>Curtir</span>
+                    </button>
+                    <button class="post-action-btn" onclick="abrirJanelaComentarios('${postId}', '${email}')">
+                        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span>Comentar</span>
+                    </button>
+                </div>
+            `;
+            containerPostsPerfil.appendChild(cardPost);
+        });
+
     } catch(err) {
-        console.error("Erro ao contar posts:", err);
+        console.error("Erro ao carregar os posts do perfil no Firestore:", err);
+        if(containerPostsPerfil) containerPostsPerfil.innerHTML = '<p style="color: red; text-align: center; padding: 10px;">Erro ao carregar publicações.</p>';
         pUserPostCount.textContent = "0 posts";
     }
 }
+
 
 // Interceptadores de Cliques para os Modais de Edição (Estilo Telas 2 e 3)
 btnTriggerEditProfile.addEventListener('click', () => {
