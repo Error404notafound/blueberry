@@ -2009,16 +2009,26 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
             <div class="fb-item-text"><span class="fb-label">Cidade atual</span><span class="fb-value" id="val-cidade-atual">Não informado</span></div>
             <span class="fb-pencil">&#9998;</span>
         </div>
-        <div class="fb-list-item" id="btn-edit-cidade-natal">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <div class="fb-item-text"><span class="fb-label">Cidade natal</span><span class="fb-value" id="val-cidade-natal">Não informado</span></div>
-            <span class="fb-pencil">&#9998;</span>
-        </div>
-        <div class="fb-list-item" id="btn-edit-relacionamento">
-            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.5 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            <div class="fb-item-text"><span class="fb-label">Status de relacionamento</span><span class="fb-value" id="val-relacionamento">Não informado</span></div>
-            <span class="fb-pencil">&#9998;</span>
-        </div>
+        <!-- ... Cidade natal ... -->
+<div class="fb-list-item" id="btn-edit-cidade-natal">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <div class="fb-item-text"><span class="fb-label">Cidade natal</span><span class="fb-value" id="val-cidade-natal">Não informado</span></div>
+    <span class="fb-pencil">&#9998;</span>
+</div>
+
+<!-- NOVO: DATA DE ANIVERSÁRIO -->
+<div class="fb-list-item" id="btn-edit-aniversario">
+    <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
+    <div class="fb-item-text"><span class="fb-label">Data de nascimento</span><span class="fb-value" id="val-aniversario">Não informado</span></div>
+    <span class="fb-pencil">&#9998;</span>
+</div>
+
+<div class="fb-list-item" id="btn-edit-relacionamento">
+    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.5 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    <div class="fb-item-text"><span class="fb-label">Status de relacionamento</span><span class="fb-value" id="val-relacionamento">Não informado</span></div>
+    <span class="fb-pencil">&#9998;</span>
+</div>
+
     </div>
 
     <!-- 3. TRABALHO -->
@@ -5240,6 +5250,7 @@ document.getElementById('btn-voice-hangup').addEventListener('click', fecharFlux
 const camposNovosFB = [
     { idBtn: 'btn-edit-cidade-atual', idVal: 'val-cidade-atual', chave: 'cidadeAtual', txt: 'Cidade atual' },
     { idBtn: 'btn-edit-cidade-natal', idVal: 'val-cidade-natal', chave: 'cidadeNatal', txt: 'Cidade natal' },
+    { idBtn: 'btn-edit-aniversario', idVal: 'val-aniversario', chave: 'dataAniversario', txt: 'Data de nascimento (Ex: 18 de agosto de 1999)' },
     { idBtn: 'btn-edit-relacionamento', idVal: 'val-relacionamento', chave: 'relacionamento', txt: 'Status de relacionamento' },
     { idBtn: 'btn-edit-trabalho', idVal: 'val-trabalho', chave: 'trabalho', txt: 'Experiência profissional' },
     { idBtn: 'btn-edit-educacao', idVal: 'val-educacao', chave: 'educacao', txt: 'Instituição de ensino' },
@@ -5298,6 +5309,7 @@ if (userData.redesSociais) document.getElementById('val-redes').textContent = us
 if (userData.emailContato) document.getElementById('val-email').textContent = userData.emailContato;
 if (userData.telefoneContato) document.getElementById('val-telefone').textContent = userData.telefoneContato;
 */
+//if (userData.dataAniversario) document.getElementById('val-aniversario').textContent = userData.dataAniversario;
 
 </script>
 </body>
