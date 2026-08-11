@@ -4585,14 +4585,21 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
     pUserPostCount.textContent = "Calculando posts...";
     
     // Procura ou cria o container de listagem de posts abaixo da área de status do Perfil
+        // 🎨 CORREÇÃO DO LAYOUT FANTASMA (MATANDO O FUNDO BRANCO)
     let containerPostsPerfil = document.getElementById("profile-posts-list");
     if (!containerPostsPerfil) {
         containerPostsPerfil = document.createElement("div");
         containerPostsPerfil.id = "profile-posts-list";
         containerPostsPerfil.style.marginTop = "15px";
+        // Força o container a usar o fundo escuro da página para os cards cinzas destacarem
+        containerPostsPerfil.style.backgroundColor = "#18191a"; 
+        containerPostsPerfil.style.width = "100%";
+        containerPostsPerfil.style.boxSizing = "border-box";
+        
         // Insere dinamicamente no final do container de perfil ativo
         profileContainer.appendChild(containerPostsPerfil);
     }
+
     containerPostsPerfil.innerHTML = '<p style="color: #b0b3b8; text-align: center; padding: 10px;">Carregando publicações...</p>';
 
     try {
