@@ -1451,6 +1451,57 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     text-align: center;
     white-space: nowrap;
 }
+/* ESTILOS DE LISTA ESTILO FACEBOOK MOBILE DARK */
+.fb-section-box {
+    margin-bottom: 22px;
+    border-bottom: 1px solid #2f3031;
+    padding-bottom: 12px;
+}
+.fb-section-title h3 {
+    font-size: 15px;
+    font-weight: bold;
+    color: #e4e6eb;
+    margin-bottom: 10px;
+}
+.fb-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.fb-list-item:hover {
+    background-color: #242526;
+}
+.fb-list-item svg {
+    width: 22px;
+    height: 22px;
+    fill: #b0b3b8;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+.fb-item-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.fb-label {
+    font-size: 14px;
+    color: #e4e6eb;
+    font-weight: 500;
+}
+.fb-value {
+    font-size: 13px;
+    color: #b0b3b8;
+}
+.fb-pencil {
+    font-size: 14px;
+    color: #b0b3b8;
+    margin-left: 10px;
+}
 
 /* 👆 [FIM DO TRECHO NOVO DE CSS] 👆 */
 
@@ -1930,19 +1981,147 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 </section>
 
 <!-- MODAL 1: EDITAR PERFIL (TELA DO PRINT 2) -->
-<div id="modal-edit-profile" style="display:none; position:fixed; top:60px; left:0; width:100%; height:calc(100vh - 60px); background:#18191a; z-index:4000; padding:20px; box-sizing:border-box; color:white;">
-    <div style="display:flex; align-items:center; margin-bottom:30px;">
+<!-- MODAL 1: EDITAR PERFIL EXPANDIDO (ESTILO FACEBOOK MOBILE) -->
+<div id="modal-edit-profile" style="display:none; position:fixed; top:60px; left:0; width:100%; height:calc(100vh - 60px); background:#18191a; z-index:4000; padding:20px; box-sizing:border-box; color:white; overflow-y: auto;">
+    <div style="display: flex; align-items:center; margin-bottom:25px;">
         <span id="close-modal-edit-p" style="cursor:pointer; font-size:24px; margin-right:20px;">&larr;</span>
         <h2 style="margin:0; font-size:20px;">Editar perfil</h2>
     </div>
-    <div style="margin-top:20px;">
-        <h3>Apresentação</h3>
-        <div id="row-trigger-bio" style="display:flex; justify-content:between; align-items:center; background:#242526; padding:15px; border-radius:8px; cursor:pointer;">
-            <span style="display:flex; align-items:center; gap:10px;">👋 Sobre você</span>
-            <span>&gt;</span>
+
+    <!-- 1. APRESENTAÇÃO -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Apresentação</h3></div>
+        <div class="fb-list-item" id="row-trigger-bio">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <div class="fb-item-text">
+                <span class="fb-label">Sobre você</span>
+                <span class="fb-value" id="val-biografia">Nenhuma biografia adicionada...</span>
+            </div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+    </div>
+
+    <!-- 2. DADOS PESSOAIS -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Dados pessoais</h3></div>
+        <div class="fb-list-item" id="btn-edit-cidade-atual">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Cidade atual</span><span class="fb-value" id="val-cidade-atual">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+        <div class="fb-list-item" id="btn-edit-cidade-natal">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Cidade natal</span><span class="fb-value" id="val-cidade-natal">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+        <div class="fb-list-item" id="btn-edit-relacionamento">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.5 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Status de relacionamento</span><span class="fb-value" id="val-relacionamento">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+    </div>
+
+    <!-- 3. TRABALHO -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Trabalho</h3></div>
+        <div class="fb-list-item" id="btn-edit-trabalho">
+            <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Experiência profissional</span><span class="fb-value" id="val-trabalho">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+    </div>
+
+    <!-- 4. EDUCAÇÃO -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Educação</h3></div>
+        <div class="fb-list-item" id="btn-edit-educacao">
+            <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Instituição de ensino médio ou faculdade</span><span class="fb-value" id="val-educacao">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+    </div>
+
+    <!-- 5. HOBBIES -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Hobbies</h3></div>
+        <div class="fb-list-item" id="btn-edit-hobbies">
+            <svg viewBox="0 0 24 24"><path d="M12 2c1.1 0 2 .9 2 2v1.42c1.72.47 3 2.02 3 3.88 0 1.4-.73 2.63-1.84 3.35L16 18c0 1.1-.9 2-2 2h-4c-1.1 0-2-.9-2-2l.84-5.35C7.73 11.93 7 10.7 7 9.3c0-1.86 1.28-3.41 3-3.88V4c0-1.1.9-2 2-2z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Hobbies</span><span class="fb-value" id="val-hobbies">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+    </div>
+
+    <!-- 6. INTERESSES -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Interesses</h3></div>
+        <div class="fb-list-item" id="btn-edit-musicas">
+            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h6V3h-6z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Músicas</span><span class="fb-value" id="val-musicas">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+        <div class="fb-list-item" id="btn-edit-tv">
+            <svg viewBox="0 0 24 24"><path d="M21 6h-7.59l3.29-3.29L16 1.41 11.59 5.83 7.17 1.41 5.76 2.83 9.05 6H3c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.11-.9-2-2-2zm0 14H3V8h18v12z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Programas de TV</span><span class="fb-value" id="val-tv">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+        <div class="fb-list-item" id="btn-edit-filmes">
+            <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Filmes</span><span class="fb-value" id="val-filmes">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+        <div class="fb-list-item" id="btn-edit-jogos">
+            <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v2H7v-2H5v-1h2v-2h1v2h3v1zm7-1c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm2 2c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Jogos</span><span class="fb-value" id="val-jogos">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+        <div class="fb-list-item" id="btn-edit-times">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Times esportivos e atletas</span><span class="fb-value" id="val-times">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+    </div>
+
+    <!-- 7. VIAGEM -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Viagem</h3></div>
+        <div class="fb-list-item" id="btn-edit-locais">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Locais</span><span class="fb-value" id="val-locais">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+    </div>
+
+    <!-- 8. LINKS -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Links</h3></div>
+        <div class="fb-list-item" id="btn-edit-sites">
+            <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Sites, blogs, portfólios</span><span class="fb-value" id="val-sites">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+    </div>
+
+    <!-- 9. INFORMAÇÕES DE CONTATO -->
+    <div class="fb-section-box">
+        <div class="fb-section-title"><h3>Informações de contato</h3></div>
+        <div class="fb-list-item" id="btn-edit-redes">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C13.45 11.9 13 12.5 13 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Redes sociais</span><span class="fb-value" id="val-redes">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+        <div class="fb-list-item" id="btn-edit-email">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Adicionar email</span><span class="fb-value" id="val-email">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
+        </div>
+        <div class="fb-list-item" id="btn-edit-telefone">
+            <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1v3.58c0 .35-.11.74-.25 1.02l-2.2 2.2z"/></svg>
+            <div class="fb-item-text"><span class="fb-label">Número de telefone</span><span class="fb-value" id="val-telefone">Não informado</span></div>
+            <span class="fb-pencil">&#9998;</span>
         </div>
     </div>
 </div>
+
 
 <!-- MODAL 2: ADICIONAR BIO (TELA DO PRINT 3) -->
 <div id="modal-bio-input" style="display:none; position:fixed; top:60px; left:0; width:100%; height:calc(100vh - 60px); background:#18191a; z-index:5000; padding:20px; box-sizing:border-box; color:white;">
@@ -5057,6 +5236,68 @@ document.getElementById('btn-voice-hangup').addEventListener('click', fecharFlux
         }
     });
 // 🌟 FIM DO CÓDIGO DO LÁPIS 🌟
+// MAPA COMPLETO DOS CAMPOS COM SEUS IDs DO HTML E FIRESTORE
+const camposNovosFB = [
+    { idBtn: 'btn-edit-cidade-atual', idVal: 'val-cidade-atual', chave: 'cidadeAtual', txt: 'Cidade atual' },
+    { idBtn: 'btn-edit-cidade-natal', idVal: 'val-cidade-natal', chave: 'cidadeNatal', txt: 'Cidade natal' },
+    { idBtn: 'btn-edit-relacionamento', idVal: 'val-relacionamento', chave: 'relacionamento', txt: 'Status de relacionamento' },
+    { idBtn: 'btn-edit-trabalho', idVal: 'val-trabalho', chave: 'trabalho', txt: 'Experiência profissional' },
+    { idBtn: 'btn-edit-educacao', idVal: 'val-educacao', chave: 'educacao', txt: 'Instituição de ensino' },
+    { idBtn: 'btn-edit-hobbies', idVal: 'val-hobbies', chave: 'hobbies', txt: 'Hobbies' },
+    { idBtn: 'btn-edit-musicas', idVal: 'val-musicas', chave: 'musicas', txt: 'Músicas' },
+    { idBtn: 'btn-edit-tv', idVal: 'val-tv', chave: 'programasTV', txt: 'Programas de TV' },
+    { idBtn: 'btn-edit-filmes', idVal: 'val-filmes', chave: 'filmes', txt: 'Filmes' },
+    { idBtn: 'btn-edit-jogos', idVal: 'val-jogos', chave: 'jogos', txt: 'Jogos' },
+    { idBtn: 'btn-edit-times', idVal: 'val-times', chave: 'timesAtletas', txt: 'Times esportivos e atletas' },
+    { idBtn: 'btn-edit-locais', idVal: 'val-locais', chave: 'locaisViagem', txt: 'Locais' },
+    { idBtn: 'btn-edit-sites', idVal: 'val-sites', chave: 'linksSites', txt: 'Sites, blogs, portfólios' },
+    { idBtn: 'btn-edit-redes', idVal: 'val-redes', chave: 'redesSociais', txt: 'Redes sociais' },
+    { idBtn: 'btn-edit-email', idVal: 'val-email', chave: 'emailContato', txt: 'Email de contato' },
+    { idBtn: 'btn-edit-telefone', idVal: 'val-telefone', chave: 'telefoneContato', txt: 'Número de telefone' }
+];
+
+// 1. ESCUTA DE EVENTOS (Abre o prompt e salva tudo de forma dinâmica no Firebase)
+camposNovosFB.forEach(item => {
+    document.getElementById(item.idBtn)?.addEventListener('click', async () => {
+        if (!auth.currentUser) return alert("Você precisa fazer login!");
+        
+        const elementoValor = document.getElementById(item.idVal);
+        const valorPassado = elementoValor.textContent === "Não informado" ? "" : elementoValor.textContent;
+        
+        const valorDigitado = prompt(`Digite seu dado para ${item.txt}:`, valorPassado);
+        if (valorDigitado === null) return; // Cancelou
+        
+        try {
+            const userDocRef = doc(db, "usuarios", auth.currentUser.email);
+            await setDoc(userDocRef, { [item.chave]: valorDigitado.trim(), updatedAt: Date.now() }, { merge: true });
+            elementoValor.textContent = valorDigitado.trim() || "Não informado";
+        } catch (erro) {
+            console.error("Erro ao salvar:", erro);
+            alert("Erro ao gravar dados no banco.");
+        }
+    });
+});
+
+// 2. ATUALIZAÇÃO DA LEITURA (Adicione estas linhas dentro da sua função openUserProfilePage na pág 105)
+// Coloque este trecho logo abaixo de onde você limpa a capa do perfil (coverWrapper.style.backgroundImage = 'none'):
+/*
+if (userData.cidadeAtual) document.getElementById('val-cidade-atual').textContent = userData.cidadeAtual;
+if (userData.cidadeNatal) document.getElementById('val-cidade-natal').textContent = userData.cidadeNatal;
+if (userData.relacionamento) document.getElementById('val-relacionamento').textContent = userData.relacionamento;
+if (userData.trabalho) document.getElementById('val-trabalho').textContent = userData.trabalho;
+if (userData.educacao) document.getElementById('val-educacao').textContent = userData.educacao;
+if (userData.hobbies) document.getElementById('val-hobbies').textContent = userData.hobbies;
+if (userData.musicas) document.getElementById('val-musicas').textContent = userData.musicas;
+if (userData.programasTV) document.getElementById('val-tv').textContent = userData.programasTV;
+if (userData.filmes) document.getElementById('val-filmes').textContent = userData.filmes;
+if (userData.jogos) document.getElementById('val-jogos').textContent = userData.jogos;
+if (userData.timesAtletas) document.getElementById('val-times').textContent = userData.timesAtletas;
+if (userData.locaisViagem) document.getElementById('val-locais').textContent = userData.locaisViagem;
+if (userData.linksSites) document.getElementById('val-sites').textContent = userData.linksSites;
+if (userData.redesSociais) document.getElementById('val-redes').textContent = userData.redesSociais;
+if (userData.emailContato) document.getElementById('val-email').textContent = userData.emailContato;
+if (userData.telefoneContato) document.getElementById('val-telefone').textContent = userData.telefoneContato;
+*/
 
 </script>
 </body>
