@@ -1319,14 +1319,6 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 }
 
 /* 👆 [FIM DO TRECHO NOVO DE CSS] 👆 */
-@keyframes pulse-green {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
-    70% { transform: scale(1.08); box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-}
-.pulse-call {
-    animation: pulse-green 1.5s infinite;
-}
 
 </style>
 </head>
@@ -2004,24 +1996,6 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <button id="btn-chat-share-media" style="width: 100%; background: #0077ff; color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s;">Compartilhar no Chat</button>
     </div>
 </div>
-<!-- Modal de Notificação de Chamada Recebida -->
-<div id="incoming-call-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(11, 20, 26, 0.9); z-index: 10000; flex-direction: column; justify-content: center; align-items: center; font-family: sans-serif; box-sizing: border-box; color: white;">
-    <div style="background-color: #202c33; padding: 30px; border-radius: 16px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.5); max-width: 320px; width: 90%;">
-        <div class="pulse-call" style="background-color: #2a3942; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
-            <svg id="incoming-call-icon" viewBox="0 0 24 24" width="40" height="40" fill="#25d366">
-                <!-- Ícone dinâmico inserido via JS -->
-            </svg>
-        </div>
-        <h3 id="incoming-call-title" style="margin: 0 0 10px 0; font-size: 20px; color: white;">Chamando...</h3>
-        <p id="incoming-call-text" style="margin: 0 0 25px 0; color: #8696a0; font-size: 16px;">Alguém está te ligando</p>
-        
-        <div style="display: flex; gap: 15px; justify-content: center;">
-            <button id="btn-incoming-reject" style="background-color: #ea0038; color: white; border: none; border-radius: 24px; padding: 12px 24px; font-weight: bold; cursor: pointer; flex: 1; margin-top: 0 !important;">Recusar</button>
-            <button id="btn-incoming-accept" style="background-color: #25d366; color: white; border: none; border-radius: 24px; padding: 12px 24px; font-weight: bold; cursor: pointer; flex: 1; margin-top: 0 !important;">Atender</button>
-        </div>
-    </div>
-</div>
-
 
             <!-- Scripts Firebase e Lógica da Aplicação -->
 <script type="module">
@@ -2128,14 +2102,12 @@ document.getElementById('btn-chat-video').addEventListener('click', async () => 
     await peerConnection.setLocalDescription(offerDescription);
 
     const offer = {
-    sdp: offerDescription.sdp,
-    type: offerDescription.type,
-    callerId: auth.currentUser.uid,
-    callerEmail: auth.currentUser.email, // 🟢 ADICIONADO: Envia o e-mail de quem liga
-    receiverId: currentChatRecipient,
-    status: 'calling'
-};
-
+        sdp: offerDescription.sdp,
+        type: offerDescription.type,
+        callerId: auth.currentUser.uid,
+        receiverId: currentChatRecipient,
+        status: 'calling'
+    };
 
     await setDoc(callDocRef, { offer });
 
@@ -2174,49 +2146,8 @@ document.getElementById('btn-chat-video').addEventListener('click', async () => 
 
 // 2. MONITORAR SE ALGUÉM ESTÁ TE LIGANDO (Roda continuamente em background)
 // Coloque esta chamada de monitoramento dentro da sua função "onAuthStateChanged"
-// Adicione esta nova função de controle em qualquer lugar do seu script
-function exibirModalChamadaEntrante(callerEmail, tipoChamada, onAccept, onReject) {
-    const modal = document.getElementById('incoming-call-modal');
-    const title = document.getElementById('incoming-call-title');
-    const text = document.getElementById('incoming-call-text');
-    const icon = document.getElementById('incoming-call-icon');
-    
-    const nomeBase = callerEmail.split('@')[0];
-    const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
-    
-    title.innerText = tipoChamada === 'video' ? 'Chamada de Vídeo' : 'Chamada de Voz';
-    text.innerText = `${nomeFormatado} está te ligando...`;
-    
-    if (tipoChamada === 'video') {
-        icon.innerHTML = '<path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>';
-    } else {
-        icon.innerHTML = '<path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-3.8-6.6-6.6l2.2-2.2c.3-.3.4-.7.2-1-.3-1.1-.5-2.3-.5-3.5 0-.6-.5-1-1-1H4c-.6 0-1 .5-1 1 0 9.4 7.6 17 17 17 .6 0 1-.4 1-1v-3.5c0-.6-.5-1-1-1z"/>';
-    }
-    
-    modal.style.display = 'flex';
-    
-    const btnAccept = document.getElementById('btn-incoming-accept');
-    const btnReject = document.getElementById('btn-incoming-reject');
-    const newAccept = btnAccept.cloneNode(true);
-    const newReject = btnReject.cloneNode(true);
-    
-    btnAccept.parentNode.replaceChild(newAccept, btnAccept);
-    btnReject.parentNode.replaceChild(newReject, btnReject);
-    
-    newAccept.addEventListener('click', () => {
-        modal.style.display = 'none';
-        onAccept();
-    });
-    
-    newReject.addEventListener('click', () => {
-        modal.style.display = 'none';
-        onReject();
-    });
-}
-
-// Altere a sua função de escuta de chamadas de vídeo para ficar assim:
-function monitorarChamadasEntrantes(userEmail) { // 🟢 ALTERADO: userEmail
-    const q = query(collection(db, 'calls'), where('offer.receiverId', '==', userEmail), where('offer.status', '==', 'calling'));
+function monitorarChamadasEntrantes(userId) {
+    const q = query(collection(db, 'calls'), where('offer.receiverId', '==', userId), where('offer.status', '==', 'calling'));
     
     onSnapshot(q, async (snapshot) => {
         snapshot.docChanges().forEach(async (change) => {
@@ -2224,63 +2155,78 @@ function monitorarChamadasEntrantes(userEmail) { // 🟢 ALTERADO: userEmail
                 const callId = change.doc.id;
                 activeCallId = callId;
                 const callData = change.doc.data();
-                const callerEmail = callData.offer.callerEmail || "Alguém"; // 🟢 Captura o email enviado
 
-                // 🟢 Substituição do confirm() pelo Modal
-                exibirModalChamadaEntrante(callerEmail, 'video', 
-                    async () => {
-                        // Atender chamada (Roda o WebRTC)
-                        videoOverlay.style.display = 'flex';
-                        callStatusTitle.innerText = "Conectando...";
-                        
-                        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                        remoteStream = new MediaStream();
-                        localVideo.srcObject = localStream;
-                        remoteVideo.srcObject = remoteStream;
+                // Pergunta ao usuário se ele deseja aceitar a chamada recebida
+                if (confirm("Recebendo chamada de vídeo. Deseja aceitar?")) {
+                    videoOverlay.style.display = 'flex';
+                    callStatusTitle.innerText = "Conectando...";
+                    
+                    // Liga a câmera do receptor
+                    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    remoteStream = new MediaStream();
+                    
+                    localVideo.srcObject = localStream;
+                    remoteVideo.srcObject = remoteStream;
 
-                        peerConnection = new RTCPeerConnection(rtcConfig);
-                        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-                        peerConnection.ontrack = (event) => {
-                            event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
-                        };
+                    peerConnection = new RTCPeerConnection(rtcConfig);
+                    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
-                        const callDocRef = doc(db, 'calls', callId);
-                        const answerCandidates = collection(db, 'calls', callId, 'answerCandidates');
-                        peerConnection.onicecandidate = (event) => {
-                            if (event.candidate) addDoc(answerCandidates, event.candidate.toJSON());
-                        };
+                    peerConnection.ontrack = (event) => {
+                        event.streams[0].getTracks().forEach(track => remoteStream.addTrack(track));
+                    };
 
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(callData.offer));
-                        const answerDescription = await peerConnection.createAnswer();
-                        await peerConnection.setLocalDescription(answerDescription);
+                    const callDocRef = doc(db, 'calls', callId);
+                    
+                    // Envia candidatos ICE do receptor para o Firestore
+                    const answerCandidates = collection(db, 'calls', callId, 'answerCandidates');
+                    peerConnection.onicecandidate = (event) => {
+                        if (event.candidate) {
+                            addDoc(answerCandidates, event.candidate.toJSON());
+                        }
+                    };
 
-                        await updateDoc(callDocRef, { 
-                            answer: { type: answerDescription.type, sdp: answerDescription.sdp }, 
-                            'offer.status': 'accepted' 
+                    // Processa a oferta recebida
+                    const offerDescription = callData.offer;
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(offerDescription));
+
+                    // Cria e define a resposta SDP
+                    const answerDescription = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answerDescription);
+
+                    const answer = {
+                        type: answerDescription.type,
+                        sdp: answerDescription.sdp,
+                    };
+
+                    // Atualiza o documento no Firestore aceitando a chamada
+                    await updateDoc(callDocRef, { answer, 'offer.status': 'accepted' });
+                    callStatusTitle.innerText = "Em chamada";
+
+                    // Escuta se o criador desligar a chamada
+                    onSnapshot(callDocRef, (snap) => {
+                        if (snap.data() && snap.data().status === 'ended') {
+                            fecharFluxosDeChamada();
+                        }
+                    });
+
+                    // Escuta candidatos ICE vindos do criador da chamada
+                    const offerCandidates = collection(db, 'calls', callId, 'offerCandidates');
+                    onSnapshot(offerCandidates, (snap) => {
+                        snap.docChanges().forEach((chg) => {
+                            if (chg.type === 'added') {
+                                peerConnection.addIceCandidate(new RTCIceCandidate(chg.doc.data()));
+                            }
                         });
-                        callStatusTitle.innerText = "Em chamada";
+                    });
 
-                        onSnapshot(callDocRef, (snap) => {
-                            if (snap.data() && snap.data().status === 'ended') fecharFluxosDeChamada();
-                        });
-
-                        const offerCandidates = collection(db, 'calls', callId, 'offerCandidates');
-                        onSnapshot(offerCandidates, (snap) => {
-                            snap.docChanges().forEach((chg) => {
-                                if (chg.type === 'added') peerConnection.addIceCandidate(new RTCIceCandidate(chg.doc.data()));
-                            });
-                        });
-                    }, 
-                    async () => {
-                        // Recusar chamada
-                        await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
-                    }
-                );
+                } else {
+                    // Se rejeitar, atualiza status para finalizar sinalização
+                    await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+                }
             }
         });
     });
 }
-
 
 // 3. FUNÇÃO PARA DESLIGAR E LIMPAR CONEXÃO
 async function fecharFluxosDeChamada() {
@@ -3008,12 +2954,11 @@ onAuthStateChanged(auth, async (user) => {
         escutarPedidosDeAmizade();
         gerenciarPresencaUsuario(user.email);
         
-        // Ativa o sistema para receber chamadas de vídeo em tempo real usando o e-mail do usuário
-monitorarChamadasEntrantes(user.email); // 🟢 ALTERADO: user.uid -> user.email
-
-// 👇 NOVA LINHA ADICIONADA AQUI: Ativa o sistema para receber chamadas de VOZ em tempo real usando o e-mail
-monitorarChamadasVozEntrantes(user.email); // 🟢 ALTERADO: user.uid -> user.email
-
+        // Ativa o sistema para receber chamadas de vídeo em tempo real
+        monitorarChamadasEntrantes(user.uid);
+        
+        // 👇 NOVA LINHA ADICIONADA AQUI: Ativa o sistema para receber chamadas de VOZ em tempo real
+        monitorarChamadasVozEntrantes(user.uid);
         
         // Busca foto de perfil customizada
         try {
@@ -4918,132 +4863,139 @@ async function fecharFluxosDeVoz() {
 }
 
 document.getElementById('btn-voice-hangup').addEventListener('click', fecharFluxosDeVoz);
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. SELETORES REAIS DO SEU HTML
-    const postInput = document.getElementById('post-text'); // Input da página 37
-    const feedContainer = document.getElementById('feed'); // Seção do feed da página 38
-    const postCountElement = document.getElementById('p-user-post-count'); // Contador da página 40
-    
-    // Seletores para os botões de postagem (página 37)
-    const btnFoto = document.getElementById('btn-abrir-modal-foto');
-    const btnReel = document.getElementById('btn-abrir-modal-reel');
+// ==========================================
 
-    // 2. BANCO DE DADOS LOCAL (Salva as postagens para não sumirem ao atualizar)
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. SELETORES DIRETOS DO SEU HTML
+    const postInput = document.getElementById('post-text');
+    const feedContainers = document.querySelectorAll('.feed'); // Pega tanto o feed da Home quanto do Perfil
+    const postCountElement = document.getElementById('p-user-post-count');
+    
+    // Abas do Perfil para controle de visualização
+    const tabItems = document.querySelectorAll('.profile-nav-tabs .profile-tab-item');
+
+    // 2. BANCO DE DADOS LOCAL (Salva dados no navegador)
     let appData = JSON.parse(localStorage.getItem('blueberry_data')) || {
         posts: [],
         photos: []
     };
 
-    // 3. ATUALIZA OS CONTADORES NA TELA
-    function updateInterface() {
-        if (postCountElement) {
-            postCountElement.textContent = `${appData.posts.length} ${appData.posts.length === 1 ? 'post' : 'posts'}`;
-        }
-        renderFeed();
-        renderAlbums();
-    }
-
-    // 4. FUNÇÃO PARA PUBLICAR
-    function publicarConteudo(tipo) {
-        const texto = postInput.value.trim();
-        if (!texto) {
-            alert("Digite algo no campo 'No que você está pensando?' antes de postar!");
+    // 3. FUNÇÃO PRINCIPAL PARA ADICIONAR POSTAGENS
+    function publicarStatus() {
+        const textContent = postInput.value.trim();
+        if (!textContent) {
+            alert("No que você está pensando? Digite algo antes de postar!");
             return;
         }
 
-        // Define uma imagem padrão de teste baseada no tipo de clique
-        let imagemPost = "";
-        if (tipo === 'foto') {
-            imagemPost = "https://picsum.photos" + Date.now();
-        } else if (tipo === 'reel') {
-            imagemPost = "https://picsum.photos" + Date.now();
-        }
+        // Simula uma imagem padrão para cair no Álbum de Fotos (igual ao print enviado)
+        const imagemSimulada = "https://picsum.photos" + Date.now();
 
-        // Objeto da nova postagem
+        // Estrutura do post idêntica ao layout do Blueberry
         const novoPost = {
             id: Date.now(),
             author: "Errol Notafound",
             avatar: "https://placeholder.com",
             time: "Agora mesmo",
-            text: texto,
-            image: imagemPost,
-            type: tipo
+            text: textContent,
+            image: imagemSimulada
         };
 
-        // Salva nos arrays correspondentes
+        // Salva nos históricos locais
         appData.posts.unshift(novoPost);
-        if (imagemPost) {
-            appData.photos.unshift(imagemPost);
-        }
+        appData.photos.unshift(imagemSimulada);
 
-        // Salva no navegador e atualiza a tela
+        // Atualiza a memória e a tela
         localStorage.setItem('blueberry_data', JSON.stringify(appData));
         postInput.value = ""; // Limpa a caixa de texto
-        updateInterface();
+        renderTudo();
     }
 
-    // 5. RENDERIZA O FEED DINAMICAMENTE
+    // 4. RENDERIZA OS CARDS NO FEED E NO PERFIL
     function renderFeed() {
-        if (!feedContainer) return;
+        if (feedContainers.length === 0) return;
 
+        let htmlPosts = "";
         if (appData.posts.length === 0) {
-            feedContainer.innerHTML = "<p style='color: #b0b3b8; text-align: center; padding: 20px;'>Nenhuma publicação ainda.</p>";
+            htmlPosts = `<p style="color: #b0b3b8; text-align: center; padding: 20px;">Nenhuma atualização de status encontrada.</p>`;
+        } else {
+            htmlPosts = appData.posts.map(post => `
+                <div class="post-card" style="background-color: #242526; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <div class="post-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div class="post-meta-left" style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${post.avatar}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <strong style="color: white; display: block;">${post.author}</strong>
+                                <small style="color: #b0b3b8;">${post.time} • 👥</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-body" style="color: #e4e6eb; font-size: 15px;">
+                        <p style="margin: 0 0 10px 0;">${post.text}</p>
+                        ${post.image ? `<img src="${post.image}" style="width: 100%; border-radius: 8px; margin-top: 5px; max-height: 350px; object-fit: cover;">` : ''}
+                    </div>
+                    <div class="post-footer-actions" style="display: flex; justify-content: space-around; margin-top: 12px; padding-top: 8px; border-top: 1px solid #2f3031;">
+                        <button class="post-action-btn" style="background: none; border: none; color: #b0b3b8; cursor: pointer;">👍 Curtir</button>
+                        <button class="post-action-btn" style="background: none; border: none; color: #b0b3b8; cursor: pointer;">💬 Comentar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Aplica o HTML gerado em todas as seções que usam a classe .feed
+        feedContainers.forEach(container => {
+            container.innerHTML = htmlPosts;
+        });
+    }
+
+    // 5. INJETA AS FOTOS NA LISTAGEM DO ÁLBUM
+    function renderFotosPerfil() {
+        // Encontra a área de exibição das sub-abas do seu perfil
+        const abaFotosContainer = document.getElementById('search-results'); // ID temporária para renderizar grids de mídias
+        if (!abaFotosContainer) return;
+
+        if (appData.photos.length === 0) {
+            abaFotosContainer.innerHTML = "<p style='color: #b0b3b8; padding: 20px; text-align:center;'>Nenhum arquivo no celular.</p>";
             return;
         }
 
-        feedContainer.innerHTML = appData.posts.map(post => `
-            <div class="post-card" style="background-color: #242526; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                <div class="post-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-                    <img src="${post.avatar}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    <div>
-                        <strong style="color: white; display: block;">${post.author}</strong>
-                        <small style="color: #b0b3b8;">${post.time} • 👥</small>
-                    </div>
-                </div>
-                <div class="post-body" style="color: #e4e6eb; font-size: 15px;">
-                    <p style="margin: 0 0 10px 0;">${post.text}</p>
-                    ${post.image ? `<img src="${post.image}" style="width: 100%; border-radius: 8px; margin-top: 5px; max-height: 400px; object-fit: cover;">` : ''}
-                </div>
-                <div class="post-footer-actions" style="display: flex; justify-content: space-around; margin-top: 12px; padding-top: 8px; border-top: 1px solid #2f3031;">
-                    <button style="background: none; border: none; color: #b0b3b8; cursor: pointer;">👍 Curtir</button>
-                    <button style="background: none; border: none; color: #b0b3b8; cursor: pointer;">💬 Comentar</button>
-                </div>
-            </div>
-        `).join('');
+        // Cria a grade estruturada de 3 colunas para fotos salvas
+        let htmlGrid = '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px;">';
+        appData.photos.forEach(src => {
+            htmlGrid += `<img src="${src}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:6px; border: 1px solid #3a3b3c;">`;
+        });
+        htmlGrid += '</div>';
+
+        abaFotosContainer.innerHTML = htmlGrid;
     }
 
-    // 6. MAPEA AS FOTOS PARA OS ÁLBUNS DO SEU PRINT
-    function renderAlbums() {
-        // Como o seu HTML usa listas estáticas, vamos procurar as imagens e atualizar as pastas visualmente
-        const albumThumbs = document.querySelectorAll('.chat-row-avatar'); // Alvo temporário baseado no layout das listas de fotos
-        
-        if (albumThumbs.length >= 2 && appData.photos.length > 0) {
-            // Atualiza a miniatura dos álbuns com a foto mais recente postada
-            albumThumbs[0].src = appData.photos[0];
-            albumThumbs[1].src = appData.photos[0];
-            
-            // Atualiza os contadores de texto dos álbuns ("1 foto", "2 fotos", etc)
-            const albumInfos = document.querySelectorAll('.chat-row-msg');
-            if (albumInfos.length >= 2) {
-                albumInfos[0].textContent = `${appData.photos.length} ${appData.photos.length === 1 ? 'foto' : 'fotos'}`;
-                albumInfos[1].textContent = `${appData.photos.length} ${appData.photos.length === 1 ? 'foto' : 'fotos'}`;
-            }
+    // 6. ATUALIZA OS TEXTOS DE CONTADORES VISÍVEIS
+    function atualizarContadores() {
+        if (postCountElement) {
+            const qtd = appData.posts.length;
+            postCountElement.textContent = `${qtd} ${qtd === 1 ? 'post' : 'posts'}`;
         }
     }
 
-    // 7. VÍNCULO DOS CLIQUES NOS BOTÕES DA PÁGINA 37
-    if (btnFoto) {
-        btnFoto.addEventListener('click', () => publicarConteudo('foto'));
-    }
-    if (btnReel) {
-        btnReel.addEventListener('click', () => publicarConteudo('reel'));
+    // Executa o lote completo de renderização
+    function renderTudo() {
+        renderFeed();
+        renderFotosPerfil();
+        atualizarContadores();
     }
 
-    // Roda a verificação inicial ao abrir o site
-    updateInterface();
+    // 7. ESCUTA DO BOTÃO ENTER NA CAIXA DE TEXTO
+    if (postInput) {
+        postInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                publicarStatus();
+            }
+        });
+    }
+
+    // Executa a carga inicial da página trazendo os posts antigos salvos
+    renderTudo();
 });
-
-
 
 </script>
 </body>
