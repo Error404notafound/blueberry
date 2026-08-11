@@ -1161,7 +1161,6 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 .profile-personal-data {
     border-bottom: 1px solid #2f3031;
     padding-bottom: 15px;
-    margin-bottom: 15px; /* Margem adicionada para afastar uma seção da outra */
 }
 .personal-data-header {
     display: flex !important;
@@ -1188,8 +1187,11 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     background: transparent !important;
     border: none !important;
     cursor: pointer;
-    width: 24px !important; /* Área de clique sutilmente ampliada */
-    height: 24px !important;
+    padding: 0 !important; /* Remove o alcance invisível do clique */
+    margin: 0 !important;
+    width: 18px !important; /* Força o botão a ter o tamanho exato do ícone */
+    height: 18px !important;
+    flex-shrink: 0 !important; /* Impede distorções */
     display: flex !important;
     align-items: center;
     justify-content: center;
@@ -1199,30 +1201,17 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     height: 18px !important;
     fill: #b0b3b8 !important;
 }
-/* Novo container para encapsular e espaçar os itens em pilha vertical */
-.personal-data-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px; /* Garante o mesmo espaçamento vertical entre cada linha */
-}
 .personal-data-item {
     display: flex;
     align-items: center;
     gap: 10px;
     color: #e4e6eb;
     font-size: 14px;
-    margin-bottom: 12px; /* 🌟 Adicionado para espaçar os itens verticalmente */
-}
-
-/* Remove a margem do último item para não sobrar espaço no fundo da caixa */
-.personal-data-item:last-child {
-    margin-bottom: 0;
 }
 .personal-data-item svg {
-    width: 20px; /* Tamanho levemente aumentado para melhor visibilidade dos detalhes */
-    height: 20px;
-    fill: #b0b3b8; /* Força todos os novos ícones a herdar o tom cinza */
-    flex-shrink: 0; /* Impede que o ícone amasse em telas muito pequenas */
+    width: 18px;
+    height: 18px;
+    fill: #b0b3b8;
 }
 
 /* Caixa de Criação de Post no Perfil */
@@ -1896,146 +1885,36 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     <!-- 🌟 NOVA ÁREA IMPLEMENTADA AQUI 🌟 -->
     <div class="profile-extra-content">
         <!-- Seção Dados Pessoais -->
-            <!-- Seção Dados Pessoais (Sua estrutura original com as correções de ícones) -->
-    <div class="profile-personal-data">
-        <div class="personal-data-header">
-            <span class="personal-data-title">Dados pessoais</span>
-            <button class="btn-edit-data" id="btn-edit-personal-data">
-                <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-            </button>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            <span>Cidade atual</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <span>Cidade natal</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-            <span>18 de agosto de 1999</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            <span>Status de relacionamento</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-            <span>Família</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            <span>Masculino</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 2 22 16.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95a15.65 15.65 0 0 0-1.38-3.56A8.03 8.03 0 0 1 18.92 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.33-.14 2 0 .67.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.987 7.987 0 0 1 5.08 16zm2.95-8H5.08a7.987 7.987 0 0 1 4.33-3.56A15.65 15.65 0 0 0 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.34-.16-2 0-.66.07-1.34.16-2h4.68c.09.66.16 1.34.16 2 0 .66-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a7.987 7.987 0 0 1-4.33 3.56zm1.78-5.56c.08-.66.14-1.34.14-2 0-.67-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
-            <span>Idiomas</span>
-        </div>
-    </div>
+        <div class="profile-personal-data">
+            <div class="personal-data-header">
+    <span class="personal-data-title">Dados pessoais</span>
+    <!-- 🌟 Adicionado id="btn-edit-personal-data" aqui embaixo 🌟 -->
+    <button class="btn-edit-data" id="btn-edit-personal-data">
+        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+    </button>
+</div>
 
-    <!-- 👇 SEU CÓDIGO NOVO COMEÇA AQUI 👇 -->
+            <div class="personal-data-item">
+                <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                <span>18 de agosto de 1999</span>
+            </div>
+        </div>
 
-    <!-- Seção Trabalho -->
-    <div class="profile-personal-data">
-        <div class="personal-data-header">
-            <span class="personal-data-title">Trabalho</span>
-            <button class="btn-edit-data" onclick="alert('Editar Trabalho')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
-            <span>Experiência profissional</span>
-        </div>
-    </div>
-
-    <!-- Seção Educação -->
-    <div class="profile-personal-data">
-        <div class="personal-data-header">
-            <span class="personal-data-title">Educação</span>
-            <button class="btn-edit-data" onclick="alert('Editar Educação')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
-            <span>Instituição de ensino médio ou faculdade</span>
-        </div>
-    </div>
-
-    <!-- Seção Hobbies -->
-    <div class="profile-personal-data">
-        <div class="personal-data-header">
-            <span class="personal-data-title">Hobbies</span>
-            <button class="btn-edit-data" onclick="alert('Editar Hobbies')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.35 1.7-.93 2.25z"/></svg>
-            <span>Hobbies</span>
-        </div>
-    </div>
-
-    <!-- Seção Interesses -->
-    <div class="profile-personal-data">
-        <div class="personal-data-header">
-            <span class="personal-data-title">Interesses</span>
-            <button class="btn-edit-data" onclick="alert('Editar Interesses')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-            <span>Músicas</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>
-            <span>Programas de TV</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
-            <span>Filmes</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H9v2H8v-2H6v-1h2V9h1v2h2v1zm4.5 1.25c-.41 0-.75-.34-.75-.75s.34-.75 0-.75.75.34.75.75-.34.75-.75.75zm1.75-1.75c-.41 0-.75-.34-.75-.75s.34-.75.75-.75.75.34.75.75-.34.75-.75.75z"/></svg>
-            <span>Jogos</span>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M7 5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v2h4c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H3c-1.1 0-2-.9-2-2V9c0-1.1.9-2 2-2h4V5zm2 0v2h6V5H9z"/></svg>
-            <span>Times esportivos e atletas</span>
-        </div>
-    </div>
-
-    <!-- Seção Viagem -->
-    <div class="profile-personal-data">
-        <div class="personal-data-header">
-            <span class="personal-data-title">Viagem</span>
-            <button class="btn-edit-data" onclick="alert('Editar Viagem')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-            <span>Locais</span>
-        </div>
-    </div>
-
-    <!-- Seção Links -->
-    <div class="profile-personal-data">
-        <div class="personal-data-header">
-            <span class="personal-data-title">Links</span>
-            <button class="btn-edit-data" onclick="alert('Editar Links')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
-            <span>Sites, blogs, portfólios</span>
-        </div>
-    </div>
-
-    <!-- Seção Informações de contato -->
-    <div class="profile-personal-data">
-        <div class="personal-data-header">
-            <span class="personal-data-title">Informações de contato</span>
-            <button class="btn-edit-data" onclick="alert('Editar Informações de contato')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>
-        </div>
-        <div class="personal-data-item">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
-            <span>Redes sociais</span>
-        </div>
-        <div class="personal-data-item">
-
+        <!-- Seção Criar Post no Perfil -->
+        <div class="profile-create-post">
+            <div class="create-post-upper">
+                <img src="https://placeholder.com" class="profile-post-avatar" alt="Avatar">
+                <input type="text" placeholder="Poste uma atualização de status" class="profile-post-input">
+                <div class="gallery-icon-right">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19z"/></svg>
+                </div>
+            </div>
+            <div class="create-post-lower">
+                <div class="lower-action-btn green-photo-btn">
+    <!-- Novo SVG com o mesmo desenho do ícone da direita -->
+    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19z"/></svg>
+    <span>Foto</span>
+</div>
 
                 <div class="lower-action-btn">
                     <svg viewBox="0 0 24 24" style="fill: #f3425f;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
