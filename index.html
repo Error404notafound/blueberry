@@ -1148,7 +1148,117 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     border-bottom: 3px solid #2374e1;
 }
 
-/* ======== BARRA DE INTERAÇÕES DO POST (ESTILO FACEBOOK) ======== */
+/* 🌟 ESTILOS ADICIONADOS PARA A NOVA ÁREA DO PERFIL 🌟 */
+.profile-extra-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: #000000;
+}
+
+/* Dados Pessoais */
+.profile-personal-data {
+    border-bottom: 1px solid #2f3031;
+    padding-bottom: 15px;
+}
+.personal-data-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.personal-data-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+.btn-edit-data {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+.btn-edit-data svg {
+    width: 18px;
+    height: 18px;
+    fill: #b0b3b8;
+}
+.personal-data-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #e4e6eb;
+    font-size: 14px;
+}
+.personal-data-item svg {
+    width: 18px;
+    height: 18px;
+    fill: #b0b3b8;
+}
+
+/* Caixa de Criação de Post no Perfil */
+.profile-create-post {
+    background-color: #18191a;
+    border-radius: 8px;
+    padding: 12px;
+}
+.create-post-upper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #2f3031;
+    padding-bottom: 12px;
+}
+.profile-post-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.profile-post-input {
+    flex: 1;
+    background-color: #242526;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+.gallery-icon-right svg {
+    width: 22px;
+    height: 22px;
+    fill: #b0b3b8;
+    display: flex;
+}
+.create-post-lower {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+}
+.lower-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.lower-action-btn:hover {
+    background-color: #242526;
+}
+.lower-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+.lower-action-btn span {
+    color: #b0b3b8;
+    font-size: 12px;
+    font-weight: 500;
+}
 /* ======== NOVA BARRA DE INTERAÇÕES HORIZONTAL (ESTILO FACEBOOK LITE) ======== */
 .post-footer-actions {
     display: flex;
@@ -1746,6 +1856,48 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <div class="profile-tab-item active">Tudo</div>
         <div class="profile-tab-item">Fotos</div>
         <div class="profile-tab-item">Reels</div>
+    </div>
+
+    <!-- 🌟 NOVA ÁREA IMPLEMENTADA AQUI 🌟 -->
+    <div class="profile-extra-content">
+        <!-- Seção Dados Pessoais -->
+        <div class="profile-personal-data">
+            <div class="personal-data-header">
+                <h3>Dados pessoais</h3>
+                <button class="btn-edit-data">
+                    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+            </div>
+            <div class="personal-data-item">
+                <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+                <span>18 de agosto de 1999</span>
+            </div>
+        </div>
+
+        <!-- Seção Criar Post no Perfil -->
+        <div class="profile-create-post">
+            <div class="create-post-upper">
+                <img src="https://placeholder.com" class="profile-post-avatar" alt="Avatar">
+                <input type="text" placeholder="Poste uma atualização de status" class="profile-post-input">
+                <div class="gallery-icon-right">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19z"/></svg>
+                </div>
+            </div>
+            <div class="create-post-lower">
+                <div class="lower-action-btn">
+                    <svg viewBox="0 0 24 24" style="fill: #45bd62;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1z"/></svg>
+                    <span>Foto</span>
+                </div>
+                <div class="lower-action-btn">
+                    <svg viewBox="0 0 24 24" style="fill: #f3425f;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    <span>Check-in</span>
+                </div>
+                <div class="lower-action-btn">
+                    <svg viewBox="0 0 24 24" style="fill: #9360f7;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+                    <span>Acontecimento</span>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
