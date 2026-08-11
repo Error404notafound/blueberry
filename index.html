@@ -4863,35 +4863,29 @@ async function fecharFluxosDeVoz() {
 }
 
 document.getElementById('btn-voice-hangup').addEventListener('click', fecharFluxosDeVoz);
-// ==========================================
+// O JavaScript puro não aceita comentários com a sintaxe do HTML (<!-- -->).
+// Para evitar que o seu navegador quebre e trave a página, os comentários
+// abaixo foram alterados para barras duplas (//), que é o padrão universal do JS.
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. SELETORES DIRETOS DO SEU HTML
+    // Seletores principais do HTML do Blueberry
     const postInput = document.getElementById('post-text');
-    const feedContainers = document.querySelectorAll('.feed'); // Pega tanto o feed da Home quanto do Perfil
+    const feedContainers = document.querySelectorAll('.feed');
     const postCountElement = document.getElementById('p-user-post-count');
-    
-    // Abas do Perfil para controle de visualização
-    const tabItems = document.querySelectorAll('.profile-nav-tabs .profile-tab-item');
 
-    // 2. BANCO DE DADOS LOCAL (Salva dados no navegador)
-    let appData = JSON.parse(localStorage.getItem('blueberry_data')) || {
-        posts: [],
-        photos: []
-    };
+    // Banco de dados local salvo no navegador
+    let appData = JSON.parse(localStorage.getItem('blueberry_data')) || { posts: [], photos: [] };
 
-    // 3. FUNÇÃO PRINCIPAL PARA ADICIONAR POSTAGENS
+    // Processa e salva a nova publicação
     function publicarStatus() {
         const textContent = postInput.value.trim();
         if (!textContent) {
-            alert("No que você está pensando? Digite algo antes de postar!");
+            alert("Digite algo antes de postar!");
             return;
         }
 
-        // Simula uma imagem padrão para cair no Álbum de Fotos (igual ao print enviado)
         const imagemSimulada = "https://picsum.photos" + Date.now();
 
-        // Estrutura do post idêntica ao layout do Blueberry
         const novoPost = {
             id: Date.now(),
             author: "Errol Notafound",
@@ -4901,99 +4895,76 @@ document.addEventListener('DOMContentLoaded', () => {
             image: imagemSimulada
         };
 
-        // Salva nos históricos locais
         appData.posts.unshift(novoPost);
         appData.photos.unshift(imagemSimulada);
 
-        // Atualiza a memória e a tela
         localStorage.setItem('blueberry_data', JSON.stringify(appData));
-        postInput.value = ""; // Limpa a caixa de texto
+        postInput.value = ""; 
         renderTudo();
     }
 
-    // 4. RENDERIZA OS CARDS NO FEED E NO PERFIL
+    // Injeta os cards de postagem nas seções de feed
     function renderFeed() {
         if (feedContainers.length === 0) return;
-
         let htmlPosts = "";
         if (appData.posts.length === 0) {
-            htmlPosts = `<p style="color: #b0b3b8; text-align: center; padding: 20px;">Nenhuma atualização de status encontrada.</p>`;
+            htmlPosts = `<p style="color: #b0b3b8; text-align: center; padding: 20px;">Nenhuma publicação.</p>`;
         } else {
             htmlPosts = appData.posts.map(post => `
                 <div class="post-card" style="background-color: #242526; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
-                    <div class="post-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <div class="post-meta-left" style="display: flex; align-items: center; gap: 10px;">
-                            <img src="${post.avatar}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                            <div>
-                                <strong style="color: white; display: block;">${post.author}</strong>
-                                <small style="color: #b0b3b8;">${post.time} • 👥</small>
-                            </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <img src="${post.avatar}" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <div>
+                            <strong style="color: white; display: block;">${post.author}</strong>
+                            <small style="color: #b0b3b8;">${post.time} • 👥</small>
                         </div>
                     </div>
-                    <div class="post-body" style="color: #e4e6eb; font-size: 15px;">
+                    <div style="color: #e4e6eb; font-size: 15px;">
                         <p style="margin: 0 0 10px 0;">${post.text}</p>
-                        ${post.image ? `<img src="${post.image}" style="width: 100%; border-radius: 8px; margin-top: 5px; max-height: 350px; object-fit: cover;">` : ''}
-                    </div>
-                    <div class="post-footer-actions" style="display: flex; justify-content: space-around; margin-top: 12px; padding-top: 8px; border-top: 1px solid #2f3031;">
-                        <button class="post-action-btn" style="background: none; border: none; color: #b0b3b8; cursor: pointer;">👍 Curtir</button>
-                        <button class="post-action-btn" style="background: none; border: none; color: #b0b3b8; cursor: pointer;">💬 Comentar</button>
+                        <img src="${post.image}" style="width: 100%; border-radius: 8px; max-height: 350px; object-fit: cover;">
                     </div>
                 </div>
             `).join('');
         }
-
-        // Aplica o HTML gerado em todas as seções que usam a classe .feed
-        feedContainers.forEach(container => {
-            container.innerHTML = htmlPosts;
-        });
+        feedContainers.forEach(c => c.innerHTML = htmlPosts);
     }
 
-    // 5. INJETA AS FOTOS NA LISTAGEM DO ÁLBUM
+    // Alimenta a aba de fotos com as imagens publicadas
     function renderFotosPerfil() {
-        // Encontra a área de exibição das sub-abas do seu perfil
-        const abaFotosContainer = document.getElementById('search-results'); // ID temporária para renderizar grids de mídias
+        const abaFotosContainer = document.getElementById('search-results'); 
         if (!abaFotosContainer) return;
+        if (appData.photos.length === 0) return;
 
-        if (appData.photos.length === 0) {
-            abaFotosContainer.innerHTML = "<p style='color: #b0b3b8; padding: 20px; text-align:center;'>Nenhum arquivo no celular.</p>";
-            return;
-        }
-
-        // Cria a grade estruturada de 3 colunas para fotos salvas
         let htmlGrid = '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px;">';
         appData.photos.forEach(src => {
-            htmlGrid += `<img src="${src}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:6px; border: 1px solid #3a3b3c;">`;
+            htmlGrid += `<img src="${src}" style="width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:6px;">`;
         });
         htmlGrid += '</div>';
-
         abaFotosContainer.innerHTML = htmlGrid;
     }
 
-    // 6. ATUALIZA OS TEXTOS DE CONTADORES VISÍVEIS
+    // Atualiza o contador numérico de publicações do usuário
     function atualizarContadores() {
         if (postCountElement) {
-            const qtd = appData.posts.length;
-            postCountElement.textContent = `${qtd} ${qtd === 1 ? 'post' : 'posts'}`;
+            postCountElement.textContent = `${appData.posts.length} ${appData.posts.length === 1 ? 'post' : 'posts'}`;
         }
     }
 
-    // Executa o lote completo de renderização
+    // Executa a renderização completa da interface
     function renderTudo() {
         renderFeed();
         renderFotosPerfil();
         atualizarContadores();
     }
 
-    // 7. ESCUTA DO BOTÃO ENTER NA CAIXA DE TEXTO
+    // Monitora o clique da tecla Enter na caixa de texto
     if (postInput) {
         postInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                publicarStatus();
-            }
+            if (e.key === 'Enter') publicarStatus();
         });
     }
 
-    // Executa a carga inicial da página trazendo os posts antigos salvos
+    // Inicialização padrão ao abrir a página
     renderTudo();
 });
 
