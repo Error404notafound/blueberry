@@ -7,7 +7,7 @@
     
     <style>
         /* Estilos Globais e do Tema */
-         :root { 8
+         :root { 
             --bg-main: #18191a;
             --bg-card: #242526;
             --bg-hover: #3a3b3c;
@@ -1501,11 +1501,6 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     font-size: 14px;
     color: #b0b3b8;
     margin-left: 10px;
-}
-.feed-video-wrapper iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
 }
 
 /* 👆 [FIM DO TRECHO NOVO DE CSS] 👆 */
@@ -4585,21 +4580,14 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
     pUserPostCount.textContent = "Calculando posts...";
     
     // Procura ou cria o container de listagem de posts abaixo da área de status do Perfil
-        // 🎨 CORREÇÃO DO LAYOUT FANTASMA (MATANDO O FUNDO BRANCO)
     let containerPostsPerfil = document.getElementById("profile-posts-list");
     if (!containerPostsPerfil) {
         containerPostsPerfil = document.createElement("div");
         containerPostsPerfil.id = "profile-posts-list";
         containerPostsPerfil.style.marginTop = "15px";
-        // Força o container a usar o fundo escuro da página para os cards cinzas destacarem
-        containerPostsPerfil.style.backgroundColor = "#18191a"; 
-        containerPostsPerfil.style.width = "100%";
-        containerPostsPerfil.style.boxSizing = "border-box";
-        
         // Insere dinamicamente no final do container de perfil ativo
         profileContainer.appendChild(containerPostsPerfil);
     }
-
     containerPostsPerfil.innerHTML = '<p style="color: #b0b3b8; text-align: center; padding: 10px;">Carregando publicações...</p>';
 
     try {
@@ -4625,44 +4613,12 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
             const postId = docSnap.id;
             
             // Reutiliza a verificação de mídia/vídeo nativa do seu ecossistema Blueberry
-                        // 🎬 INJEÇÃO DE MÍDIAS COMPLETA (FOTOS, YOUTUBE E VÍDEOS NATIVOS)
             let mídiaHTML = "";
             if (post.video && post.video.trim() !== "") {
-                let videoUrl = post.video.trim();
-                const linkLimpo = videoUrl.toLowerCase();
-                
-                // 1. Verifica se o link é uma Imagem/Foto
-                const ehImagem = linkLimpo.includes('.jpg') ||
-                                 linkLimpo.includes('.jpeg') ||
-                                 linkLimpo.includes('.png') ||
-                                 linkLimpo.includes('.gif') ||
-                                 linkLimpo.includes('placeholder') ||
-                                 linkLimpo.startsWith('data:image');
-
-                if (ehImagem) {
-                    mídiaHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;">
-                        <img src="${videoUrl}" style="width: 100%; height:auto; border-radius:8px; display:block;">
-                    </div>`;
-                } else {
-                    // 2. Verifica se é um link padrão do YouTube para converter em Embed
-                    if ((videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) && !videoUrl.includes('embed')) {
-                        let videold = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
-                        if (videold.includes('&')) videold = videold.split('&')[0];
-                        videoUrl = `https://youtube.com{videold}`;
-                    }
-
-                    // 3. Renderiza Iframe (YouTube) ou tag Video nativa
-                    if (videoUrl.includes('embed') || videoUrl.includes('plugins/video.php')) {
-                        mídiaHTML = `
-                        <div class="feed-video-wrapper" style="position:relative; width:100%; padding-top:56.25%; background:#000; border-radius:8px; overflow:hidden; margin-top:10px;">
-                            <iframe src="${videoUrl}" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="position:absolute; top:0; left:0; width: 100%; height:100%;"></iframe>
-                        </div>`;
-                    } else {
-                        mídiaHTML = `<video src="${videoUrl}" controls style="width:100%; max-height:400px; border-radius:8px; margin-top:10px; background:#000;"></video>`;
-                    }
-                }
+                mídiaHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;">
+                    <img src="${post.video.trim()}" style="width: 100%; height:auto; border-radius:8px; display:block;">
+                </div>`;
             }
-
 
             const cardPost = document.createElement('div');
             cardPost.className = 'post-card';
