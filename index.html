@@ -4918,146 +4918,132 @@ async function fecharFluxosDeVoz() {
 }
 
 document.getElementById('btn-voice-hangup').addEventListener('click', fecharFluxosDeVoz);
-// ====== CONSTANTES E SELETORES ======
-const postInput = document.getElementById('post-text');
-const btnPublish = document.getElementById('btn-publish'); // Se o botão for o de Foto/Reel, adapte o ID
-const feedContainer = document.getElementById('feed');
-const profileFeedContainer = document.querySelector('#profile-container .feed') || feedContainer;
-const postCountElements = document.querySelectorAll('#p-user-post-count, .profile-post-count');
-const loadedPhotosContainer = document.querySelector('#content-conversas') || document.body; // Adapte para a div das fotos carregadas
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. SELETORES REAIS DO SEU HTML
+    const postInput = document.getElementById('post-text'); // Input da página 37
+    const feedContainer = document.getElementById('feed'); // Seção do feed da página 38
+    const postCountElement = document.getElementById('p-user-post-count'); // Contador da página 40
+    
+    // Seletores para os botões de postagem (página 37)
+    const btnFoto = document.getElementById('btn-abrir-modal-foto');
+    const btnReel = document.getElementById('btn-abrir-modal-reel');
 
-// Informações simuladas do usuário atual (Errol Notafound)
-const currentUser = {
-    name: "Errol Notafound",
-    avatar: "https://placeholder.com"
-};
-
-// ====== BANCO DE DADOS LOCAL (LOCALSTORAGE) ======
-let appData = JSON.parse(localStorage.getItem('blueberry_data')) || {
-    posts: [],
-    photos: []
-};
-
-// ====== FUNÇÃO PARA SALVAR OS DADOS ======
-function saveToStorage() {
-    localStorage.setItem('blueberry_data', JSON.stringify(appData));
-}
-
-// ====== FUNÇÃO PARA FORMATAR A DATA ======
-function getFormattedDate() {
-    return "Agora mesmo";
-}
-
-// ====== ADICIONAR NOVA POSTAGEM / FOTO ======
-function createNewPost() {
-    const textContent = postInput.value.trim();
-    if (!textContent) return alert("Digite algo antes de publicar!");
-
-    // Simulando uma imagem padrão caso o usuário poste na galeria/foto (como no print)
-    const simulatedImage = "https://placeholder.com";
-
-    const newPost = {
-        id: Date.now(),
-        author: currentUser.name,
-        avatar: currentUser.avatar,
-        time: getFormattedDate(),
-        text: textContent,
-        image: simulatedImage // Adiciona imagem automaticamente para alimentar a aba Fotos
+    // 2. BANCO DE DADOS LOCAL (Salva as postagens para não sumirem ao atualizar)
+    let appData = JSON.parse(localStorage.getItem('blueberry_data')) || {
+        posts: [],
+        photos: []
     };
 
-    // Alimenta a lista de postagens e a lista de fotos do álbum
-    appData.posts.unshift(newPost);
-    appData.photos.unshift(simulatedImage);
-
-    saveToStorage();
-    renderAll();
-    
-    postInput.value = ""; // Limpa o campo
-}
-
-// ====== ATUALIZAR CONTADOR DE POSTS ======
-function updatePostCount() {
-    postCountElements.forEach(el => {
-        el.textContent = `${appData.posts.length} ${appData.posts.length === 1 ? 'post' : 'posts'}`;
-    });
-}
-
-// ====== RENDERIZAR POSTS (FEED PRINCIPAL E PERFIL) ======
-function renderPosts() {
-    if (!feedContainer) return;
-    
-    let html = "";
-    appData.posts.forEach(post => {
-        html += `
-            <div class="post-card" data-id="${post.id}">
-                <div class="post-header">
-                    <div class="post-meta-left">
-                        <img src="${post.avatar}" alt="Avatar" class="user-avatar" style="width:40px; height:40px; border-radius:50%;">
-                        <div>
-                            <strong style="color: white; display:block;">${post.author}</strong>
-                            <small style="color: #b0b3b8;">${post.time}</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="post-body" style="padding: 10px 0; color: white;">
-                    <p>${post.text}</p>
-                    ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:8px; margin-top:10px;">` : ''}
-                </div>
-                <div class="post-footer-actions">
-                    <button class="post-action-btn">👍 Curtir</button>
-                    <button class="post-action-btn">💬 Comentar</button>
-                </div>
-            </div>
-        `;
-    });
-
-    feedContainer.innerHTML = html;
-    updatePostCount();
-}
-
-// ====== RENDERIZAR ÁLBUM DE FOTOS ======
-function renderPhotos() {
-    // Localiza os containers das suas pastas nos prints (Fotos Carregadas / Arquivos do celular)
-    const photoGrid = document.getElementById('search-results'); // Adapte para o ID da sua div de listagem de fotos
-    if (!photoGrid) return;
-
-    if (appData.photos.length === 0) {
-        photoGrid.innerHTML = "<p style='color: #b0b3b8; padding: 15px;'>Nenhuma foto carregada.</p>";
-        return;
+    // 3. ATUALIZA OS CONTADORES NA TELA
+    function updateInterface() {
+        if (postCountElement) {
+            postCountElement.textContent = `${appData.posts.length} ${appData.posts.length === 1 ? 'post' : 'posts'}`;
+        }
+        renderFeed();
+        renderAlbums();
     }
 
-    // Renderiza as miniaturas dentro dos álbuns
-    let html = '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 10px;">';
-    appData.photos.forEach(photoUrl => {
-        html += `<img src="${photoUrl}" style="width:100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 4px;">`;
-    });
-    html += '</div>';
-    
-    photoGrid.innerHTML = html;
-}
-
-// ====== RENDERIZAR TUDO ======
-function renderAll() {
-    renderPosts();
-    renderPhotos();
-}
-
-// ====== EVENTOS DE DISPARO ======
-if (btnPublish) {
-    btnPublish.addEventListener('click', createNewPost);
-}
-
-// Permite postar ao pressionar Enter dentro do input do feed
-if (postInput) {
-    postInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            createNewPost();
+    // 4. FUNÇÃO PARA PUBLICAR
+    function publicarConteudo(tipo) {
+        const texto = postInput.value.trim();
+        if (!texto) {
+            alert("Digite algo no campo 'No que você está pensando?' antes de postar!");
+            return;
         }
-    });
-}
 
-// Inicializa renderizando os itens salvos ao carregar a página
-document.addEventListener('DOMContentLoaded', renderAll);
+        // Define uma imagem padrão de teste baseada no tipo de clique
+        let imagemPost = "";
+        if (tipo === 'foto') {
+            imagemPost = "https://picsum.photos" + Date.now();
+        } else if (tipo === 'reel') {
+            imagemPost = "https://picsum.photos" + Date.now();
+        }
+
+        // Objeto da nova postagem
+        const novoPost = {
+            id: Date.now(),
+            author: "Errol Notafound",
+            avatar: "https://placeholder.com",
+            time: "Agora mesmo",
+            text: texto,
+            image: imagemPost,
+            type: tipo
+        };
+
+        // Salva nos arrays correspondentes
+        appData.posts.unshift(novoPost);
+        if (imagemPost) {
+            appData.photos.unshift(imagemPost);
+        }
+
+        // Salva no navegador e atualiza a tela
+        localStorage.setItem('blueberry_data', JSON.stringify(appData));
+        postInput.value = ""; // Limpa a caixa de texto
+        updateInterface();
+    }
+
+    // 5. RENDERIZA O FEED DINAMICAMENTE
+    function renderFeed() {
+        if (!feedContainer) return;
+
+        if (appData.posts.length === 0) {
+            feedContainer.innerHTML = "<p style='color: #b0b3b8; text-align: center; padding: 20px;'>Nenhuma publicação ainda.</p>";
+            return;
+        }
+
+        feedContainer.innerHTML = appData.posts.map(post => `
+            <div class="post-card" style="background-color: #242526; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <div class="post-header" style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <img src="${post.avatar}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                        <strong style="color: white; display: block;">${post.author}</strong>
+                        <small style="color: #b0b3b8;">${post.time} • 👥</small>
+                    </div>
+                </div>
+                <div class="post-body" style="color: #e4e6eb; font-size: 15px;">
+                    <p style="margin: 0 0 10px 0;">${post.text}</p>
+                    ${post.image ? `<img src="${post.image}" style="width: 100%; border-radius: 8px; margin-top: 5px; max-height: 400px; object-fit: cover;">` : ''}
+                </div>
+                <div class="post-footer-actions" style="display: flex; justify-content: space-around; margin-top: 12px; padding-top: 8px; border-top: 1px solid #2f3031;">
+                    <button style="background: none; border: none; color: #b0b3b8; cursor: pointer;">👍 Curtir</button>
+                    <button style="background: none; border: none; color: #b0b3b8; cursor: pointer;">💬 Comentar</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 6. MAPEA AS FOTOS PARA OS ÁLBUNS DO SEU PRINT
+    function renderAlbums() {
+        // Como o seu HTML usa listas estáticas, vamos procurar as imagens e atualizar as pastas visualmente
+        const albumThumbs = document.querySelectorAll('.chat-row-avatar'); // Alvo temporário baseado no layout das listas de fotos
+        
+        if (albumThumbs.length >= 2 && appData.photos.length > 0) {
+            // Atualiza a miniatura dos álbuns com a foto mais recente postada
+            albumThumbs[0].src = appData.photos[0];
+            albumThumbs[1].src = appData.photos[0];
+            
+            // Atualiza os contadores de texto dos álbuns ("1 foto", "2 fotos", etc)
+            const albumInfos = document.querySelectorAll('.chat-row-msg');
+            if (albumInfos.length >= 2) {
+                albumInfos[0].textContent = `${appData.photos.length} ${appData.photos.length === 1 ? 'foto' : 'fotos'}`;
+                albumInfos[1].textContent = `${appData.photos.length} ${appData.photos.length === 1 ? 'foto' : 'fotos'}`;
+            }
+        }
+    }
+
+    // 7. VÍNCULO DOS CLIQUES NOS BOTÕES DA PÁGINA 37
+    if (btnFoto) {
+        btnFoto.addEventListener('click', () => publicarConteudo('foto'));
+    }
+    if (btnReel) {
+        btnReel.addEventListener('click', () => publicarConteudo('reel'));
+    }
+
+    // Roda a verificação inicial ao abrir o site
+    updateInterface();
+});
+
+
 
 </script>
 </body>
