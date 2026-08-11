@@ -1888,7 +1888,8 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <div class="profile-personal-data">
             <div class="personal-data-header">
     <span class="personal-data-title">Dados pessoais</span>
-    <button class="btn-edit-data">
+    <!-- 🌟 Adicionado id="btn-edit-personal-data" aqui embaixo 🌟 -->
+    <button class="btn-edit-data" id="btn-edit-personal-data">
         <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
     </button>
 </div>
@@ -5042,6 +5043,35 @@ async function fecharFluxosDeVoz() {
 }
 
 document.getElementById('btn-voice-hangup').addEventListener('click', fecharFluxosDeVoz);
+// ... outras funções de carregar dados do usuário ...
+function setupProfileTabs() {
+    // lógica das abas do perfil
+}
+
+// 🌟 INÍCIO DO CÓDIGO DO LÁPIS (se der merda excluir) 🌟
+document.addEventListener("DOMContentLoaded", () => {
+    const pencilBtn = document.getElementById("btn-edit-personal-data");
+    
+    if (pencilBtn) {
+        pencilBtn.addEventListener("click", () => {
+            // 1. Procura o botão principal de "Editar perfil" que já existe na tela
+            // Se o seu botão usar outra classe ou texto, adaptamos o seletor abaixo
+            const mainEditBtn = document.querySelector(".profile-actions-bar button, [onclick*='edit'], .btn-edit-profile");
+            
+            if (mainEditBtn) {
+                // Se achou o botão oficial, clica nele automaticamente
+                mainEditBtn.click();
+            } else {
+                // Caso o seu app use o sistema de mudar de tela direto por função:
+                // Se a função se chamar showSection('edit-profile'), descomente a linha abaixo:
+                // showSection('edit-profile'); 
+                
+                alert("Redirecionando para a tela de edição...");
+            }
+        });
+    }
+});
+// 🌟 FIM DO CÓDIGO DO LÁPIS 🌟
 
 </script>
 </body>
