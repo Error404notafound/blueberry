@@ -5044,15 +5044,15 @@ async function fecharFluxosDeVoz() {
 
 document.getElementById('btn-voice-hangup').addEventListener('click', fecharFluxosDeVoz);
 // 🌟 INÍCIO DO CÓDIGO DO LÁPIS (se der merda excluir) 🌟
-    updateOnlineStatusCounter();
-
-    // 🌟 DIRECIONAMENTO DO LÁPIS PARA EDITAR PERFIL 🌟
     document.addEventListener("DOMContentLoaded", () => {
         const pencilBtn = document.getElementById("btn-edit-personal-data");
+        const nativeEditBtn = document.getElementById("btn-trigger-edit-profile");
+
         if (pencilBtn) {
             pencilBtn.addEventListener("click", () => {
-                // Aciona a função nativa do seu app para abrir a tela de edição
-                showSection('edit-profile-section');
+                if (nativeEditBtn) {
+                    nativeEditBtn.click(); // Dispara o clique no botão oficial e abre o modalzinho correto
+                }
             });
         }
     });
