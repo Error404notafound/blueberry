@@ -1552,7 +1552,9 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     color: #8a8d91;
     font-weight: normal;
 }
-/* ================= TELA DE PRIVACIDADE DO POST ================= */
+/* DEPOIS (ADICIONE DENTRO DA SUA TAG <style>) */
+
+/* Faz a tela começar escondida abaixo da tela do celular */
 .privacy-drawer {
     position: fixed;
     bottom: -100%;
@@ -1560,39 +1562,19 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     width: 100%;
     background: #18191a;
     border-radius: 15px 15px 0 0;
-    z-index: 4600; /* Fica acima da gaveta anterior */
-    box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+    z-index: 4600; /* Fica por cima da gaveta de opções */
     padding: 20px;
     box-sizing: border-box;
     color: white;
-    transition: bottom 0.3s ease-in-out;
-    max-height: 85vh;
-    overflow-y: auto;
+    transition: bottom 0.3s ease-in-out; /* Efeito suave de subida */
 }
 
+/* Classe que o JavaScript usará para fazer a tela deslizar para cima */
 .privacy-drawer.open {
     bottom: 0;
 }
 
-.privacy-header {
-    margin-bottom: 20px;
-}
-
-.privacy-header h3 {
-    margin: 0 0 5px 0;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-}
-
-.privacy-header p {
-    margin: 0;
-    font-size: 13px;
-    color: #b0b3b8;
-    line-height: 1.4;
-}
-
-/* Linhas de Opções de Privacidade */
+/* Cria as linhas divisórias e alinha os ícones na esquerda e a bolinha na direita */
 .privacy-option-row {
     display: flex;
     align-items: center;
@@ -1602,45 +1584,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     border-bottom: 1px solid #242526;
 }
 
-.privacy-option-left {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-}
-
-.privacy-option-left svg {
-    width: 22px;
-    height: 22px;
-    fill: #b0b3b8;
-    margin-top: 2px;
-    flex-shrink: 0;
-}
-
-.privacy-text-block {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.privacy-label {
-    font-size: 15px;
-    color: #e4e6eb;
-    font-weight: 600;
-}
-
-.privacy-subtext {
-    font-size: 12px;
-    color: #8a8d91;
-}
-
-.privacy-link {
-    color: #2374e1;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-/* Customização do Radio Button estilo Facebook */
+/* Remove a bolinha feia padrão do navegador */
 .privacy-radio-wrapper input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
@@ -1648,18 +1592,15 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     height: 22px;
     border: 2px solid #b0b3b8;
     border-radius: 50%;
-    outline: none;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s;
 }
 
+/* Cria o círculo interno azul quando a opção estiver marcada */
 .privacy-radio-wrapper input[type="radio"]:checked {
     border-color: #2374e1;
 }
-
 .privacy-radio-wrapper input[type="radio"]:checked::before {
     content: "";
     width: 12px;
@@ -1669,7 +1610,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     display: block;
 }
 
-/* Botão Azul de Salvar */
+/* Formata o grande botão azul de salvar no rodapé */
 .btn-privacy-save {
     background-color: #2374e1 !important;
     color: white !important;
@@ -1677,11 +1618,10 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     border-radius: 6px !important;
     padding: 12px !important;
     font-weight: bold !important;
-    font-size: 15px !important;
-    cursor: pointer;
     width: 100% !important;
     margin-top: 20px !important;
 }
+
 
 </style>
 </head>
