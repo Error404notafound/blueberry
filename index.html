@@ -1976,11 +1976,13 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         </div>
 
 
-        <!-- Seção Criar Post no Perfil -->
+                <!-- Seção Criar Post no Perfil -->
         <div class="profile-create-post">
             <div class="create-post-upper">
-                <img src="https://placeholder.com" class="profile-post-avatar" alt="Avatar">
+                <!-- 🟢 Adicionado id="profile-post-avatar" -->
+                <img src="https://placeholder.com" class="profile-post-avatar" id="profile-post-avatar" alt="Avatar">
                 <input type="text" placeholder="Poste uma atualização de status" class="profile-post-input">
+
                 <div class="gallery-icon-right">
                     <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19z"/></svg>
                 </div>
@@ -3353,22 +3355,27 @@ onAuthStateChanged(auth, async (user) => {
 monitorarChamadasEntrantes(user.email); // Alterado de user.uid para user.email
 monitorarChamadasVozEntrantes(user.email); // Alterado de user.uid para user.email
         
-        // Busca foto de perfil customizada
+                // Busca foto de perfil customizada
         try {
             const userDocRef = doc(db, 'usuarios', user.email);
-
             const docSnap = await getDoc(userDocRef);
+            
+            // 🟢 Captura o elemento do post do perfil
+            const profilePostAvatar = document.getElementById('profile-post-avatar');
 
             if (docSnap.exists() && docSnap.data().fotoPerfil) {
                 const fotoUrl = docSnap.data().fotoPerfil;
                 pAvatarImg.src = fotoUrl;
                 if (postAreaAvatar) postAreaAvatar.src = fotoUrl; 
+                if (profilePostAvatar) profilePostAvatar.src = fotoUrl; // 🟢 Atualiza foto do post do perfil
             } else {
                 const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
                 pAvatarImg.src = defaultAvatar;
                 if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; 
+                if (profilePostAvatar) profilePostAvatar.src = defaultAvatar; // 🟢 Atualiza com o avatar padrão
             }
-        } catch (erro) {
+        }
+ catch (erro) {
             console.error("Erro ao recuperar foto do Firebase:", erro);
         }
 
@@ -4864,11 +4871,17 @@ btnSaveAvatarUrl.addEventListener('click', async () => {
         await setDoc(userDocRef, dadosAtualizados, { merge: true });
 
         // NOVA LÓGICA: Atualiza o elemento de interface correto
-        if (activeUploadType === 'avatar') {
+                if (activeUploadType === 'avatar') {
             if (typeof pAvatarImg !== 'undefined') pAvatarImg.src = fotoUrl;
             if (postAreaAvatar) postAreaAvatar.src = fotoUrl; // Atualiza barra de postagem
+            
+            // 🟢 Garante que a foto do post do perfil mude instantaneamente ao alterar a foto
+            const profilePostAvatar = document.getElementById('profile-post-avatar');
+            if (profilePostAvatar) profilePostAvatar.src = fotoUrl;
+
             alert('Foto de perfil salva com sucesso no banco!');
-        } else {
+        }
+ else {
             const coverWrapper = document.querySelector('.profile-cover-wrapper');
             if (coverWrapper) {
                 coverWrapper.style.backgroundImage = `url('${fotoUrl}')`;
