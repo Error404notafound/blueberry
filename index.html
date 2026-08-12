@@ -2473,7 +2473,7 @@ document.getElementById('btn-chat-video').addEventListener('click', async () => 
     const offer = {
         sdp: offerDescription.sdp,
         type: offerDescription.type,
-        callerId: auth.currentUser.uid,
+        callerId: auth.currentUser.email,
         receiverId: currentChatRecipient,
         status: 'calling'
     };
@@ -4327,11 +4327,16 @@ function startChatListener() {
                 return; 
             }
 
-            const isMe = msg.senderId === emailUsuarioLogado;
+                        const isMe = msg.senderId === emailUsuarioLogado;
             const textoMensagem = msg.text || msg.mensagem || '';
             const dataHora = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
             
-            // Criamos o wrapper externo que une o balão e os botões de ação flutuantes
+            // Verifica se existe uma imagem vinculada à mensagem
+            let mediaHTML = '';
+            if (msg.mediaUrl) {
+                mediaHTML = `<img src="${msg.mediaUrl}" style="max-width: 100%; max-height: 250px; border-radius: 8px; margin-bottom: 6px; display: block; object-fit: cover;" onerror="this.style.display='none'">`;
+            }
+
             const containerMensagem = document.createElement('div');
             containerMensagem.className = `msg-wrapper ${isMe ? 'sent' : 'received'}`;
             containerMensagem.setAttribute('data-msg-id', msgId);
@@ -4340,26 +4345,17 @@ function startChatListener() {
             containerMensagem.innerHTML = `
                 <!-- 1. Caixa de ações flutuando logo acima -->
                 <div class="msg-actions">
-                    <!-- Três Pontinhos -->
-                    <div class="btn-msg-dots" style="cursor: pointer; display: flex; align-items: center;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
-                            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                        </svg>
-                    </div>
-                    <!-- Setinha de Responder -->
-                    <div class="btn-msg-reply" style="cursor: pointer; display: flex; align-items: center;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
-                            <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
-                        </svg>
-                    </div>
+                    ...
                 </div>
 
                 <!-- 2. Seu balão de mensagem original intacto embaixo -->
-                <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+                <div class="msg-bubble ${isMe ? 'sent' : 'received'}" style="display: flex; flex-direction: column;">
+                    ${mediaHTML}
                     <div>${textoMensagem}</div>
                     <span class="msg-time">${dataHora}</span>
                 </div>
             `;
+
 
             wrapper.appendChild(containerMensagem);
         });
@@ -5094,7 +5090,7 @@ document.getElementById('btn-chat-voice').addEventListener('click', async () => 
     remoteAudio.srcObject = voiceRemoteStream;
 
     voicePeerConnection.ontrack = (event) => {
-        event.streams.getTracks().forEach(track => voiceRemoteStream.addTrack(track));
+        event.streams[0].getTracks().forEach(track => voiceRemoteStream.addTrack(track));
     };
 
     const callDocRef = doc(collection(db, 'calls'));
@@ -5112,7 +5108,7 @@ document.getElementById('btn-chat-voice').addEventListener('click', async () => 
         offer: {
             sdp: offerDescription.sdp,
             type: offerDescription.type,
-            callerId: auth.currentUser.uid,
+            callerId: auth.currentUser.email,
             receiverId: currentChatRecipient,
             status: 'calling_voice' // Tag diferente para o app saber que é só voz
         }
@@ -5164,7 +5160,7 @@ function monitorarChamadasVozEntrantes(userEmail) {
                     voiceLocalStream.getTracks().forEach(track => voicePeerConnection.addTrack(track, voiceLocalStream));
 
                     voicePeerConnection.ontrack = (event) => {
-                        event.streams.getTracks().forEach(track => voiceRemoteStream.addTrack(track));
+                        event.streams[0].getTracks().forEach(track => voiceRemoteStream.addTrack(track));
                     };
 
                     const callDocRef = doc(db, 'calls', callId);
@@ -5259,27 +5255,37 @@ if (zapContainer) {
         });
     }
 
-    // 3. Ação de Compartilhar Mídia no Chat
+        // 3. Ação de Compartilhar Mídia no Chat
     if (shareMediaBtn) {
-        shareMediaBtn.addEventListener("click", () => {
+        shareMediaBtn.addEventListener("click", async () => {
             const url = mediaUrlInput.value.trim();
             const caption = mediaCaptionInput.value.trim();
 
             if (url.length > 0) {
-                console.log("Mídia enviada ao chat:", { url, caption });
-                
-                // Integre aqui com a sua função do Firebase se necessário
-                // Exemplo: enviarMensagemAoFirebase(url, caption);
+                try {
+                    // Grava a imagem e legenda na coleção central de mensagens do Firestore
+                    await addDoc(collection(db, 'messages'), {
+                        roomId: currentRoomId, 
+                        senderId: auth.currentUser.email,
+                        text: caption, // A legenda vai no campo de texto comum
+                        mediaUrl: url,  // URL direta da imagem
+                        createdAt: Date.now() 
+                    });
 
-                // Limpa e fecha o modal
-                mediaModal.style.display = "none";
-                mediaUrlInput.value = "";
-                mediaCaptionInput.value = "";
+                    // Limpa e fecha o modal
+                    mediaModal.style.display = "none";
+                    mediaUrlInput.value = "";
+                    mediaCaptionInput.value = "";
+                } catch (error) {
+                    console.error("Erro ao enviar imagem:", error);
+                    alert("Não foi possível enviar a imagem.");
+                }
             } else {
                 alert("Por favor, cole um link válido!");
             }
         });
     }
+
 }
 // ==========================================
 
