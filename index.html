@@ -2515,8 +2515,9 @@ document.getElementById('btn-chat-video').addEventListener('click', async () => 
 
 // 2. MONITORAR SE ALGUÉM ESTÁ TE LIGANDO (Roda continuamente em background)
 // Coloque esta chamada de monitoramento dentro da sua função "onAuthStateChanged"
-function monitorarChamadasEntrantes(userId) {
-    const q = query(collection(db, 'calls'), where('offer.receiverId', '==', userId), where('offer.status', '==', 'calling'));
+// O receptor agora escuta buscando pelo E-MAIL (userEmail)
+function monitorarChamadasEntrantes(userEmail) {
+    const q = query(collection(db, 'calls'), where('offer.receiverId', '==', userEmail), where('offer.status', '==', 'calling'));
     
     onSnapshot(q, async (snapshot) => {
         snapshot.docChanges().forEach(async (change) => {
@@ -3323,11 +3324,9 @@ onAuthStateChanged(auth, async (user) => {
         escutarPedidosDeAmizade();
         gerenciarPresencaUsuario(user.email);
         
-        // Ativa o sistema para receber chamadas de vídeo em tempo real
-        monitorarChamadasEntrantes(user.uid);
-        
-        // 👇 NOVA LINHA ADICIONADA AQUI: Ativa o sistema para receber chamadas de VOZ em tempo real
-        monitorarChamadasVozEntrantes(user.uid);
+        // No onAuthStateChanged, passe o e-mail do usuário logado:
+monitorarChamadasEntrantes(user.email); // Alterado de user.uid para user.email
+monitorarChamadasVozEntrantes(user.email); // Alterado de user.uid para user.email
         
         // Busca foto de perfil customizada
         try {
@@ -4378,7 +4377,7 @@ function startChatListener() {
 
 // 1. Mantém a sua função de envio original
 async function enviarMensagemChat() {
-    const input = document.getElementById('chat-input-message');
+    const input = document.getElementById('chat-message-input-unique'); // Corrigido!
     const texto = input.value.trim();
     if (!texto) return;
 
@@ -4390,6 +4389,7 @@ async function enviarMensagemChat() {
             createdAt: Date.now() 
         });
         input.value = ''; 
+        input.dispatchEvent(new Event("input")); // Reseta o estado do ícone de microfone/envio
     } catch (error) {
         console.error("Erro ao enviar mensagem para o Firebase:", error);
     }
@@ -5139,8 +5139,8 @@ document.getElementById('btn-chat-voice').addEventListener('click', async () => 
 
 // 2. ADICIONE ESSA VALIDAÇÃO DENTRO DA SUA FUNÇÃO EXISTENTE 'monitorarChamadasEntrantes'
 // Procure onde está o snapshot de chamadas recebidas e adicione esse "if" para chamadas de voz:
-function monitorarChamadasVozEntrantes(userId) {
-    const q = query(collection(db, 'calls'), where('offer.receiverId', '==', userId), where('offer.status', '==', 'calling_voice'));
+function monitorarChamadasVozEntrantes(userEmail) {
+    const q = query(collection(db, 'calls'), where('offer.receiverId', '==', userEmail), where('offer.status', '==', 'calling_voice'));
     
     onSnapshot(q, async (snapshot) => {
         snapshot.docChanges().forEach(async (change) => {
@@ -5238,12 +5238,10 @@ if (zapContainer) {
         });
 
         actionBtn.addEventListener("click", () => {
-            if (messageInput.value.trim().length > 0) {
-                // Aqui roda a função padrão de envio de texto do seu app
-                messageInput.value = "";
-                messageInput.dispatchEvent(new Event("input"));
-            }
-        });
+    if (messageInput.value.trim().length > 0) {
+        enviarMensagemChat(); // Corrigido: Agora chama a função de envio!
+    }
+});
     }
 
     // 2. Controle de Abertura e Fechamento do Modal da Câmera
