@@ -1552,6 +1552,136 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     color: #8a8d91;
     font-weight: normal;
 }
+/* ================= TELA DE PRIVACIDADE DO POST ================= */
+.privacy-drawer {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background: #18191a;
+    border-radius: 15px 15px 0 0;
+    z-index: 4600; /* Fica acima da gaveta anterior */
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+    padding: 20px;
+    box-sizing: border-box;
+    color: white;
+    transition: bottom 0.3s ease-in-out;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.privacy-drawer.open {
+    bottom: 0;
+}
+
+.privacy-header {
+    margin-bottom: 20px;
+}
+
+.privacy-header h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.privacy-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #b0b3b8;
+    line-height: 1.4;
+}
+
+/* Linhas de Opções de Privacidade */
+.privacy-option-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 4px;
+    cursor: pointer;
+    border-bottom: 1px solid #242526;
+}
+
+.privacy-option-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.privacy-option-left svg {
+    width: 22px;
+    height: 22px;
+    fill: #b0b3b8;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.privacy-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.privacy-label {
+    font-size: 15px;
+    color: #e4e6eb;
+    font-weight: 600;
+}
+
+.privacy-subtext {
+    font-size: 12px;
+    color: #8a8d91;
+}
+
+.privacy-link {
+    color: #2374e1;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Customização do Radio Button estilo Facebook */
+.privacy-radio-wrapper input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #b0b3b8;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+}
+
+.privacy-radio-wrapper input[type="radio"]:checked {
+    border-color: #2374e1;
+}
+
+.privacy-radio-wrapper input[type="radio"]:checked::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    background-color: #2374e1;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Botão Azul de Salvar */
+.btn-privacy-save {
+    background-color: #2374e1 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    font-weight: bold !important;
+    font-size: 15px !important;
+    cursor: pointer;
+    width: 100% !important;
+    margin-top: 20px !important;
+}
 
 </style>
 </head>
@@ -1755,7 +1885,105 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
         <span>Edit Privacy</span>
     </div>
+    <!-- GAVETA INFERIOR DE EDIT PRIVACY -->
+<div id="drawer-edit-privacy" class="privacy-drawer" style="display: none;">
+    <!-- Barrinha cinza do topo -->
+    <div style="width:40px; height:4px; background:#3a3b3c; border-radius:2px; margin:0 auto 15px auto;"></div>
     
+    <div class="privacy-header">
+        <h3>Quem pode ver seu post?</h3>
+        <p>Seu post poderá aparecer no Feed, no seu perfil, nos resultados da pesquisa e no Messenger</p>
+    </div>
+
+    <form id="privacy-form">
+        <!-- Opção 1: Público -->
+        <label class="privacy-option-row">
+            <div class="privacy-option-left">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                <div class="privacy-text-block">
+                    <span class="privacy-label">Público</span>
+                    <span class="privacy-subtext">Qualquer pessoa dentro ou fora do Facebook</span>
+                </div>
+            </div>
+            <div class="privacy-radio-wrapper">
+                <input type="radio" name="post-privacy" value="public" checked>
+            </div>
+        </label>
+
+        <!-- Opção 2: Amigos -->
+        <label class="privacy-option-row">
+            <div class="privacy-option-left">
+                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.09.66 1.97 1.58 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                <div class="privacy-text-block">
+                    <span class="privacy-label">Amigos</span>
+                    <span class="privacy-subtext">Seus amigos no Facebook</span>
+                </div>
+            </div>
+            <div class="privacy-radio-wrapper">
+                <input type="radio" name="post-privacy" value="friends">
+            </div>
+        </label>
+
+        <!-- Opção 3: Amigos próximos -->
+        <label class="privacy-option-row">
+            <div class="privacy-option-left">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm3.51-4.24l-1.35 1.32c-.51.51-.83.92-.83 2h-1.66v-.5c0-1 .4-1.9 1.06-2.56l1.04-1.02c.31-.31.5-.73.5-1.18 0-.92-.75-1.66-1.66-1.66s-1.66.75-1.66 1.66H8.34c0-2.02 1.64-3.66 3.66-3.66s3.66 1.64 3.66 3.66c0 .82-.33 1.57-.85 2.1z"/></svg>
+                <div class="privacy-text-block">
+                    <span class="privacy-label">Amigos próximos</span>
+                    <a href="#" class="privacy-link">Crie sua lista</a>
+                </div>
+            </div>
+            <div class="privacy-radio-wrapper">
+                <input type="radio" name="post-privacy" value="close-friends">
+            </div>
+        </label>
+
+        <!-- Opção 4: Não mostrar para... -->
+        <label class="privacy-option-row">
+            <div class="privacy-option-left">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <div class="privacy-text-block">
+                    <span class="privacy-label">Não mostrar para...</span>
+                    <a href="#" class="privacy-link">Selecionar amigos</a>
+                </div>
+            </div>
+            <div class="privacy-radio-wrapper">
+                <input type="radio" name="post-privacy" value="hide-from">
+            </div>
+        </label>
+
+        <!-- Opção 5: Mostrar somente para... -->
+        <label class="privacy-option-row">
+            <div class="privacy-option-left">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <div class="privacy-text-block">
+                    <span class="privacy-label">Mostrar somente para...</span>
+                    <a href="#" class="privacy-link">Selecionar amigos</a>
+                </div>
+            </div>
+            <div class="privacy-radio-wrapper">
+                <input type="radio" name="post-privacy" value="show-only">
+            </div>
+        </label>
+
+        <!-- Opção 6: Somente eu -->
+        <label class="privacy-option-row" style="border-bottom: none;">
+            <div class="privacy-option-left">
+                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <div class="privacy-text-block">
+                    <span class="privacy-label">Somente eu</span>
+                    <span class="privacy-subtext">Somente eu</span>
+                </div>
+            </div>
+            <div class="privacy-radio-wrapper">
+                <input type="radio" name="post-privacy" value="only-me">
+            </div>
+        </label>
+
+        <button type="button" id="btn-save-privacy" class="btn-privacy-save">Salvar</button>
+    </form>
+</div>
+
     <!-- Opção 5 -->
     <div class="drawer-option-item" id="opt-edit-post">
         <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
