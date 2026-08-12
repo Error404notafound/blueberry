@@ -1935,21 +1935,46 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 
     <!-- 🌟 NOVA ÁREA IMPLEMENTADA AQUI 🌟 -->
     <div class="profile-extra-content">
-        <!-- Seção Dados Pessoais -->
+                <!-- Seção Dados Pessoais -->
         <div class="profile-personal-data">
             <div class="personal-data-header">
-    <span class="personal-data-title">Dados pessoais</span>
-    <!-- 🌟 Adicionado id="btn-edit-personal-data" aqui embaixo 🌟 -->
-    <button class="btn-edit-data" id="btn-edit-personal-data">
-        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-    </button>
-</div>
+                <span class="personal-data-title">Dados pessoais</span>
+                <button class="btn-edit-data" id="btn-edit-personal-data">
+                    <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.42l-2.34-2.34a1 1 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                </button>
+            </div>
 
+            <!-- Aniversário -->
             <div class="personal-data-item">
                 <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-                <span>18 de agosto de 1999</span>
+                <span id="p-val-aniversario">18 de agosto de 1999</span>
+            </div>
+
+            <!-- Cidade Atual (Dinâmico) -->
+            <div class="personal-data-item" id="p-item-cidade-atual" style="display: none;">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <span>Mora em: <strong id="p-display-cidade-atual"></strong></span>
+            </div>
+
+            <!-- Trabalho (Dinâmico) -->
+            <div class="personal-data-item" id="p-item-trabalho" style="display: none;">
+                <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+                <span>Trabalha como: <strong id="p-display-trabalho"></strong></span>
+            </div>
+
+            <!-- Relacionamento (Dinâmico) -->
+            <div class="personal-data-item" id="p-item-relacionamento" style="display: none;">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.5 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <span>Relacionamento: <strong id="p-display-relacionamento"></strong></span>
+            </div>
+
+            <!-- Educação (Dinâmico) -->
+            <div class="personal-data-item" id="p-item-educacao" style="display: none;">
+                <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+                <span>Estudou em: <strong id="p-display-educacao"></strong></span>
             </div>
         </div>
+
 
         <!-- Seção Criar Post no Perfil -->
         <div class="profile-create-post">
@@ -4557,11 +4582,59 @@ pAvatarImg.src = `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeBase}`;
         const coverWrapper = document.querySelector('.profile-cover-wrapper');
         if (coverWrapper) coverWrapper.style.backgroundImage = 'none';
 
-        if (userDocSnap.exists()) {
+                if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
+            
             // Aplica a biografia salva
             if (userData.biografia) pUserBio.textContent = userData.biografia;
             else pUserBio.textContent = "Nenhuma biografia adicionada ainda.";
+
+            // --- 🟢 PREENCHIMENTO DOS NOVOS CAMPOS DINÂMICOS NA TELA ---
+            
+            // Cidade Atual
+            if (userData.cidadeAtual) {
+                document.getElementById('p-display-cidade-atual').textContent = userData.cidadeAtual;
+                document.getElementById('p-item-cidade-atual').style.display = 'flex';
+                document.getElementById('val-cidade-atual').textContent = userData.cidadeAtual; // Atualiza o modal
+            } else {
+                document.getElementById('p-item-cidade-atual').style.display = 'none';
+            }
+
+            // Trabalho
+            if (userData.trabalho) {
+                document.getElementById('p-display-trabalho').textContent = userData.trabalho;
+                document.getElementById('p-item-trabalho').style.display = 'flex';
+                document.getElementById('val-trabalho').textContent = userData.trabalho; // Atualiza o modal
+            } else {
+                document.getElementById('p-item-trabalho').style.display = 'none';
+            }
+
+            // Status de Relacionamento
+            if (userData.relacionamento) {
+                document.getElementById('p-display-relacionamento').textContent = userData.relacionamento;
+                document.getElementById('p-item-relacionamento').style.display = 'flex';
+                document.getElementById('val-relacionamento').textContent = userData.relacionamento; // Atualiza o modal
+            } else {
+                document.getElementById('p-item-relacionamento').style.display = 'none';
+            }
+
+            // Educação
+            if (userData.educacao) {
+                document.getElementById('p-display-educacao').textContent = userData.educacao;
+                document.getElementById('p-item-educacao').style.display = 'flex';
+                document.getElementById('val-educacao').textContent = userData.educacao; // Atualiza o modal
+            } else {
+                document.getElementById('p-item-educacao').style.display = 'none';
+            }
+
+            // Data de Nascimento
+            if (userData.dataAniversario) {
+                document.getElementById('p-val-aniversario').textContent = userData.dataAniversario;
+                document.getElementById('val-aniversario').textContent = userData.dataAniversario; // Atualiza o modal
+            } else {
+                document.getElementById('p-val-aniversario').textContent = "18 de agosto de 1999";
+            }
+
 
             // Aplica a URL da foto salva (Se houver no banco)
             if (userData.fotoPerfil) pAvatarImg.src = userData.fotoPerfil;
@@ -5368,12 +5441,17 @@ camposNovosFB.forEach(item => {
             const userDocRef = doc(db, "usuarios", auth.currentUser.email);
             await setDoc(userDocRef, { [item.chave]: valorDigitado.trim(), updatedAt: Date.now() }, { merge: true });
             elementoValor.textContent = valorDigitado.trim() || "Não informado";
+
+            // 🟢 ATUALIZAÇÃO IMEDIATA: Força o recarregamento dos dados na tela principal do perfil
+            openUserProfilePage(auth.currentUser.email);
+
         } catch (erro) {
             console.error("Erro ao salvar:", erro);
             alert("Erro ao gravar dados no banco.");
         }
     });
 });
+
 
 // 2. ATUALIZAÇÃO DA LEITURA (Adicione estas linhas dentro da sua função openUserProfilePage na pág 105)
 // Coloque este trecho logo abaixo de onde você limpa a capa do perfil (coverWrapper.style.backgroundImage = 'none'):
