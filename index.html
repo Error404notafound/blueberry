@@ -4345,12 +4345,22 @@ function startChatListener() {
             containerMensagem.innerHTML = `
                 <!-- 1. Caixa de ações flutuando logo acima -->
                 <div class="msg-actions">
-                    ...
+                    <!-- Três Pontinhos -->
+                    <div class="btn-msg-dots" style="cursor: pointer; display: flex; align-items: center;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
+                            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                        </svg>
+                    </div>
+                    <!-- Setinha de Responder -->
+                    <div class="btn-msg-reply" style="cursor: pointer; display: flex; align-items: center;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="#b0b3b8">
+                            <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                        </svg>
+                    </div>
                 </div>
 
                 <!-- 2. Seu balão de mensagem original intacto embaixo -->
-                <div class="msg-bubble ${isMe ? 'sent' : 'received'}" style="display: flex; flex-direction: column;">
-                    ${mediaHTML}
+                <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
                     <div>${textoMensagem}</div>
                     <span class="msg-time">${dataHora}</span>
                 </div>
