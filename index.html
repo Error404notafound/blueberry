@@ -4360,7 +4360,8 @@ function startChatListener() {
                 </div>
 
                 <!-- 2. Seu balão de mensagem original intacto embaixo -->
-                <div class="msg-bubble ${isMe ? 'sent' : 'received'}">
+                <div class="msg-bubble ${isMe ? 'sent' : 'received'}" style="display: flex; flex-direction: column;">
+                    ${mediaHTML}
                     <div>${textoMensagem}</div>
                     <span class="msg-time">${dataHora}</span>
                 </div>
