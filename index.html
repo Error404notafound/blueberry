@@ -7,14 +7,126 @@
     
     <style>
         /* Estilos Globais e do Tema */
-         :root { 
+                 /* Estilos Globais e do Tema */
+         :root {
             --bg-main: #18191a;
             --bg-card: #242526;
             --bg-hover: #3a3b3c;
             --text-main: #e4e6eb;
-            --accent-white: #ffffff; /* Tudo agora é branco */
+            --accent-white: #ffffff; 
             --drawer-bg: #2d2d2d;
+            --accent-purplish-blue: #2374e1; /* Correção do token que faltava */
         }
+
+        /* Classes do Carrossel de Stories */
+        .stories-container {
+            display: flex;
+            gap: 10px;
+            padding: 15px 12px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            background-color: var(--bg-main);
+            border-bottom: 1px solid #2f3031;
+            margin-bottom: 10px;
+        }
+        .stories-container::-webkit-scrollbar {
+            display: none;
+        }
+        .story-card {
+            width: 110px;
+            height: 180px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            background-color: var(--bg-card);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+        }
+        .story-card:hover {
+            transform: scale(1.02);
+        }
+        .story-card.create-story {
+            display: flex;
+            flex-direction: column;
+        }
+        .story-card.create-story .user-preview {
+            height: 125px;
+            width: 100%;
+            object-fit: cover;
+        }
+        .story-card.create-story .create-footer {
+            height: 55px;
+            background-color: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .story-card.create-story .btn-plus {
+            width: 28px;
+            height: 28px;
+            background-color: #2374e1;
+            border-radius: 50%;
+            border: 3px solid var(--bg-card);
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .story-card.create-story span {
+            font-size: 11px;
+            color: var(--text-main);
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        .story-card.friend-story {
+            background-size: cover;
+            background-position: center;
+        }
+        .story-card.friend-story::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 40%, rgba(0,0,0,0.8) 100%);
+            z-index: 1;
+        }
+        .story-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: #2374e1;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 6px;
+            z-index: 2;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .story-name {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
 
         body {
             background-color: var(--bg-main);
@@ -1681,21 +1793,32 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 
 </style>
 </head>
-
 <body>
+    <!-- Tela de Login Inicial -->
+    <div id="auth-container" class="auth-box">
+        <h2>Entrar no Blueberry</h2>
+        <input type="email" id="auth-email" placeholder="Seu e-mail">
+        <input type="password" id="auth-password" placeholder="Sua senha">
+        <button id="btn-login" type="button">Entrar</button>
+        <button id="btn-register" type="button" class="btn-secondary">Criar Nova Conta</button>
+    </div>
+    <!-- Conteúdo Principal (Escondido) -->
+    <div id="app-container" style="display: none;">
 
-    <!-- Tela de Login Inicial -->
-    <div id="auth-container" class="auth-box">
-        <h2>Entrar no Blueberry</h2>
-        <input type="email" id="auth-email" placeholder="Seu e-mail">
-        <input type="password" id="auth-password" placeholder="Sua senha">
-        <button id="btn-login" type="button">Entrar</button>
-        <button id="btn-register" type="button" class="btn-secondary">Criar Nova Conta</button>
-    </div>
+        <!-- 🌟 NOVO: Carrossel Horizontal de Stories adicionado no topo do App 🌟 -->
+        <div class="stories-container" id="stories-feed">
+            <div class="story-card create-story" id="btn-trigger-story-feed">
+                <img src="https://placeholder.com" class="user-preview" id="story-my-avatar" alt="Minha Foto">
+                <div class="create-footer">
+                    <div class="btn-plus">+</div>
+                    <span>Criar story</span>
+                </div>
+            </div>
+            <!-- Os cards dos amigos serão injetados de forma limpa pelo JavaScript aqui -->
+        </div>
 
-    <!-- Conteúdo Principal (Escondido) -->
-    <div id="app-container" style="display: none;">
-                <header class="header">
+                <header class="header">
+
     <!-- Logo sozinho na esquerda -->
 <div class="logo" id="logo-link" style="cursor: pointer;">Blueberry</div>
 
@@ -2224,8 +2347,9 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     </div>
 
             <div class="profile-actions-bar" style="display: flex; gap: 10px; padding: 0 15px 15px 15px; width: 100%; box-sizing: border-box;">
-    <!-- Botão Adicionar ao Story -->
-    <button class="btn-story" id="btn-action-story-add" style="flex: 1; padding: 0 10px; font-size: 14px; font-weight: bold; height: 40px; display: none; align-items: center; justify-content: center; gap: 6px;">
+    <!-- Botão Adicionar ao Story corrigido -->
+    <button class="btn-story" id="btn-trigger-story-profile" style="flex: 1; padding: 0 10px; font-size: 14px; font-weight: bold; height: 40px; display: flex; align-items: center; justify-content: center; gap: 6px; background-color: #2374e1; color: white; border: none; border-radius: 6px; cursor: pointer;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
         Adicionar ao story
     </button>
     
@@ -2710,6 +2834,24 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         
         <!-- Botão Compartilhar Azul -->
         <button id="btn-chat-share-media" style="width: 100%; background: #0077ff; color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s;">Compartilhar no Chat</button>
+    </div>
+</div>
+<!-- Modal de Criação de Stories -->
+<div id="modal-create-story" class="modal-reel" style="display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center;">
+    <div class="modal-reel-content" style="background-color: #242526; padding: 25px; border-radius: 12px; width: 90%; max-width: 450px; border: 1px solid #3e4042; color: white; position: relative;">
+        <span class="modal-reel-close" id="close-story-modal" style="position: absolute; right: 20px; top: 15px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+        <h3 style="margin-top: 0;">Criar novo Story</h3>
+        <p style="color:#b0b3b8; font-size:13px; margin-top:-5px; margin-bottom:15px;">Seus amigos verão sua publicação nas próximas 24 horas</p>
+        
+        <label style="color:#e4e6eb; font-size:14px; display:block; margin-bottom:6px; font-weight:600;">Tipo de Mídia</label>
+        <select id="story-type" style="width:100%; padding:12px; margin-bottom:15px; background:#3a3b3c; border:1px solid #3e4042; border-radius:6px; color:white;">
+            <option value="image">Imagem (URL)</option>
+            <option value="video">Vídeo (URL)</option>
+        </select>
+
+        <label style="color:#e4e6eb; font-size:14px; display:block; margin-bottom:6px; font-weight:600;">Link do Arquivo</label>
+        <input type="text" id="story-url" placeholder="Cole o link da imagem ou vídeo aqui..." style="width:100%; padding:12px; margin-bottom:20px; background:#3a3b3c; border:1px solid #3e4042; border-radius:6px; color:white; box-sizing: border-box;">
+        <button id="btn-publish-story" type="button" style="background-color:#2374e1; color: white; border: none; border-radius: 6px; padding: 12px; cursor: pointer; width: 100%; font-weight: bold;">Compartilhar agora</button>
     </div>
 </div>
 
@@ -5870,6 +6012,57 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+    // Dados iniciais dos amigos idênticos ao print
+    let storiesData = [
+        { id: 101, name: "Ronin Rick", mediaType: "image", url: "https://unsplash.com", count: 3 },
+        { id: 102, name: "Ygor Mukowski", mediaType: "image", url: "https://unsplash.com", count: 3 }
+    ];
+
+    const tFeed = document.getElementById('btn-trigger-story-feed');
+    const tProfile = document.getElementById('btn-trigger-story-profile');
+    const sModal = document.getElementById('modal-create-story');
+    const sClose = document.getElementById('close-story-modal');
+    const sPublish = document.getElementById('btn-publish-story');
+    const sContainer = document.getElementById('stories-feed');
+
+    function toggleModal(open) {
+        if (sModal) sModal.style.display = open ? 'flex' : 'none';
+    }
+
+    if(tFeed) tFeed.addEventListener('click', () => toggleModal(true));
+    if(tProfile) tProfile.addEventListener('click', () => toggleModal(true));
+    if(sClose) sClose.addEventListener('click', () => toggleModal(false));
+
+    function renderizarStories() {
+        if (!sContainer) return;
+        const currentFriendCards = sContainer.querySelectorAll('.friend-story');
+        currentFriendCards.forEach(card => card.remove());
+
+        storiesData.forEach(story => {
+            const card = document.createElement('div');
+            card.className = 'story-card friend-story';
+            card.style.backgroundImage = `url('${story.url}')`;
+            card.innerHTML = `<div class="story-badge">${story.count}</div><div class="story-name">${story.name}</div>`;
+            card.onclick = () => alert(`Abrindo visualizador do story de: ${story.name}`);
+            sContainer.appendChild(card);
+        });
+    }
+
+    if (sPublish) {
+        sPublish.addEventListener('click', () => {
+            const type = document.getElementById('story-type').value;
+            const url = document.getElementById('story-url').value;
+            if (!url.trim()) return alert("Insira uma URL válida!");
+
+            storiesData.unshift({ id: Date.now(), name: "Você", mediaType: type, url: url, count: 1 });
+            renderizarStories();
+            document.getElementById('story-url').value = '';
+            toggleModal(false);
+        });
+    }
+
+    // Inicialização da listagem de stories
+    renderizarStories();
 
 </script>
 </body>
