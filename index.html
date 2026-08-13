@@ -5743,85 +5743,67 @@ if (userData.telefoneContato) document.getElementById('val-telefone').textConten
 //if (userData.dataAniversario) document.getElementById('val-aniversario').textContent = userData.dataAniversario;
 // ====== CONTROLE DA GAVETA DE PRIVACIDADE ======
 
-const privacyDrawer = document.getElementById('drawer-edit-privacy');
-const btnSavePrivacy = document.getElementById('btn-save-privacy');
-const privacyForm = document.getElementById('privacy-form');
+document.addEventListener('DOMContentLoaded', () => {
+    const privacyDrawer = document.getElementById('drawer-edit-privacy');
+    const btnSavePrivacy = document.getElementById('btn-save-privacy');
+    const privacyForm = document.getElementById('privacy-form');
+    const optPrivacyPost = document.getElementById('opt-privacy-post');
+    const drawerOverlay = document.getElementById('drawer-overlay');
 
-// Variavel global para armazenar a privacidade ativa do post atual
-let currentPostPrivacy = 'public'; 
+    let selectedPrivacyValue = 'public';
 
-/**
- * Função para abrir a gaveta de privacidade
- */
-function openPrivacyDrawer() {
-    // 1. Garante que o elemento mude o display para aparecer
-    privacyDrawer.style.display = 'block';
-    
-    // 2. Timeout curto para o CSS processar a transição suave de subida
-    setTimeout(() => {
-        privacyDrawer.classList.add('open');
-    }, 10);
-}
-
-/**
- * Função para fechar a gaveta de privacidade
- */
-function closePrivacyDrawer() {
-    // 1. Remove a classe para a gaveta deslizar para baixo
-    privacyDrawer.classList.remove('open');
-    
-    // 2. Esconde o display após o término da animação CSS (300ms)
-    setTimeout(() => {
-        privacyDrawer.style.display = 'none';
-    }, 300);
-}
-
-/**
- * Evento do botão Salvar
- */
-btnSavePrivacy.addEventListener('click', () => {
-    // Busca qual rádio button está marcado dentro do formulário
-    const selectedRadio = privacyForm.querySelector('input[name="post-privacy"]:checked');
-    
-    if (selectedRadio) {
-        currentPostPrivacy = selectedRadio.value;
-        console.log('Privacidade salva com sucesso:', currentPostPrivacy);
+    // Função que faz a janela subir (Efeito do print)
+    function openPrivacySheet() {
+        if (!privacyDrawer) return;
+        privacyDrawer.style.display = 'block'; // Remove o display: none do PDF
+        if (drawerOverlay) drawerOverlay.classList.add('active');
         
-        // Aqui você pode adicionar a lógica para atualizar o ícone do post no feed
-        // Exemplo: atualizar o SVG do post para um globo (público) ou cadeado (somente eu)
+        setTimeout(() => {
+            privacyDrawer.classList.add('open'); // Ativa o bottom: 0 do CSS da pág 34
+        }, 10);
+    }
+
+    // Função que faz a janela descer e sumir
+    function closePrivacySheet() {
+        if (!privacyDrawer) return;
+        privacyDrawer.classList.remove('open'); // Faz deslizar para baixo
+        if (drawerOverlay) drawerOverlay.classList.remove('active');
         
-        // Fecha a gaveta após salvar
-        closePrivacyDrawer();
+        setTimeout(() => {
+            privacyDrawer.style.display = 'none'; // Esconde de novo com display: none
+        }, 300);
+    }
+
+    // Gatilho: Ao clicar em "Edit Privacy" na outra gaveta, abre esta
+    if (optPrivacyPost) {
+        optPrivacyPost.addEventListener('click', () => {
+            const optionsDrawer = document.getElementById('drawer-post-options');
+            if (optionsDrawer) optionsDrawer.classList.remove('open');
+            openPrivacySheet();
+        });
+    }
+
+    // Gatilho: Ao clicar em "Salvar", captura a bolinha marcada e fecha
+    if (btnSavePrivacy && privacyForm) {
+        btnSavePrivacy.addEventListener('click', () => {
+            const currentChecked = privacyForm.querySelector('input[name="post-privacy"]:checked');
+            if (currentChecked) {
+                selectedPrivacyValue = currentChecked.value;
+                console.log(`[Blueberry] Privacidade atualizada para: ${selectedPrivacyValue.toUpperCase()}`);
+                closePrivacySheet();
+            }
+        });
+    }
+
+    // Fecha se clicar fora da gaveta
+    if (drawerOverlay) {
+        drawerOverlay.addEventListener('click', () => {
+            if (privacyDrawer && privacyDrawer.classList.contains('open')) {
+                closePrivacySheet();
+            }
+        });
     }
 });
-
-// ====== EXEMPLOS DE INTEGRAÇÃO COM OUTRAS TELAS ======
-
-// Se você tiver um botão "Edit Privacy" na gaveta de opções do post:
-const optPrivacyPost = document.getElementById('opt-privacy-post');
-if (optPrivacyPost) {
-    optPrivacyPost.addEventListener('click', () => {
-        // (Opcional) Fecha a gaveta de opções antes de abrir a de privacidade
-        const optionsDrawer = document.getElementById('drawer-post-options');
-        if (optionsDrawer) {
-            optionsDrawer.classList.remove('open');
-            setTimeout(() => optionsDrawer.style.display = 'none', 300);
-        }
-        
-        // Abre a tela de privacidade
-        openPrivacyDrawer();
-    });
-}
-
-// Fechar ao clicar fora da gaveta (usando o overlay do seu HTML)
-const drawerOverlay = document.getElementById('drawer-overlay');
-if (drawerOverlay) {
-    drawerOverlay.addEventListener('click', () => {
-        if (privacyDrawer.classList.contains('open')) {
-            closePrivacyDrawer();
-        }
-    });
-}
 
 </script>
 </body>
