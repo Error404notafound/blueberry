@@ -1393,179 +1393,139 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 /* 👇 [TRECHO NOVO DE CSS ADICIONADO AQUI] 👇 */
 
 /* ================= Estilos da Barra de Stories ================= */
+/* ================= CSS DOS STORIES CORRIGIDO ================= */
 .stories-container {
     display: flex;
     gap: 10px;
-    padding: 15px 10px;
-    background-color: #000000;
+    padding: 15px 12px;
+    background-color: #18191a; /* Cor padrão do fundo do app */
     overflow-x: auto;
     scrollbar-width: none;
 }
 .stories-container::-webkit-scrollbar {
     display: none;
 }
+
 .story-card {
     position: relative;
     width: 110px;
-    height: 180px;
-    border-radius: 12px;
+    height: 170px;
+    border-radius: 10px;
     overflow: hidden;
-    background-color: var(--bg-card);
+    background-color: #242526; /* Cinza oficial dos cards */
     flex-shrink: 0;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
 }
+
+/* Card Criar Story (Seu) */
 .story-image-bg {
     width: 100%;
-    height: 70%;
+    height: 75%;
+    background-color: #3a3b3c;
     background-size: cover;
     background-position: center;
-    filter: brightness(0.8);
 }
 .create-story-footer {
     position: relative;
-    height: 30%;
-    background-color: var(--bg-card);
+    height: 25%;
+    background-color: #242526;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-bottom: 5px;
 }
 .create-story-footer .plus-icon {
     position: absolute;
-    top: -18px;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
     background-color: #2374e1;
     color: white;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
-    border: 3px solid var(--bg-card);
+    border: 3px solid #242526;
 }
 .create-story-footer span {
     font-size: 11px;
-    color: white;
+    color: #e4e6eb;
     font-weight: 600;
-    margin-top: 10px;
+    margin-top: 12px;
 }
+
+/* Card dos Amigos */
 .friend-avatar-mini {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 36px;
-    height: 36px;
+    top: 8px;
+    left: 8px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: 3px solid #2374e1;
     background-size: cover;
+    background-color: #3a3b3c;
     z-index: 2;
 }
 .badge-unread {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 8px;
+    right: 8px;
     background-color: #2374e1;
     color: white;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
-    padding: 2px 7px;
-    border-radius: 6px;
+    padding: 1px 5px;
+    border-radius: 4px;
     z-index: 2;
 }
 .story-content-preview {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    padding: 55px 10px 30px 10px;
+    padding: 45px 8px 25px 8px;
     font-size: 11px;
-    color: var(--text-main);
+    color: #e4e6eb;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);
+    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+    word-break: break-word;
 }
 .story-author {
     position: absolute;
-    bottom: 8px;
-    left: 10px;
-    right: 10px;
+    bottom: 6px;
+    left: 8px;
+    right: 8px;
     font-size: 11px;
-    color: white;
-    font-weight: 600;
+    color: #b0b3b8;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+/* Ajuste do Modal de Status */
 .modal-story-overlay {
+    display: none !important;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.85);
-    z-index: 5000;
-    display: flex;
+    z-index: 9999 !important;
     align-items: center;
     justify-content: center;
 }
-.modal-story-content {
-    background-color: var(--bg-card);
-    border: 1px solid #3e4042;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-    overflow: hidden;
-}
-.modal-story-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid #3e4042;
-}
-.modal-story-header h3 { margin: 0; color: white; font-size: 18px; }
-.modal-story-close { color: #b0b3b8; font-size: 24px; cursor: pointer; font-weight: bold; }
-.modal-story-body { padding: 15px; }
-.modal-story-body textarea {
-    width: 100%;
-    height: 100px;
-    background-color: var(--bg-hover);
-    border: 1px solid #3e4042;
-    border-radius: 8px;
-    color: white;
-    padding: 10px;
-    box-sizing: border-box;
-    resize: none;
-}
-.input-image-group { margin-top: 15px; }
-.lbl-image-upload { display: block; font-size: 13px; color: #b0b3b8; margin-bottom: 5px; }
-.modal-story-body input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    background-color: var(--bg-hover);
-    border: 1px solid #3e4042;
-    border-radius: 6px;
-    color: white;
-    box-sizing: border-box;
-}
-.modal-story-footer { padding: 15px; border-top: 1px solid #3e4042; }
-.btn-story-publish {
-    background-color: #2374e1 !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 6px !important;
-    padding: 12px !important;
-    font-weight: bold !important;
-    width: 100% !important;
-    cursor: pointer;
-    margin-top: 0 !important;
-}
+
 
 .pill-btn {
     background-color: #242526 !important;
