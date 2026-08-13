@@ -5862,14 +5862,91 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fecha se clicar fora da gaveta
+        // ... (Mantenha suas funções openPrivacySheet e closePrivacySheet intactas aqui no topo) ...
+
+    // 👇 NOVAS FUNÇÕES PARA CONTROLAR A GAVETA DE TERCEIROS 👇
+    const othersDrawer = document.getElementById('drawer-others-post-options');
+
+    function openOthersSheet() {
+        if (!othersDrawer) return;
+        othersDrawer.style.display = 'block';
+        if (drawerOverlay) drawerOverlay.classList.add('active');
+        setTimeout(() => {
+            othersDrawer.classList.add('open'); // Ativa a subida suave
+        }, 10);
+    }
+
+    function closeOthersSheet() {
+        if (!othersDrawer) return;
+        othersDrawer.classList.remove('open');
+        if (drawerOverlay) drawerOverlay.classList.remove('active');
+        setTimeout(() => {
+            othersDrawer.style.display = 'none';
+        }, 300);
+    }
+
+    // GATILHO DOS TRÊS PONTINHOS (.post-options-btn da página 29)
+    // ⚠️ Se o seu post vier do loop do banco, certifique-se de que a variável 'post' esteja acessível aqui
+    document.querySelectorAll('.post-options-btn').forEach(botao => {
+        botao.addEventListener('click', () => {
+            const emailLogado = auth.currentUser ? auth.currentUser.email : null;
+            const gavetaMeuPost = document.getElementById('drawer-post-options');
+
+            // Validação direta: se o post for seu, abre o menu antigo. Se não, o novo.
+            if (emailLogado === post.autor) {
+                if (gavetaMeuPost) {
+                    gavetaMeuPost.style.display = 'block';
+                    if (drawerOverlay) drawerOverlay.classList.add('active');
+                    setTimeout(() => gavetaMeuPost.classList.add('open'), 10);
+                }
+            } else {
+                openOthersSheet(); // Abre a gaveta estilo o print do Facebook
+            }
+        });
+    });
+
+    // Gatilho: Ao clicar em "Edit Privacy" na outra gaveta, abre esta
+    if (optPrivacyPost) {
+        optPrivacyPost.addEventListener('click', () => {
+            const optionsDrawer = document.getElementById('drawer-post-options');
+            if (optionsDrawer) optionsDrawer.classList.remove('open');
+            openPrivacySheet();
+        });
+    }
+
+    // Gatilho: Ao clicar em "Salvar", captura a bolinha marcada e fecha
+    if (btnSavePrivacy && privacyForm) {
+        btnSavePrivacy.addEventListener('click', () => {
+            const currentChecked = privacyForm.querySelector('input[name="post-privacy"]:checked');
+            if (currentChecked) {
+                selectedPrivacyValue = currentChecked.value;
+                console.log(`[Blueberry] Privacidade updated para: ${selectedPrivacyValue.toUpperCase()}`);
+                closePrivacySheet();
+            }
+        });
+    }
+
+    // CORREÇÃO: Fecha QUALQUER uma das gavetas abertas se clicar fora delas (Overlay)
     if (drawerOverlay) {
         drawerOverlay.addEventListener('click', () => {
             if (privacyDrawer && privacyDrawer.classList.contains('open')) {
                 closePrivacySheet();
             }
+            // 👇 Adicionado para fechar o menu de terceiros também 👇
+            if (othersDrawer && othersDrawer.classList.contains('open')) {
+                closeOthersSheet();
+            }
+            
+            // Caso sua gaveta original use ID puro em vez de classe, limpa ela também
+            const gavetaMeuPost = document.getElementById('drawer-post-options');
+            if (gavetaMeuPost && gavetaMeuPost.classList.contains('open')) {
+                gavetaMeuPost.classList.remove('open');
+                setTimeout(() => gavetaMeuPost.style.display = 'none', 300);
+            }
         });
     }
 });
+
 
 </script>
 </body>
