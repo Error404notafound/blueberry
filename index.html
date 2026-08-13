@@ -1834,16 +1834,29 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         </nav>
 
         <!-- 3. CARROSSEL DE STORIES (Posicionado logo abaixo da navegação) -->
-        <div class="stories-container" id="stories-feed">
-            <div class="story-card create-story" id="btn-trigger-story-feed">
-                <img src="https://placeholder.com" class="user-preview" id="story-my-avatar" alt="Minha Foto">
-                <div class="create-footer">
-                    <div class="btn-plus">+</div>
-                    <span>Criar story</span>
-                </div>
-            </div>
-            <!-- Os cards dos amigos serão injetados de forma limpa pelo JavaScript aqui -->
+        <!-- 3. ÁREA DE POSTAGEM (Fica logo após a navegação principal) -->
+<div class="create-post-area">
+    <img src="https://placeholder.com" class="user-avatar" alt="Avatar">
+    <div class="post-input-wrapper">
+        <input type="text" class="post-input" placeholder="No que você está pensando?">
+    </div>
+    <div class="photo-upload-btn">
+        <!-- Ícone de foto/vídeo -->
+        <span>Foto</span>
+    </div>
+</div>
+
+<!-- 4. CARROSSEL DE STORIES (Agora na posição correta, abaixo da área de postagem) -->
+<div class="stories-container" id="stories-feed">
+    <div class="story-card create-story" id="btn-trigger-story-feed">
+        <img src="https://placeholder.com" class="user-preview" id="story-my-avatar" alt="Minha Foto">
+        <div class="create-footer">
+            <div class="btn-plus">+</div>
+            <span>Criar story</span>
         </div>
+    </div>
+    <!-- Os cards dos amigos serão injetados de forma limpa pelo JavaScript aqui -->
+</div>
 
 
 
