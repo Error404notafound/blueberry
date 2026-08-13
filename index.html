@@ -342,18 +342,23 @@
 }
 
 /* 👇 ALTERE A CLASSE DO CARD DE POST PARA ESTA 👇 */
+/* 1. RESET DO POST: Padrão perfeito para o Feed Geral (Primeiro Print) */
 .post-card {
     background-color: var(--bg-card);
-    border-radius: 12px; /* Arredondamento mais moderno */
+    border-radius: 8px; /* Mantém o padrão original */
     padding: 15px;
-    
-    /* Afasta 12px nas laterais e mantém 20px de espaço embaixo */
-    margin: 0 12px 20px 12px; 
-    
-    /* Desconta o espaço das margens para o card não quebrar a tela */
-    width: calc(100% - 24px); 
+    margin-bottom: 20px;
+    width: 100%; /* No feed geral ele usa 100% do container que já tem margem */
     box-sizing: border-box;
 }
+
+/* 2. REGRA EXCLUSIVA PARA O PERFIL: Alinha o post apenas na segunda tela */
+#profile-container .post-card {
+    border-radius: 12px; /* Deixa arredondado igual à caixa de status */
+    margin: 0 16px 20px 16px !important; /* Cria o recuo lateral que faltava */
+    width: calc(100% - 32px) !important; /* Desconta o espaço exato para alinhar */
+}
+
 
         /* Área de Postagem Aprimorada */
         .create-post-area {
