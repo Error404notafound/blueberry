@@ -5741,6 +5741,87 @@ if (userData.emailContato) document.getElementById('val-email').textContent = us
 if (userData.telefoneContato) document.getElementById('val-telefone').textContent = userData.telefoneContato;
 */
 //if (userData.dataAniversario) document.getElementById('val-aniversario').textContent = userData.dataAniversario;
+// ====== CONTROLE DA GAVETA DE PRIVACIDADE ======
+
+const privacyDrawer = document.getElementById('drawer-edit-privacy');
+const btnSavePrivacy = document.getElementById('btn-save-privacy');
+const privacyForm = document.getElementById('privacy-form');
+
+// Variavel global para armazenar a privacidade ativa do post atual
+let currentPostPrivacy = 'public'; 
+
+/**
+ * Função para abrir a gaveta de privacidade
+ */
+function openPrivacyDrawer() {
+    // 1. Garante que o elemento mude o display para aparecer
+    privacyDrawer.style.display = 'block';
+    
+    // 2. Timeout curto para o CSS processar a transição suave de subida
+    setTimeout(() => {
+        privacyDrawer.classList.add('open');
+    }, 10);
+}
+
+/**
+ * Função para fechar a gaveta de privacidade
+ */
+function closePrivacyDrawer() {
+    // 1. Remove a classe para a gaveta deslizar para baixo
+    privacyDrawer.classList.remove('open');
+    
+    // 2. Esconde o display após o término da animação CSS (300ms)
+    setTimeout(() => {
+        privacyDrawer.style.display = 'none';
+    }, 300);
+}
+
+/**
+ * Evento do botão Salvar
+ */
+btnSavePrivacy.addEventListener('click', () => {
+    // Busca qual rádio button está marcado dentro do formulário
+    const selectedRadio = privacyForm.querySelector('input[name="post-privacy"]:checked');
+    
+    if (selectedRadio) {
+        currentPostPrivacy = selectedRadio.value;
+        console.log('Privacidade salva com sucesso:', currentPostPrivacy);
+        
+        // Aqui você pode adicionar a lógica para atualizar o ícone do post no feed
+        // Exemplo: atualizar o SVG do post para um globo (público) ou cadeado (somente eu)
+        
+        // Fecha a gaveta após salvar
+        closePrivacyDrawer();
+    }
+});
+
+// ====== EXEMPLOS DE INTEGRAÇÃO COM OUTRAS TELAS ======
+
+// Se você tiver um botão "Edit Privacy" na gaveta de opções do post:
+const optPrivacyPost = document.getElementById('opt-privacy-post');
+if (optPrivacyPost) {
+    optPrivacyPost.addEventListener('click', () => {
+        // (Opcional) Fecha a gaveta de opções antes de abrir a de privacidade
+        const optionsDrawer = document.getElementById('drawer-post-options');
+        if (optionsDrawer) {
+            optionsDrawer.classList.remove('open');
+            setTimeout(() => optionsDrawer.style.display = 'none', 300);
+        }
+        
+        // Abre a tela de privacidade
+        openPrivacyDrawer();
+    });
+}
+
+// Fechar ao clicar fora da gaveta (usando o overlay do seu HTML)
+const drawerOverlay = document.getElementById('drawer-overlay');
+if (drawerOverlay) {
+    drawerOverlay.addEventListener('click', () => {
+        if (privacyDrawer.classList.contains('open')) {
+            closePrivacyDrawer();
+        }
+    });
+}
 
 </script>
 </body>
