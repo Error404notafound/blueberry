@@ -333,12 +333,27 @@
             padding: 0 10px;
         }
 
-        .share-box, .post-card {
-            background-color: var(--bg-card);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
+        /* Mantém a caixa de compartilhamento original */
+.share-box {
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* 👇 ALTERE A CLASSE DO CARD DE POST PARA ESTA 👇 */
+.post-card {
+    background-color: var(--bg-card);
+    border-radius: 12px; /* Arredondamento mais moderno */
+    padding: 15px;
+    
+    /* Afasta 12px nas laterais e mantém 20px de espaço embaixo */
+    margin: 0 12px 20px 12px; 
+    
+    /* Desconta o espaço das margens para o card não quebrar a tela */
+    width: calc(100% - 24px); 
+    box-sizing: border-box;
+}
 
         /* Área de Postagem Aprimorada */
         .create-post-area {
