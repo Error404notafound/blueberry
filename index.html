@@ -1677,7 +1677,180 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 .privacy-blue-link:hover {
     text-decoration: underline !important;
 }
-
+/* ================= Estilos da Barra de Stories ================= */
+.stories-container {
+    display: flex;
+    gap: 10px;
+    padding: 15px 10px;
+    background-color: #000000;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.stories-container::-webkit-scrollbar {
+    display: none;
+}
+.story-card {
+    position: relative;
+    width: 110px;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--bg-card);
+    flex-shrink: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.story-image-bg {
+    width: 100%;
+    height: 70%;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.8);
+}
+.create-story-footer {
+    position: relative;
+    height: 30%;
+    background-color: var(--bg-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 5px;
+}
+.create-story-footer .plus-icon {
+    position: absolute;
+    top: -18px;
+    background-color: #2374e1;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    border: 3px solid var(--bg-card);
+}
+.create-story-footer span {
+    font-size: 11px;
+    color: white;
+    font-weight: 600;
+    margin-top: 10px;
+}
+.friend-avatar-mini {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid #2374e1;
+    background-size: cover;
+    z-index: 2;
+}
+.badge-unread {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #2374e1;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 7px;
+    border-radius: 6px;
+    z-index: 2;
+}
+.story-content-preview {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 55px 10px 30px 10px;
+    font-size: 11px;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);
+}
+.story-author {
+    position: absolute;
+    bottom: 8px;
+    left: 10px;
+    right: 10px;
+    font-size: 11px;
+    color: white;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.modal-story-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.85);
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-story-content {
+    background-color: var(--bg-card);
+    border: 1px solid #3e4042;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+.modal-story-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #3e4042;
+}
+.modal-story-header h3 { margin: 0; color: white; font-size: 18px; }
+.modal-story-close { color: #b0b3b8; font-size: 24px; cursor: pointer; font-weight: bold; }
+.modal-story-body { padding: 15px; }
+.modal-story-body textarea {
+    width: 100%;
+    height: 100px;
+    background-color: var(--bg-hover);
+    border: 1px solid #3e4042;
+    border-radius: 8px;
+    color: white;
+    padding: 10px;
+    box-sizing: border-box;
+    resize: none;
+}
+.input-image-group { margin-top: 15px; }
+.lbl-image-upload { display: block; font-size: 13px; color: #b0b3b8; margin-bottom: 5px; }
+.modal-story-body input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--bg-hover);
+    border: 1px solid #3e4042;
+    border-radius: 6px;
+    color: white;
+    box-sizing: border-box;
+}
+.modal-story-footer { padding: 15px; border-top: 1px solid #3e4042; }
+.btn-story-publish {
+    background-color: #2374e1 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    font-weight: bold !important;
+    width: 100% !important;
+    cursor: pointer;
+    margin-top: 0 !important;
+}
 
 </style>
 </head>
@@ -1720,7 +1893,49 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     <input type="text" id="search-input" placeholder="Digite o e-mail do usuário...">
     <div id="search-results" style="background-color: var(--bg-card); border: 1px solid #3e4042; border-top: none; max-height: 250px; overflow-y: auto; display: none; border-radius: 0 0 6px 6px;"></div>
 </div>
+<!-- ================= Bloco Adicionado: Stories e Modal ================= -->
+<div class="stories-container">
+    <!-- Card para criar seu próprio Story -->
+    <div class="story-card create-story" id="btn-open-story-modal">
+        <div class="story-image-bg" style="background-image: url('https://placeholder.com');"></div>
+        <div class="create-story-footer">
+            <div class="plus-icon">+</div>
+            <span>Criar story</span>
+        </div>
+    </div>
 
+    <!-- Lista onde os Stories dos Amigos vão aparecer dinamicamente -->
+    <div id="stories-list" style="display: flex; gap: 10px;">
+        <!-- Exemplo de Story de Amigo pré-existente -->
+        <div class="story-card text-story">
+            <div class="friend-avatar-mini" style="background-image: url('https://placeholder.com');"></div>
+            <span class="badge-unread">3</span>
+            <div class="story-content-preview">She had no teacher...</div>
+            <span class="story-author">Ronin Rick</span>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Flutuante para criar o Status -->
+<div id="story-modal" class="modal-story-overlay" style="display: none;">
+    <div class="modal-story-content">
+        <div class="modal-story-header">
+            <h3>Criar Status</h3>
+            <span class="modal-story-close" id="btn-close-story-modal">&times;</span>
+        </div>
+        <div class="modal-story-body">
+            <textarea id="story-text-input" placeholder="O que você está pensando? Escreva o seu status aqui..."></textarea>
+            <div class="input-image-group">
+                <label for="story-img-input" class="lbl-image-upload">Adicionar imagem de fundo (URL)</label>
+                <input type="text" id="story-img-input" placeholder="http://exemplo.com (Opcional)">
+            </div>
+        </div>
+        <div class="modal-story-footer">
+            <button type="button" id="btn-publish-story" class="btn-story-publish">Compartilhar no Status</button>
+        </div>
+    </div>
+</div>
+<!-- ================= Fim do Bloco Adicionado ================= -->
         <!-- Gaveta Lateral (Side Drawer) -->
         <div id="side-drawer" class="side-drawer">
             <div class="drawer-header">
@@ -5871,6 +6086,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// ... scripts anteriores do seu projeto
+
+    // ================= Lógica dos Stories Adicionada =================
+    const openStoryModalBtn = document.getElementById("btn-open-story-modal");
+    const closeStoryModalBtn = document.getElementById("btn-close-story-modal");
+    const storyModal = document.getElementById("story-modal");
+    const publishStoryBtn = document.getElementById("btn-publish-story");
+    const storiesList = document.getElementById("stories-list");
+    const storyTextInput = document.getElementById("story-text-input");
+    const storyImgInput = document.getElementById("story-img-input");
+
+    if (openStoryModalBtn) {
+        openStoryModalBtn.addEventListener("click", () => {
+            storyModal.style.display = "flex";
+            storyTextInput.value = "";
+            storyImgInput.value = "";
+        });
+    }
+
+    if (closeStoryModalBtn) {
+        closeStoryModalBtn.addEventListener("click", () => {
+            storyModal.style.display = "none";
+        });
+    }
+
+    if (publishStoryBtn) {
+        publishStoryBtn.addEventListener("click", () => {
+            const textContent = storyTextInput.value.trim();
+            const bgImageUrl = storyImgInput.value.trim() || 'https://placeholder.com';
+
+            if (!textContent) {
+                alert("Por favor, digite alguma frase para seu status!");
+                return;
+            }
+
+            const newStoryCard = document.createElement("div");
+            newStoryCard.className = "story-card text-story";
+            newStoryCard.style.backgroundImage = `url('${bgImageUrl}')`;
+            newStoryCard.style.backgroundSize = "cover";
+            newStoryCard.style.backgroundPosition = "center";
+
+            newStoryCard.innerHTML = `
+                <div class="friend-avatar-mini" style="background-image: url('https://placeholder.com'); border-color: #45bd62;"></div>
+                <div class="story-content-preview">
+                    ${textContent}
+                </div>
+                <span class="story-author">Você</span>
+            `;
+
+            if (storiesList) {
+                storiesList.insertBefore(newStoryCard, storiesList.firstChild);
+            }
+            storyModal.style.display = "none";
+        });
+    }
+});
 </script>
 </body>
-    </html>
+</html>
+
