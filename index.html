@@ -1392,140 +1392,131 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 }
 /* 👇 [TRECHO NOVO DE CSS ADICIONADO AQUI] 👇 */
 
-/* ================= Estilos da Barra de Stories ================= */
-/* ================= CSS DOS STORIES CORRIGIDO ================= */
+/* ================= CSS DOS STORIES BLINDADO ================= */
 .stories-container {
-    display: flex;
-    gap: 10px;
-    padding: 15px 12px;
-    background-color: #18191a; /* Cor padrão do fundo do app */
-    overflow-x: auto;
-    scrollbar-width: none;
+    display: flex !important;
+    gap: 12px !important;
+    padding: 15px 12px !important;
+    background-color: #18191a !important; /* Mesma cor de fundo do feed abaixo */
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 .stories-container::-webkit-scrollbar {
-    display: none;
+    display: none !important;
 }
 
 .story-card {
-    position: relative;
-    width: 110px;
-    height: 170px;
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: #242526; /* Cinza oficial dos cards */
-    flex-shrink: 0;
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    display: flex;
-    flex-direction: column;
+    position: relative !important;
+    width: 110px !important;
+    height: 170px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    background-color: #242526 !important; /* Cor cinza oficial dos cards */
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border: none !important;
 }
 
 /* Card Criar Story (Seu) */
 .story-image-bg {
-    width: 100%;
-    height: 75%;
-    background-color: #3a3b3c;
-    background-size: cover;
-    background-position: center;
+    width: 100% !important;
+    height: 73% !important;
+    background-color: #3a3b3c !important;
+    background-size: cover !important;
+    background-position: center !important;
 }
 .create-story-footer {
-    position: relative;
-    height: 25%;
-    background-color: #242526;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative !important;
+    height: 27% !important;
+    background-color: #242526 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 .create-story-footer .plus-icon {
-    position: absolute;
-    top: -16px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #2374e1;
-    color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: bold;
-    border: 3px solid #242526;
+    position: absolute !important;
+    top: -15px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background-color: #2374e1 !important;
+    color: #ffffff !important;
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    border: 3px solid #242526 !important;
+    box-sizing: content-box !important;
 }
 .create-story-footer span {
-    font-size: 11px;
-    color: #e4e6eb;
-    font-weight: 600;
-    margin-top: 12px;
+    font-size: 11px !important;
+    color: #e4e6eb !important;
+    font-weight: 600 !important;
+    margin-top: 10px !important;
+    display: block !important;
+    text-align: center !important;
 }
 
 /* Card dos Amigos */
 .friend-avatar-mini {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 3px solid #2374e1;
-    background-size: cover;
-    background-color: #3a3b3c;
-    z-index: 2;
+    position: absolute !important;
+    top: 8px !important;
+    left: 8px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    border: 3px solid #2374e1 !important;
+    background-size: cover !important;
+    background-color: #3a3b3c !important;
+    z-index: 2 !important;
 }
 .badge-unread {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background-color: #2374e1;
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    padding: 1px 5px;
-    border-radius: 4px;
-    z-index: 2;
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    background-color: #2374e1 !important;
+    color: #ffffff !important;
+    font-size: 10px !important;
+    font-weight: bold !important;
+    padding: 2px 6px !important;
+    border-radius: 6px !important;
+    z-index: 2 !important;
 }
 .story-content-preview {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 45px 8px 25px 8px;
-    font-size: 11px;
-    color: #e4e6eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
-    word-break: break-word;
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    padding: 50px 8px 30px 8px !important;
+    font-size: 11px !important;
+    color: #e4e6eb !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%) !important;
+    word-break: break-word !important;
 }
 .story-author {
-    position: absolute;
-    bottom: 6px;
-    left: 8px;
-    right: 8px;
-    font-size: 11px;
-    color: #b0b3b8;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    position: absolute !important;
+    bottom: 8px !important;
+    left: 8px !important;
+    right: 8px !important;
+    font-size: 11px !important;
+    color: #e4e6eb !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: left !important;
 }
-
-/* Ajuste do Modal de Status */
-.modal-story-overlay {
-    display: none !important;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.85);
-    z-index: 9999 !important;
-    align-items: center;
-    justify-content: center;
-}
-
 
 .pill-btn {
     background-color: #242526 !important;
