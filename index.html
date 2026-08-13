@@ -1877,13 +1877,67 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     </div>
     
     <!-- Opção 4 -->
+        <!-- ... Resto do código da Gaveta de Opções Principal ... -->
     <div class="drawer-option-item" id="opt-privacy-post">
         <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
         <span>Edit Privacy</span>
     </div>
-    <!-- GAVETA INFERIOR DE EDIT PRIVACY -->
+</div> <!-- 👈 Fechamento do 'drawer-post-options' original -->
+
+<!-- 👇 TRECHO NOVO INJETADO EXATAMENTE AQUI 👇 -->
+<div id="drawer-others-post-options" class="post-drawer-animated" style="display: none;">
+    <!-- Barrinha cinza padrão do topo -->
+    <div style="width:40px; height:4px; background:#3a3b3c; border-radius:2px; margin:0 auto 15px auto;"></div>
+    
+    <!-- Opção 1: Tenho Interesse -->
+    <div class="drawer-option-item text-stacked">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <div class="text-wrapper">
+            <span class="main-text">Tenho interesse</span>
+            <span class="sub-text">Mais dos seus posts serão como esse.</span>
+        </div>
+    </div>
+    
+    <!-- Opção 2: Não Tenho Interesse -->
+    <div class="drawer-option-item text-stacked">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/></svg>
+        <div class="text-wrapper">
+            <span class="main-text">Não tenho interesse</span>
+            <span class="sub-text">Menos dos seus posts serão como esse.</span>
+        </div>
+    </div>
+
+    <!-- Linha divisória interna -->
+    <hr style="border: 0; border-top: 1px solid #242526; margin: 10px 0;">
+   
+    <!-- Opção 3: Salvar Post -->
+    <div class="drawer-option-item text-stacked">
+        <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+        <div class="text-wrapper">
+            <span class="main-text">Salvar post</span>
+            <span class="sub-text">Adicione isso aos seus itens salvos.</span>
+        </div>
+    </div>
+   
+    <!-- Opção 4: Ocultar Post -->
+    <div class="drawer-option-item" id="opt-hide-post">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        <span>Não quero ver isso</span>
+    </div>
+
+    <!-- Opção 5: Denunciar Post -->
+    <div class="drawer-option-item text-stacked">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        <div class="text-wrapper">
+            <span class="main-text">Denunciar post</span>
+            <span class="sub-text">O autor não vai saber quem fez a denúncia.</span>
+        </div>
+    </div>
+</div>
+<!-- 👆 FIM DO TRECHO NOVO INJETADO 👆 -->
+
+<!-- GAVETA INFERIOR DE EDIT PRIVACY -->
 <div id="drawer-edit-privacy" class="privacy-drawer" style="display: none;">
-    <!-- Barrinha cinza do topo -->
     <div style="width:40px; height:4px; background:#3a3b3c; border-radius:2px; margin:0 auto 15px auto;"></div>
     
     <div class="privacy-header">
