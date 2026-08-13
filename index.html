@@ -1803,25 +1803,11 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <button id="btn-register" type="button" class="btn-secondary">Criar Nova Conta</button>
     </div>
     <!-- Conteúdo Principal (Escondido) -->
-    <div id="app-container" style="display: none;">
-
-        <!-- 🌟 NOVO: Carrossel Horizontal de Stories adicionado no topo do App 🌟 -->
-        <div class="stories-container" id="stories-feed">
-            <div class="story-card create-story" id="btn-trigger-story-feed">
-                <img src="https://placeholder.com" class="user-preview" id="story-my-avatar" alt="Minha Foto">
-                <div class="create-footer">
-                    <div class="btn-plus">+</div>
-                    <span>Criar story</span>
-                </div>
-            </div>
-            <!-- Os cards dos amigos serão injetados de forma limpa pelo JavaScript aqui -->
-        </div>
-
-                <header class="header">
-
+        <!-- Conteúdo Principal (Escondido) -->
+    <div id="app-container" style="display: none;">
+        <header class="header">
     <!-- Logo sozinho na esquerda -->
 <div class="logo" id="logo-link" style="cursor: pointer;">Blueberry</div>
-
     
     <!-- Lupa e Menu organizados linearmente na direita -->
     <div class="header-right">
@@ -1837,6 +1823,19 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         </div>
     </div>
 </header>
+
+        <!-- 🌟 NOVO: Carrossel Horizontal de Stories adicionado no topo do App 🌟 -->
+        <div class="stories-container" id="stories-feed">
+            <div class="story-card create-story" id="btn-trigger-story-feed">
+                <img src="https://placeholder.com" class="user-preview" id="story-my-avatar" alt="Minha Foto">
+                <div class="create-footer">
+                    <div class="btn-plus">+</div>
+                    <span>Criar story</span>
+                </div>
+            </div>
+            <!-- Os cards dos amigos serão injetados de forma limpa pelo JavaScript aqui -->
+        </div>
+
 
         <!-- Barra de Pesquisa (Escondida por padrão) -->
 <div id="search-bar-container" class="search-bar-container">
