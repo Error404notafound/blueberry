@@ -4038,9 +4038,6 @@ onAuthStateChanged(auth, async (user) => {
         lastVisible = null;
         isFetchingPosts = false;
         loadMorePosts();
-        
-        // ADICIONADO:
-        carregarStoriesFirestore();
     } else {
         authContainer.style.display = 'block';
         appContainer.style.display = 'none';
@@ -6271,69 +6268,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Processa a publicação do Story
     if (btnSubmitStory) {
-    btnSubmitStory.addEventListener("click", async () => {
-        const mediaUrl = inputMediaUrl.value.trim();
-        const selectedType = document.querySelector('input[name="story-type"]:checked').value;
+        btnSubmitStory.addEventListener("click", () => {
+            const mediaUrl = inputMediaUrl.value.trim();
+            const selectedType = document.querySelector('input[name="story-type"]:checked').value;
 
-        if (!mediaUrl) return alert("Por favor, cole um link válido para o seu story.");
+            if (!mediaUrl) {
+                alert("Por favor, cole um link válido para o seu story.");
+                return;
+            }
 
-        try {
-            // 1. Salva o Story no banco de dados do Firebase
-            await addDoc(collection(db, 'stories'), {
-                autor: auth.currentUser.email,
-                mediaUrl: mediaUrl,
-                type: selectedType,
-                createdAt: Date.now()
-            });
+            // Cria o novo elemento de card
+            const newStoryCard = document.createElement("div");
+            newStoryCard.className = "story-card";
 
+            // Injeta a mídia selecionada
+            if (selectedType === "image") {
+                const imgElement = document.createElement("img");
+                imgElement.src = mediaUrl;
+                imgElement.alt = "Meu Story";
+                newStoryCard.appendChild(imgElement);
+            } else {
+                // Se for link de vídeo ou iframe de embed
+                if (mediaUrl.includes("<iframe") || mediaUrl.includes("embed")) {
+                    const divEmbed = document.createElement("div");
+                    divEmbed.innerHTML = mediaUrl;
+                    // Garante que o iframe ocupe o espaço correto do card por CSS interno
+                    const iframe = divEmbed.querySelector("iframe");
+                    if (iframe) {
+                        iframe.style.position = "absolute";
+                        iframe.style.top = "0";
+                        iframe.style.left = "0";
+                        iframe.style.width = "100%";
+                        iframe.style.height = "100%";
+                        iframe.style.border = "none";
+                        iframe.style.zIndex = "1";
+                    }
+                    newStoryCard.appendChild(divEmbed);
+                } else {
+                    const videoElement = document.createElement("video");
+                    videoElement.src = mediaUrl;
+                    videoElement.autoplay = true;
+                    videoElement.muted = true;
+                    videoElement.loop = true;
+                    videoElement.playsInline = true;
+                    newStoryCard.appendChild(videoElement);
+                }
+            }
+
+            // Adiciona o texto de rodapé do card
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = "Meu Story";
+            newStoryCard.appendChild(nameSpan);
+
+            // Adiciona na lista logo após o botão de criar
+            // Captura o próximo elemento HTML real (o card do amigo)
+const firstFriendStory = btnOpenStoryModal.nextElementSibling;
+storiesListContainer.insertBefore(newStoryCard, firstFriendStory);
+
+
+            // Fecha o modal
             storyModal.style.display = "none";
-            alert("Story publicado com sucesso!");
-            
-            // 2. Limpa e reconstrói a lista buscando do Firestore
-            carregarStoriesFirestore(); 
-            
-        } catch (error) {
-            console.error("Erro ao salvar story no Firebase:", error);
-            alert("Erro ao publicar: " + error.message);
-        }
-    });
-}
-
-async function carregarStoriesFirestore() {
-    const storiesListContainer = document.getElementById("stories-list");
-    if (!storiesListContainer) return;
-    storiesListContainer.innerHTML = `<div class="story-card create-story-trigger" id="btn-open-story-modal">
-        <div class="story-preview-img-box"><img src="${pAvatarImg.src}" id="user-story-avatar"></div>
-        <div class="create-story-badge"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
-        <span>Criar story</span>
-    </div>`;
-    document.getElementById("btn-open-story-modal").addEventListener("click", () => {
-        inputMediaUrl.value = ""; storyModal.style.display = "flex";
-    });
-    try {
-        const meuEmail = auth.currentUser.email;
-        const q1 = query(collection(db, 'pedidos_amizade'), where('remetente', '==', meuEmail), where('status', '==', 'aceito'));
-        const q2 = query(collection(db, 'pedidos_amizade'), where('destinatario', '==', meuEmail), where('status', '==', 'aceito'));
-        const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-        const amigos = [meuEmail];
-        s1.forEach(d => amigos.push(d.data().destinatario));
-        s2.forEach(d => amigos.push(d.data().remetente));
-
-        const qStories = query(collection(db, 'stories'), orderBy('createdAt', 'desc'), limit(15));
-        const snapStories = await getDocs(qStories);
-        snapStories.forEach((docSnap) => {
-            const story = docSnap.data();
-            if (!amigos.includes(story.autor)) return;
-            const nomeFormatado = story.autor.split('@')[0];
-            const card = document.createElement("div");
-            card.className = "story-card";
-            card.innerHTML = story.type === "image" 
-                ? `<img src="${story.mediaUrl}"><span>${nomeFormatado}</span>` 
-                : `<video src="${story.mediaUrl}" autoplay muted loop></video><span>${nomeFormatado}</span>`;
-            storiesListContainer.appendChild(card);
         });
-    } catch (e) { console.error(e); }
-}
+    }
+});
 
 
 </script>
