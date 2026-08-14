@@ -3988,6 +3988,7 @@ function gerenciarPresencaUsuario(email) {
 // 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
 // 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
 // 2. MONITOR DE LOGIN UNIFICADO (Trata autenticação, avatares, presença e feed em um só lugar)
+// 2. MONITOR DE LOGIN UNIFICADO (Totalmente Corrigido)
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         authContainer.style.display = 'none';
@@ -3998,39 +3999,53 @@ onAuthStateChanged(auth, async (user) => {
         escutarPedidosDeAmizade();
         gerenciarPresencaUsuario(user.email);
         
-        // No onAuthStateChanged, passe o e-mail do usuário logado:
-monitorarChamadasEntrantes(user.email); // Alterado de user.uid para user.email
-monitorarChamadasVozEntrantes(user.email); // Alterado de user.uid para user.email
+        monitorarChamadasEntrantes(user.email);
+        monitorarChamadasVozEntrantes(user.email);
         
-                // Busca foto de perfil customizada
+        // Busca foto de perfil customizada
         try {
             const userDocRef = doc(db, 'usuarios', user.email);
             const docSnap = await getDoc(userDocRef);
             
-            // 🟢 Captura o elemento do post do perfil
+            // Captura o elemento do post do perfil
             const profilePostAvatar = document.getElementById('profile-post-avatar');
 
             if (docSnap.exists() && docSnap.data().fotoPerfil) {
-    const fotoUrl = docSnap.data().fotoPerfil;
-    pAvatarImg.src = fotoUrl;
-    if (postAreaAvatar) postAreaAvatar.src = fotoUrl; 
-    if (profilePostAvatar) profilePostAvatar.src = fotoUrl; // 🟢 Atualiza foto do post do perfil
+                const fotoUrl = docSnap.data().fotoPerfil;
+                pAvatarImg.src = fotoUrl;
+                if (postAreaAvatar) postAreaAvatar.src = fotoUrl; 
+                if (profilePostAvatar) profilePostAvatar.src = fotoUrl;
 
-    // CORREÇÃO: Atualiza a foto do Criar Story se o usuário tiver foto cadastrada
-    const userStoryAvatar = document.getElementById('user-story-avatar');
-    if (userStoryAvatar) userStoryAvatar.src = fotoUrl;
+                // CORREÇÃO: Atualiza a foto do Criar Story
+                const userStoryAvatar = document.getElementById('user-story-avatar');
+                if (userStoryAvatar) userStoryAvatar.src = fotoUrl;
+            } else {
+                const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
+                pAvatarImg.src = defaultAvatar;
+                if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; 
+                if (profilePostAvatar) profilePostAvatar.src = defaultAvatar;
 
-} else {
-    const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
-    pAvatarImg.src = defaultAvatar;
-    if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; 
-    if (profilePostAvatar) profilePostAvatar.src = defaultAvatar; // 🟢 Atualiza com o avatar padrão
+                // CORREÇÃO: Define o avatar padrão para o Criar Story
+                const userStoryAvatar = document.getElementById('user-story-avatar');
+                if (userStoryAvatar) userStoryAvatar.src = defaultAvatar;
+            }
+        } catch (erro) {
+            console.error("Erro ao recuperar foto do Firebase:", erro);
+        } // 🟢 O bloco 'try/catch' agora fecha corretamente aqui!
 
-    // CORREÇÃO: Define o avatar padrão do Dicebear para o Criar Story
-    const userStoryAvatar = document.getElementById('user-story-avatar');
-    if (userStoryAvatar) userStoryAvatar.src = defaultAvatar;
-}
-
+        // Carrega o feed inicial do Blueberry
+        document.getElementById('feed').innerHTML = '';
+        lastVisible = null;
+        isFetchingPosts = false;
+        loadMorePosts();
+    } else {
+        authContainer.style.display = 'block';
+        appContainer.style.display = 'none';
+        if (typeof pAvatarImg !== 'undefined') {
+            pAvatarImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23ccc'/></svg>";
+        }
+    }
+});
 
         // Carrega o feed inicial do Blueberry
         document.getElementById('feed').innerHTML = '';
