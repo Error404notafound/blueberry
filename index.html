@@ -1677,6 +1677,271 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 .privacy-blue-link:hover {
     text-decoration: underline !important;
 }
+/* ================= ESTILOS DA BARRA DE STORIES ================= */
+.stories-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.stories-wrapper {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none; /* Oculta barra no Firefox */
+}
+
+.stories-wrapper::-webkit-scrollbar {
+    display: none; /* Oculta barra no Chrome/Safari */
+}
+
+/* Estrutura Base de cada Card */
+.story-card {
+    position: relative;
+    width: 110px;
+    height: 180px;
+    background-color: #1e1f20;
+    border-radius: 12px;
+    flex-shrink: 0;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.story-card img, .story-card video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    opacity: 0.65;
+    transition: transform 0.2s ease;
+}
+
+.story-card:hover img {
+    transform: scale(1.04);
+}
+
+.story-card span {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 10px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* Elementos exclusivos do Card de "Criar Story" */
+.create-story-trigger {
+    background-color: #242526;
+}
+
+.story-preview-img-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 72%;
+    overflow: hidden;
+}
+
+.create-story-trigger span {
+    color: #b0b3b8;
+    text-align: center;
+    margin: 0 auto 12px auto;
+    font-size: 12px;
+}
+
+.create-story-badge {
+    position: absolute;
+    left: 50%;
+    bottom: 22%;
+    transform: translateX(-50%);
+    background-color: #2374e1;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid #242526;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+}
+
+.create-story-badge svg {
+    width: 18px;
+    height: 18px;
+    fill: #ffffff;
+}
+
+/* Indicador azul de novas publicações dos amigos */
+.story-friend-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #1877f2;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    border: 1px solid #18191a;
+}
+
+/* ================= LAYOUT DO MODAL DE STORIES ================= */
+.story-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 5000; /* Fica acima das drawers padrão do app */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.story-modal-content {
+    background-color: #242526;
+    border: 1px solid #3e4042;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    color: #e4e6eb;
+    font-family: sans-serif;
+}
+
+.story-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #3e4042;
+}
+
+.story-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.story-modal-close {
+    font-size: 24px;
+    font-weight: bold;
+    color: #b0b3b8;
+    cursor: pointer;
+}
+
+.story-modal-close:hover {
+    color: #ffffff;
+}
+
+.story-modal-body {
+    padding: 20px;
+}
+
+.story-modal-body p {
+    font-size: 14px;
+    color: #b0b3b8;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.story-input-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #e4e6eb;
+}
+
+.story-modal-body input[type="url"] {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: #3a3b3c;
+    border: 1px solid #3e4042;
+    border-radius: 6px;
+    color: #ffffff;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.story-modal-body input[type="url"]:focus {
+    outline: none;
+    border-color: #2374e1;
+}
+
+.story-radio-group {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.story-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.story-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+    background-color: #18191a;
+    border-top: 1px solid #3e4042;
+}
+
+.story-modal-footer button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 0 !important; /* Reseta margem global */
+}
+
+.btn-story-cancel {
+    background-color: #3a3b3c;
+    color: #e4e6eb;
+}
+
+.btn-story-cancel:hover {
+    background-color: #4e4f50;
+}
+
+.btn-story-submit {
+    background-color: #2374e1;
+    color: #ffffff;
+}
+
+.btn-story-submit:hover {
+    background-color: #2e81f7;
+}
 
 
 </style>
@@ -2106,31 +2371,57 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         </nav>
 
         <main class="main-container">
-                        <!-- Área de Postagem Aprimorada -->
+                        <!-- Área de Postagem Aprimorada (O bloco que você mandou) -->
 <section id="create-post-container" class="create-post-area">
     <img src="https://via.placeholder.com/40" alt="Avatar do Usuário" class="user-avatar" id="post-area-avatar">
     <div class="post-input-wrapper">
+        <input type="text" id="post-text" class="post-input" placeholder="No que você está pensando?">
+    </div>
+    
+    <div class="photo-upload-btn" id="btn-abrir-modal-foto" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #45bd62; margin-bottom: 2px;">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19zM8.5 9.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
+        </svg>
+        <span>Foto</span>
+    </div>
 
-                    <input type="text" id="post-text" class="post-input" placeholder="No que você está pensando?">
-                </div>
-                <div class="photo-upload-btn" id="btn-abrir-modal-foto" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+    <div class="reel-upload-btn" id="btn-abrir-modal-reel" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
+        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #e4405f; margin-bottom: 2px;">
+            <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+        </svg>
+        <span>Reel</span>
+    </div>
+</section> <!-- Fim da Área de Postagem -->
 
-    <!-- Ícone de Galeria/Foto estilo Facebook -->
-    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #45bd62; margin-bottom: 2px;">
-        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H6c-.55 0-1-.45-1-1V6c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v12c0 .55-.45 1-1 1zm-4.44-6.19l-2.3 2.94-1.56-1.88L6.5 17h11l-3.94-5.19zM8.5 9.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5z"/>
-    </svg>
-    <span>Foto</span>
+
+<!-- 👇 COLE A NOVA SEÇÃO DE STORIES BEM AQUI 👇 -->
+<div class="stories-container">
+    <div class="stories-wrapper" id="stories-list">
+        <!-- Card Fixo: Criar Story -->
+        <div class="story-card create-story-trigger" id="btn-open-story-modal">
+            <div class="story-preview-img-box">
+                <img src="https://placeholder.com" id="user-story-avatar" alt="Minha Foto">
+            </div>
+            <div class="create-story-badge">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </div>
+            <span>Criar story</span>
+        </div>
+
+        <!-- Stories Simulados dos Amigos -->
+        <div class="story-card">
+            <div class="story-friend-badge">3</div>
+            <img src="https://placeholder.com" alt="Ronin Rick">
+            <span>Ronin Rick</span>
+        </div>
+        <div class="story-card">
+            <div class="story-friend-badge">3</div>
+            <img src="https://placeholder.com" alt="Ygor Mukowski">
+            <span>Ygor Mukowski</span>
+        </div>
+    </div>
 </div>
-
-
-                <!-- O BOTÃO DE REEL ENTRA BEM AQUI -->
-                <div class="reel-upload-btn" id="btn-abrir-modal-reel" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-main); font-size: 0.75em; margin-left: 15px;">
-                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: #e4405f; margin-bottom: 2px;">
-                        <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
-                    </svg>
-                    <span>Reel</span>
-                </div>
-            </section>
+<!-- 👆 FIM DA NOVA SEÇÃO DE STORIES 👆 -->
 
 
             <!-- Antiga área de postagem, agora substituída ou ajustada -->
@@ -5869,6 +6160,81 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+});
+document.addEventListener("DOMContentLoaded", () => {
+    // Captura dos elementos do DOM do modulo de Story
+    const storyModal = document.getElementById("modal-create-story");
+    const btnOpenStoryModal = document.getElementById("btn-open-story-modal");
+    const btnCloseStoryModal = document.getElementById("btn-close-story-modal");
+    const btnCancelStory = document.getElementById("btn-cancel-story");
+    const btnSubmitStory = document.getElementById("btn-submit-story");
+    
+    const inputMediaUrl = document.getElementById("story-media-url");
+    const storiesListContainer = document.getElementById("stories-list");
+
+    // Função para abrir o Modal
+    btnOpenStoryModal.addEventListener("click", () => {
+        inputMediaUrl.value = ""; // Limpa postagens anteriores
+        storyModal.style.display = "flex";
+    });
+
+    // Funções para fechar o Modal
+    const closeStoryForm = () => {
+        storyModal.style.display = "none";
+    };
+
+    btnCloseStoryModal.addEventListener("click", closeStoryForm);
+    btnCancelStory.addEventListener("click", closeStoryForm);
+
+    // Fecha se clicar na região escura fora do quadrado branco
+    storyModal.addEventListener("click", (e) => {
+        if (e.target === storyModal) {
+            closeStoryForm();
+        }
+    });
+
+    // Evento de Publicação e Renderização do Novo Card
+    btnSubmitStory.addEventListener("click", () => {
+        const mediaUrl = inputMediaUrl.value.trim();
+        const selectedType = document.querySelector('input[name="story-type"]:checked').value;
+
+        if (!mediaUrl) {
+            alert("Por favor, cole um link de imagem ou vídeo válido.");
+            return;
+        }
+
+        // Criando a estrutura do novo Card de Story do Usuário
+        const newStoryCard = document.createElement("div");
+        newStoryCard.className = "story-card";
+
+        // Adiciona condicionalmente a tag correta para a mídia baseada na escolha do radio input
+        if (selectedType === "image") {
+            const imgElement = document.createElement("img");
+            imgElement.src = mediaUrl;
+            imgElement.alt = "Meu Story";
+            newStoryCard.appendChild(imgElement);
+        } else {
+            const videoElement = document.createElement("video");
+            videoElement.src = mediaUrl;
+            videoElement.autoplay = true;
+            videoElement.muted = true;
+            videoElement.loop = true;
+            videoElement.playsInline = true;
+            newStoryCard.appendChild(videoElement);
+        }
+
+        // Tag de Texto identificadora do card
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = "Meu Story";
+        newStoryCard.appendChild(nameSpan);
+
+        // Insere o novo story logo após o botão "Criar story" (segunda posição da lista)
+        const firstFriendStory = btnOpenStoryModal.nextSibling;
+        storiesListContainer.insertBefore(newStoryCard, firstFriendStory);
+
+        // Sucesso e Fechamento
+        closeStoryForm();
+    });
 });
 
 </script>
