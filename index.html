@@ -6236,40 +6236,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Processa a publicação do Story
     if (btnSubmitStory) {
-        btnSubmitStory.addEventListener("click", () => {
-            const mediaUrl = inputMediaUrl.value.trim();
-            const selectedType = document.querySelector('input[name="story-type"]:checked').value;
+    btnSubmitStory.addEventListener("click", async () => {
+        const mediaUrl = inputMediaUrl.value.trim();
+        const selectedType = document.querySelector('input[name="story-type"]:checked').value;
 
-            if (!mediaUrl) {
-                alert("Por favor, cole um link válido para o seu story.");
-                return;
-            }
+        if (!mediaUrl) return alert("Por favor, cole um link válido para o seu story.");
 
-            // Cria o novo elemento de card
+        try {
+            // Grava o Story no banco de dados do Firebase
+            await addDoc(collection(db, "stories"), {
+                mediaUrl: mediaUrl,
+                type: selectedType,
+                autor: auth.currentUser.email,
+                createdAt: Date.now()
+            });
+
+            // Fecha o modal e limpa o input
+            storyModal.style.display = "none";
+            inputMediaUrl.value = "";
+        } catch (error) {
+            console.error("Erro ao salvar story no Firestore:", error);
+            alert("Erro ao publicar o story.");
+        }
+    });
+}
+
+function escutarStoriesEmTempoReal() {
+    const storiesListContainer = document.getElementById("stories-list");
+    const q = query(collection(db, "stories"), orderBy("createdAt", "desc"), limit(15));
+
+    onSnapshot(q, (snapshot) => {
+        // Limpa stories antigos para não duplicar (mantém o card de Criar Story)
+        document.querySelectorAll(".story-card:not(.create-story-trigger)").forEach(card => card.remove());
+
+        snapshot.forEach((docSnap) => {
+            const story = docSnap.data();
             const newStoryCard = document.createElement("div");
             newStoryCard.className = "story-card";
+            const mediaUrl = story.mediaUrl;
 
-            // Injeta a mídia selecionada
-            if (selectedType === "image") {
+            // 1. INJETA A MÍDIA DO BANCO DE ACORDO COM O TIPO
+            if (story.type === "image") {
                 const imgElement = document.createElement("img");
                 imgElement.src = mediaUrl;
-                imgElement.alt = "Meu Story";
+                imgElement.alt = "Story";
                 newStoryCard.appendChild(imgElement);
             } else {
-                // Se for link de vídeo ou iframe de embed
+                // Suporte inteligente a Iframes / Embeds
                 if (mediaUrl.includes("<iframe") || mediaUrl.includes("embed")) {
                     const divEmbed = document.createElement("div");
                     divEmbed.innerHTML = mediaUrl;
-                    // Garante que o iframe ocupe o espaço correto do card por CSS interno
                     const iframe = divEmbed.querySelector("iframe");
                     if (iframe) {
-                        iframe.style.position = "absolute";
-                        iframe.style.top = "0";
-                        iframe.style.left = "0";
-                        iframe.style.width = "100%";
-                        iframe.style.height = "100%";
-                        iframe.style.border = "none";
-                        iframe.style.zIndex = "1";
+                        iframe.style.cssText = "position:absolute; top:0; left:0; width:100%; height:100%; border:none; z-index:1;";
                     }
                     newStoryCard.appendChild(divEmbed);
                 } else {
@@ -6283,22 +6302,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // Adiciona o texto de rodapé do card
+            // 2. EXIBE O NOME DE QUEM POSTOU NO RODAPÉ
+            const nomeBase = story.autor ? story.autor.split('@')[0] : 'Anônimo';
+            const nomeFormatado = nomeBase.charAt(0).toUpperCase() + nomeBase.slice(1);
             const nameSpan = document.createElement("span");
-            nameSpan.textContent = "Meu Story";
+            nameSpan.textContent = nomeFormatado;
             newStoryCard.appendChild(nameSpan);
 
-            // Adiciona na lista logo após o botão de criar
-            // Captura o próximo elemento HTML real (o card do amigo)
-const firstFriendStory = btnOpenStoryModal.nextElementSibling;
-storiesListContainer.insertBefore(newStoryCard, firstFriendStory);
-
-
-            // Fecha o modal
-            storyModal.style.display = "none";
+            storiesListContainer.appendChild(newStoryCard);
         });
-    }
-});
+    });
+}
 
 
 </script>
