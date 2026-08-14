@@ -2400,7 +2400,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <!-- Card Fixo: Criar Story -->
         <div class="story-card create-story-trigger" id="btn-open-story-modal">
             <div class="story-preview-img-box">
-                <img src="https://placeholder.com" id="user-story-avatar" alt="Minha Foto">
+                <img src="https://via.placeholder.com/110x180" id="user-story-avatar" alt="Minha Foto">
             </div>
             <div class="create-story-badge">
                 <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -4011,20 +4011,26 @@ monitorarChamadasVozEntrantes(user.email); // Alterado de user.uid para user.ema
             const profilePostAvatar = document.getElementById('profile-post-avatar');
 
             if (docSnap.exists() && docSnap.data().fotoPerfil) {
-                const fotoUrl = docSnap.data().fotoPerfil;
-                pAvatarImg.src = fotoUrl;
-                if (postAreaAvatar) postAreaAvatar.src = fotoUrl; 
-                if (profilePostAvatar) profilePostAvatar.src = fotoUrl; // 🟢 Atualiza foto do post do perfil
-            } else {
-                const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
-                pAvatarImg.src = defaultAvatar;
-                if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; 
-                if (profilePostAvatar) profilePostAvatar.src = defaultAvatar; // 🟢 Atualiza com o avatar padrão
-            }
-        }
- catch (erro) {
-            console.error("Erro ao recuperar foto do Firebase:", erro);
-        }
+    const fotoUrl = docSnap.data().fotoPerfil;
+    pAvatarImg.src = fotoUrl;
+    if (postAreaAvatar) postAreaAvatar.src = fotoUrl; 
+    if (profilePostAvatar) profilePostAvatar.src = fotoUrl; // 🟢 Atualiza foto do post do perfil
+
+    // CORREÇÃO: Atualiza a foto do Criar Story se o usuário tiver foto cadastrada
+    const userStoryAvatar = document.getElementById('user-story-avatar');
+    if (userStoryAvatar) userStoryAvatar.src = fotoUrl;
+
+} else {
+    const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
+    pAvatarImg.src = defaultAvatar;
+    if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; 
+    if (profilePostAvatar) profilePostAvatar.src = defaultAvatar; // 🟢 Atualiza com o avatar padrão
+
+    // CORREÇÃO: Define o avatar padrão do Dicebear para o Criar Story
+    const userStoryAvatar = document.getElementById('user-story-avatar');
+    if (userStoryAvatar) userStoryAvatar.src = defaultAvatar;
+}
+
 
         // Carrega o feed inicial do Blueberry
         document.getElementById('feed').innerHTML = '';
@@ -6283,8 +6289,10 @@ document.addEventListener("DOMContentLoaded", () => {
             newStoryCard.appendChild(nameSpan);
 
             // Adiciona na lista logo após o botão de criar
-            const firstFriendStory = btnOpenStoryModal.nextSibling;
-            storiesListContainer.insertBefore(newStoryCard, firstFriendStory);
+            // Captura o próximo elemento HTML real (o card do amigo)
+const firstFriendStory = btnOpenStoryModal.nextElementSibling;
+storiesListContainer.insertBefore(newStoryCard, firstFriendStory);
+
 
             // Fecha o modal
             storyModal.style.display = "none";
