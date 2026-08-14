@@ -4031,7 +4031,10 @@ onAuthStateChanged(auth, async (user) => {
             }
         } catch (erro) {
             console.error("Erro ao recuperar foto do Firebase:", erro);
-        } // 🟢 O bloco 'try/catch' agora fecha corretamente aqui!
+        }
+
+        // 🟢 ADICIONE ESTA LINHA AQUI:
+        escutarStoriesEmTempoReal();
 
         // Carrega o feed inicial do Blueberry
         document.getElementById('feed').innerHTML = '';
