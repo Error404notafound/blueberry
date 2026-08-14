@@ -2422,6 +2422,42 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     </div>
 </div>
 <!-- 👆 FIM DA NOVA SEÇÃO DE STORIES 👆 -->
+<!-- ================= MODAL DE STORIES (ESTILO IDENTICO AO SEU PRINT) ================= -->
+<div id="modal-create-story" class="modal-story-backdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7); z-index: 5000; align-items: center; justify-content: center;">
+    <div style="background-color: #242526; border-radius: 14px; width: 90%; max-width: 400px; padding: 20px; box-sizing: border-box; position: relative; border: 1px solid #3e4042; box-shadow: 0 4px 20px rgba(0,0,0,0.5); font-family: sans-serif;">
+        
+        <!-- Cabeçalho -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: white; margin: 0; font-size: 18px; font-weight: bold;">Publicar Novo Story</h3>
+            <span id="btn-close-story-modal" style="color: #aaa; font-size: 24px; font-weight: bold; cursor: pointer; line-height: 1;">&times;</span>
+        </div>
+
+        <!-- Corpo do Modal -->
+        <div>
+            <!-- Input de Link -->
+            <input type="text" id="story-media-url" placeholder="Cole o link da imagem ou embed aqui" 
+                   style="width: 100%; padding: 12px 15px; background-color: #3a3b3c; border: 1px solid #3e4042; border-radius: 8px; color: white; box-sizing: border-box; margin-bottom: 15px; font-size: 14px; outline: none;">
+            
+            <!-- Seleção de Tipo (Invisível ou discreta se preferir, para o JS saber se é foto ou vídeo) -->
+            <div style="display: flex; gap: 15px; margin-bottom: 20px; padding-left: 5px;">
+                <label style="color: #b0b3b8; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                    <input type="radio" name="story-type" value="image" checked style="accent-color: #45bd62;"> Imagem / Foto
+                </label>
+                <label style="color: #b0b3b8; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                    <input type="radio" name="story-type" value="video" style="accent-color: #45bd62;"> Vídeo / Embed
+                </label>
+            </div>
+        </div>
+
+        <!-- Rodapé com o Botão Verde Idêntico -->
+        <div>
+            <button id="btn-submit-story" type="button" 
+                    style="background-color: #45bd62; color: white; border: none; border-radius: 8px; padding: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 15px; transition: background 0.2s;">
+                Compartilhar no Story
+            </button>
+        </div>
+    </div>
+</div>
 
 
             <!-- Antiga área de postagem, agora substituída ou ajustada -->
@@ -6162,80 +6198,100 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 document.addEventListener("DOMContentLoaded", () => {
-    // Captura dos elementos do DOM do modulo de Story
     const storyModal = document.getElementById("modal-create-story");
     const btnOpenStoryModal = document.getElementById("btn-open-story-modal");
     const btnCloseStoryModal = document.getElementById("btn-close-story-modal");
-    const btnCancelStory = document.getElementById("btn-cancel-story");
     const btnSubmitStory = document.getElementById("btn-submit-story");
     
     const inputMediaUrl = document.getElementById("story-media-url");
     const storiesListContainer = document.getElementById("stories-list");
 
-    // Função para abrir o Modal
-    btnOpenStoryModal.addEventListener("click", () => {
-        inputMediaUrl.value = ""; // Limpa postagens anteriores
-        storyModal.style.display = "flex";
-    });
+    // Abre o modal ao clicar no card azul de criar story
+    if (btnOpenStoryModal) {
+        btnOpenStoryModal.addEventListener("click", () => {
+            inputMediaUrl.value = ""; // Reseta o campo
+            storyModal.style.display = "flex";
+        });
+    }
 
-    // Funções para fechar o Modal
-    const closeStoryForm = () => {
-        storyModal.style.display = "none";
-    };
+    // Fecha o modal no "X"
+    if (btnCloseStoryModal) {
+        btnCloseStoryModal.addEventListener("click", () => {
+            storyModal.style.display = "none";
+        });
+    }
 
-    btnCloseStoryModal.addEventListener("click", closeStoryForm);
-    btnCancelStory.addEventListener("click", closeStoryForm);
-
-    // Fecha se clicar na região escura fora do quadrado branco
+    // Fecha se clicar fora da caixa do modal
     storyModal.addEventListener("click", (e) => {
         if (e.target === storyModal) {
-            closeStoryForm();
+            storyModal.style.display = "none";
         }
     });
 
-    // Evento de Publicação e Renderização do Novo Card
-    btnSubmitStory.addEventListener("click", () => {
-        const mediaUrl = inputMediaUrl.value.trim();
-        const selectedType = document.querySelector('input[name="story-type"]:checked').value;
+    // Processa a publicação do Story
+    if (btnSubmitStory) {
+        btnSubmitStory.addEventListener("click", () => {
+            const mediaUrl = inputMediaUrl.value.trim();
+            const selectedType = document.querySelector('input[name="story-type"]:checked').value;
 
-        if (!mediaUrl) {
-            alert("Por favor, cole um link de imagem ou vídeo válido.");
-            return;
-        }
+            if (!mediaUrl) {
+                alert("Por favor, cole um link válido para o seu story.");
+                return;
+            }
 
-        // Criando a estrutura do novo Card de Story do Usuário
-        const newStoryCard = document.createElement("div");
-        newStoryCard.className = "story-card";
+            // Cria o novo elemento de card
+            const newStoryCard = document.createElement("div");
+            newStoryCard.className = "story-card";
 
-        // Adiciona condicionalmente a tag correta para a mídia baseada na escolha do radio input
-        if (selectedType === "image") {
-            const imgElement = document.createElement("img");
-            imgElement.src = mediaUrl;
-            imgElement.alt = "Meu Story";
-            newStoryCard.appendChild(imgElement);
-        } else {
-            const videoElement = document.createElement("video");
-            videoElement.src = mediaUrl;
-            videoElement.autoplay = true;
-            videoElement.muted = true;
-            videoElement.loop = true;
-            videoElement.playsInline = true;
-            newStoryCard.appendChild(videoElement);
-        }
+            // Injeta a mídia selecionada
+            if (selectedType === "image") {
+                const imgElement = document.createElement("img");
+                imgElement.src = mediaUrl;
+                imgElement.alt = "Meu Story";
+                newStoryCard.appendChild(imgElement);
+            } else {
+                // Se for link de vídeo ou iframe de embed
+                if (mediaUrl.includes("<iframe") || mediaUrl.includes("embed")) {
+                    const divEmbed = document.createElement("div");
+                    divEmbed.innerHTML = mediaUrl;
+                    // Garante que o iframe ocupe o espaço correto do card por CSS interno
+                    const iframe = divEmbed.querySelector("iframe");
+                    if (iframe) {
+                        iframe.style.position = "absolute";
+                        iframe.style.top = "0";
+                        iframe.style.left = "0";
+                        iframe.style.width = "100%";
+                        iframe.style.height = "100%";
+                        iframe.style.border = "none";
+                        iframe.style.zIndex = "1";
+                    }
+                    newStoryCard.appendChild(divEmbed);
+                } else {
+                    const videoElement = document.createElement("video");
+                    videoElement.src = mediaUrl;
+                    videoElement.autoplay = true;
+                    videoElement.muted = true;
+                    videoElement.loop = true;
+                    videoElement.playsInline = true;
+                    newStoryCard.appendChild(videoElement);
+                }
+            }
 
-        // Tag de Texto identificadora do card
-        const nameSpan = document.createElement("span");
-        nameSpan.textContent = "Meu Story";
-        newStoryCard.appendChild(nameSpan);
+            // Adiciona o texto de rodapé do card
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = "Meu Story";
+            newStoryCard.appendChild(nameSpan);
 
-        // Insere o novo story logo após o botão "Criar story" (segunda posição da lista)
-        const firstFriendStory = btnOpenStoryModal.nextSibling;
-        storiesListContainer.insertBefore(newStoryCard, firstFriendStory);
+            // Adiciona na lista logo após o botão de criar
+            const firstFriendStory = btnOpenStoryModal.nextSibling;
+            storiesListContainer.insertBefore(newStoryCard, firstFriendStory);
 
-        // Sucesso e Fechamento
-        closeStoryForm();
-    });
+            // Fecha o modal
+            storyModal.style.display = "none";
+        });
+    }
 });
+
 
 </script>
 </body>
