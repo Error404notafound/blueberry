@@ -5228,6 +5228,8 @@ function atualizarLayoutAmizade(status) {
     if (!email) return;
     profileViewedEmail = email; // Define de quem é o perfil em exibição
     
+    // 🟢 ADICIONADO: Ative o carregamento dos álbuns reais do usuário ativo
+    carregarAlbunsDoUsuarioReal(email);    
     // 1. Esconde containers antigos
     appContainer.querySelector('.main-container').style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
@@ -6360,25 +6362,76 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 // Banco de dados simulado para guardar o histórico das suas fotos
-const AlbumData = {
-    avatar: [], // Pasta de Fotos do Perfil
-    capa: [],   // Pasta de Fotos da Capa
-    feed: []    // Pasta de Fotos Carregadas
-};
+// FUNÇÃO REAL PARA CARREGAR ÁLBUNS DO FIRESTORE
+async function carregarAlbunsDoUsuarioReal(email) {
+    try {
+        // 1. Carrega fotos de Perfil e Capa da coleção 'usuarios'
+        const userDocSnap = await getDoc(doc(db, "usuarios", email));
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            
+            // Álbum de Fotos do Perfil
+            const thumbAvatar = document.getElementById('thumb-avatar');
+            const countAvatar = document.getElementById('count-avatar');
+            if (userData.fotoPerfil) {
+                thumbAvatar.src = userData.fotoPerfil;
+                countAvatar.textContent = "1 foto";
+            } else {
+                thumbAvatar.src = "https://via.placeholder.com/60";
+                countAvatar.textContent = "0 fotos";
+            }
 
-// Função que coloca a foto na pasta certa e atualiza os números na tela
-function registrarFotoNoAlbum(url, tipo) {
-    if (!AlbumData[tipo]) return;
+            // Álbum de Fotos de Capa
+            const thumbCapa = document.getElementById('thumb-capa');
+            const countCapa = document.getElementById('count-capa');
+            if (userData.fotoCapa) {
+                thumbCapa.src = userData.fotoCapa;
+                countCapa.textContent = "1 foto";
+            } else {
+                thumbCapa.src = "https://via.placeholder.com/60";
+                countCapa.textContent = "0 fotos";
+            }
+        }
 
-    // Coloca a foto na pasta correspondente
-    AlbumData[tipo].unshift(url);
+        // 2. Carrega as fotos postadas no feed (Álbum de Fotos Carregadas)
+        const q = query(collection(db, "posts"), where("autor", "==", email), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        let fotosPostadas = [];
+        querySnapshot.forEach((docSnap) => {
+            const post = docSnap.data();
+            const videoUrl = post.video ? post.video.trim() : "";
+            
+            if (videoUrl !== "") {
+                const linkLimpo = videoUrl.toLowerCase();
+                const ehImagem = linkLimpo.includes('.jpg') || 
+                                 linkLimpo.includes('.jpeg') || 
+                                 linkLimpo.includes('.png') || 
+                                 linkLimpo.includes('.gif') || 
+                                 linkLimpo.includes('placeholder') ||
+                                 linkLimpo.startsWith('data:image');
+                
+                if (ehImagem) {
+                    fotosPostadas.push(videoUrl);
+                }
+            }
+        });
 
-    // Atualiza o texto de quantidade (ex: "1 fotos", "2 fotos")
-    document.getElementById(`count-${tipo}`).innerText = `${AlbumData[tipo].length} fotos`;
-    
-    // Faz a capinha do quadrado virar a última foto que foi enviada
-    document.getElementById(`thumb-${tipo}`).src = url;
+        const thumbFeed = document.getElementById('thumb-feed');
+        const countFeed = document.getElementById('count-feed');
+        if (fotosPostadas.length > 0) {
+            thumbFeed.src = fotosPostadas[0]; // Capa do álbum é a foto mais recente do feed
+            countFeed.textContent = `${fotosPostadas.length} ${fotosPostadas.length === 1 ? 'foto' : 'fotos'}`;
+        } else {
+            thumbFeed.src = "https://via.placeholder.com/60";
+            countFeed.textContent = "0 fotos";
+        }
+
+    } catch (error) {
+        console.error("Erro ao carregar álbuns reais do Firestore:", error);
+    }
 }
+
 
 // --- CONECTANDO OS BOTÕES DA TELA AOS ÁLBUNS ---
 
