@@ -2567,8 +2567,8 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <div class="profile-tab-item">Fotos</div>
         <div class="profile-tab-item">Reels</div>
     </div>
-<!-- Seção de Álbuns de Fotos do Perfil (Adicionado) -->
-<div id="profile-photos-tab" class="profile-extra-content">
+<!-- Seção de Álbuns de Fotos - Começa ESCONDIDA (display: none) -->
+<div id="profile-photos-tab" class="profile-extra-content" style="display: none;">
     
     <!-- Botões Superiores: Postar e Criar -->
     <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 5px;">
@@ -2576,12 +2576,12 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <button class="pill-btn" style="flex: 1;">Criar álbum</button>
     </div>
 
-    <!-- Lista de Álbuns Mobile Dark (Reaproveitando suas classes da página 32) -->
+    <!-- Lista de Álbuns Mobile Dark -->
     <div class="fb-section-box" id="albums-wrapper">
         
         <!-- Álbum 1: Fotos Carregadas/Feed -->
         <div class="fb-list-item">
-            <img src="https://dicebear.com" id="thumb-feed" class="friend-avatar" style="border-radius: 8px;">
+            <img src="https://placeholder.com" id="thumb-feed" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
             <div class="fb-item-text">
                 <span class="fb-label">Fotos carregadas</span>
                 <span class="fb-value" id="count-feed">0 fotos</span>
@@ -2590,7 +2590,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 
         <!-- Álbum 2: Fotos do Perfil -->
         <div class="fb-list-item">
-            <img src="https://dicebear.com" id="thumb-avatar" class="friend-avatar" style="border-radius: 8px;">
+            <img src="https://placeholder.com" id="thumb-avatar" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
             <div class="fb-item-text">
                 <span class="fb-label">Fotos do perfil</span>
                 <span class="fb-value" id="count-avatar">0 fotos</span>
@@ -2599,7 +2599,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 
         <!-- Álbum 3: Fotos da Capa -->
         <div class="fb-list-item">
-            <img src="https://dicebear.com" id="thumb-capa" class="friend-avatar" style="border-radius: 8px;">
+            <img src="https://placeholder.com" id="thumb-capa" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
             <div class="fb-item-text">
                 <span class="fb-label">Fotos da capa</span>
                 <span class="fb-value" id="count-capa">0 fotos</span>
@@ -2608,6 +2608,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 
     </div>
 </div>
+
 
     <!-- 🌟 NOVA ÁREA IMPLEMENTADA AQUI 🌟 -->
     <div class="profile-extra-content">
@@ -6413,6 +6414,50 @@ document.getElementById('btn-postar-fotos-aba').addEventListener('click', () => 
     
     // Salva automaticamente no álbum de "Fotos carregadas"
     registrarFotoNoAlbum(novaFotoFeed, 'feed');
+});
+// --- CONTROLE DE ALTERNÂNCIA DE ABAS NO PERFIL ---
+
+// Captura os elementos das abas da página 24 do seu PDF
+const abasPerfil = document.querySelectorAll('.profile-tab-item');
+
+// Captura os blocos de conteúdo que devem aparecer ou sumir
+const containerAlbuns = document.getElementById('profile-photos-tab');
+
+// IMPORTANTE: Altere o 'id' abaixo para o ID real da sua div onde ficam os posts normais do feed (ex: #profile-posts ou #profile-feed)
+const containerPostsNormais = document.querySelector('#profile-container .post-card')?.parentElement || document.querySelector('.profile-extra-content');
+
+// Adiciona o evento de clique em cada uma das abas
+abasPerfil.forEach(aba => {
+    aba.addEventListener('click', (e) => {
+        // 1. Remove o traço azul ativo de todas as abas
+        abasPerfil.forEach(a => a.classList.remove('active'));
+        
+        // 2. Coloca o traço azul na aba que foi clicada
+        aba.classList.add('active');
+
+        const textoAba = aba.textContent.trim().toLowerCase();
+
+        // 3. Lógica de exibição das telas baseado no clique
+        if (textoAba === 'fotos') {
+            // Se clicou em Fotos: Mostra os álbuns e esconde os posts gerais
+            containerAlbuns.style.display = 'flex';
+            if (containerPostsNormais && containerPostsNormais !== containerAlbuns) {
+                containerPostsNormais.style.display = 'none';
+            }
+        } else if (textoAba === 'tudo') {
+            // Se clicou em Tudo: Esconde os álbuns e mostra os posts gerais de volta
+            containerAlbuns.style.display = 'none';
+            if (containerPostsNormais) {
+                containerPostsNormais.style.display = 'flex';
+            }
+        } else {
+            // Se clicou em Reels ou outra aba, limpa as duas áreas
+            containerAlbuns.style.display = 'none';
+            if (containerPostsNormais) {
+                containerPostsNormais.style.display = 'none';
+            }
+        }
+    });
 });
 
             
