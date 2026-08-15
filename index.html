@@ -3990,9 +3990,14 @@ onAuthStateChanged(auth, async (user) => {
         monitorarChamadasEntrantes(user.email);
         monitorarChamadasVozEntrantes(user.email);
         
+        // 🟢 ADICIONE ESTA LINHA AQUI:
+        carregarStoriesRealtime();
+        
         // Busca foto de perfil customizada
         try {
             const userDocRef = doc(db, 'usuarios', user.email);
+            // ... restante do seu código intacto ...
+
             const docSnap = await getDoc(userDocRef);
             
             // Captura o elemento do post do perfil
@@ -6289,25 +6294,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Processa a publicação do Story
-    if (btnSubmitStory) {
-        btnSubmitStory.addEventListener("click", async () => {
-    const mediaUrl = inputMediaUrl.value.trim();
-    const selectedType = document.querySelector('input[name="story-type"]:checked').value;
-    if (!mediaUrl || !auth.currentUser) return;
+    // Processa a publicação do Story (CORRIGIDO)
+if (btnSubmitStory) {
+    btnSubmitStory.addEventListener("click", async () => {
+        const mediaUrl = inputMediaUrl.value.trim();
+        const selectedType = document.querySelector('input[name="story-type"]:checked').value;
+        if (!mediaUrl || !auth.currentUser) return;
 
-    try {
-        await addDoc(collection(db, "stories"), {
-            autor: auth.currentUser.email,
-            mediaUrl: mediaUrl,
-            type: selectedType,
-            createdAt: Date.now()
-        });
-        storyModal.style.display = "none";
-    } catch (e) {
-        console.error("Erro ao salvar story no Firebase:", e);
-    }
-});
+        try {
+            await addDoc(collection(db, "stories"), {
+                autor: auth.currentUser.email,
+                mediaUrl: mediaUrl,
+                type: selectedType,
+                createdAt: Date.now()
+            });
+            storyModal.style.display = "none";
+        } catch (e) {
+            console.error("Erro ao salvar story no Firebase:", e);
+        }
+    });
+}
+
 
 
 
