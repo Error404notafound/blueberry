@@ -2581,7 +2581,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         
         <!-- Álbum 1: Fotos Carregadas/Feed -->
         <div class="fb-list-item">
-            <img src="https://placeholder.com" id="thumb-feed" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
+            <img src="https://via.placeholder.com/60" id="thumb-feed" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
             <div class="fb-item-text">
                 <span class="fb-label">Fotos carregadas</span>
                 <span class="fb-value" id="count-feed">0 fotos</span>
@@ -2590,7 +2590,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 
         <!-- Álbum 2: Fotos do Perfil -->
         <div class="fb-list-item">
-            <img src="https://placeholder.com" id="thumb-avatar" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
+            <img src="https://via.placeholder.com/60" id="thumb-avatar" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
             <div class="fb-item-text">
                 <span class="fb-label">Fotos do perfil</span>
                 <span class="fb-value" id="count-avatar">0 fotos</span>
@@ -2599,7 +2599,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 
         <!-- Álbum 3: Fotos da Capa -->
         <div class="fb-list-item">
-            <img src="https://placeholder.com" id="thumb-capa" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
+            <img src="https://via.placeholder.com/60" id="thumb-capa" class="friend-avatar" style="border-radius: 8px; object-fit: cover;">
             <div class="fb-item-text">
                 <span class="fb-label">Fotos da capa</span>
                 <span class="fb-value" id="count-capa">0 fotos</span>
@@ -6383,9 +6383,10 @@ function registrarFotoNoAlbum(url, tipo) {
 // --- CONECTANDO OS BOTÕES DA TELA AOS ÁLBUNS ---
 
 // Gatilho 1: Quando clicar no botão da camerazinha do avatar
+// Gatilho 1: Quando clicar no botão da camerazinha do avatar
 document.getElementById('btn-open-camera-options').addEventListener('click', () => {
     const semente = Math.random().toString(36).substring(7);
-    const novaFotoPerfil = `https://dicebear.com{semente}`;
+    const novaFotoPerfil = `https://api.dicebear.com/7.x/bottts/svg?seed=${semente}`;
     
     // Troca a foto do perfil redonda grande da tela
     document.getElementById('p-avatar-img').src = novaFotoPerfil;
@@ -6397,7 +6398,7 @@ document.getElementById('btn-open-camera-options').addEventListener('click', () 
 // Gatilho 2: Quando clicar no botão de mudar a capa
 document.querySelector('.btn-edit-cover').addEventListener('click', () => {
     const semente = Math.random().toString(36).substring(7);
-    const novaFotoCapa = `https://dicebear.com{semente}`;
+    const novaFotoCapa = `https://api.dicebear.com/7.x/identicon/svg?seed=${semente}`;
     
     // Troca o fundo da foto de capa na tela
     document.querySelector('.profile-cover-wrapper').style.backgroundImage = `url('${novaFotoCapa}')`;
@@ -6410,11 +6411,12 @@ document.querySelector('.btn-edit-cover').addEventListener('click', () => {
 // Gatilho 3: Quando clicar no botão "Postar fotos" da aba
 document.getElementById('btn-postar-fotos-aba').addEventListener('click', () => {
     const semente = Math.random().toString(36).substring(7);
-    const novaFotoFeed = `https://dicebear.com{semente}`;
+    const novaFotoFeed = `https://api.dicebear.com/7.x/lorelei/svg?seed=${semente}`;
     
     // Salva automaticamente no álbum de "Fotos carregadas"
     registrarFotoNoAlbum(novaFotoFeed, 'feed');
 });
+
 // --- CONTROLE DE ALTERNÂNCIA DE ABAS NO PERFIL ---
 
 // Captura as abas
