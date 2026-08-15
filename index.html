@@ -2567,6 +2567,47 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <div class="profile-tab-item">Fotos</div>
         <div class="profile-tab-item">Reels</div>
     </div>
+<!-- Seção de Álbuns de Fotos do Perfil (Adicionado) -->
+<div id="profile-photos-tab" class="profile-extra-content">
+    
+    <!-- Botões Superiores: Postar e Criar -->
+    <div style="display: flex; gap: 10px; width: 100%; margin-bottom: 5px;">
+        <button class="pill-btn active-pill" id="btn-postar-fotos-aba" style="flex: 1;">Postar fotos</button>
+        <button class="pill-btn" style="flex: 1;">Criar álbum</button>
+    </div>
+
+    <!-- Lista de Álbuns Mobile Dark (Reaproveitando suas classes da página 32) -->
+    <div class="fb-section-box" id="albums-wrapper">
+        
+        <!-- Álbum 1: Fotos Carregadas/Feed -->
+        <div class="fb-list-item">
+            <img src="https://dicebear.com" id="thumb-feed" class="friend-avatar" style="border-radius: 8px;">
+            <div class="fb-item-text">
+                <span class="fb-label">Fotos carregadas</span>
+                <span class="fb-value" id="count-feed">0 fotos</span>
+            </div>
+        </div>
+
+        <!-- Álbum 2: Fotos do Perfil -->
+        <div class="fb-list-item">
+            <img src="https://dicebear.com" id="thumb-avatar" class="friend-avatar" style="border-radius: 8px;">
+            <div class="fb-item-text">
+                <span class="fb-label">Fotos do perfil</span>
+                <span class="fb-value" id="count-avatar">0 fotos</span>
+            </div>
+        </div>
+
+        <!-- Álbum 3: Fotos da Capa -->
+        <div class="fb-list-item">
+            <img src="https://dicebear.com" id="thumb-capa" class="friend-avatar" style="border-radius: 8px;">
+            <div class="fb-item-text">
+                <span class="fb-label">Fotos da capa</span>
+                <span class="fb-value" id="count-capa">0 fotos</span>
+            </div>
+        </div>
+
+    </div>
+</div>
 
     <!-- 🌟 NOVA ÁREA IMPLEMENTADA AQUI 🌟 -->
     <div class="profile-extra-content">
@@ -6317,12 +6358,64 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+// Banco de dados simulado para guardar o histórico das suas fotos
+const AlbumData = {
+    avatar: [], // Pasta de Fotos do Perfil
+    capa: [],   // Pasta de Fotos da Capa
+    feed: []    // Pasta de Fotos Carregadas
+};
 
+// Função que coloca a foto na pasta certa e atualiza os números na tela
+function registrarFotoNoAlbum(url, tipo) {
+    if (!AlbumData[tipo]) return;
 
+    // Coloca a foto na pasta correspondente
+    AlbumData[tipo].unshift(url);
 
+    // Atualiza o texto de quantidade (ex: "1 fotos", "2 fotos")
+    document.getElementById(`count-${tipo}`).innerText = `${AlbumData[tipo].length} fotos`;
+    
+    // Faz a capinha do quadrado virar a última foto que foi enviada
+    document.getElementById(`thumb-${tipo}`).src = url;
+}
 
+// --- CONECTANDO OS BOTÕES DA TELA AOS ÁLBUNS ---
 
-            // Fecha o modal
+// Gatilho 1: Quando clicar no botão da camerazinha do avatar
+document.getElementById('btn-open-camera-options').addEventListener('click', () => {
+    const semente = Math.random().toString(36).substring(7);
+    const novaFotoPerfil = `https://dicebear.com{semente}`;
+    
+    // Troca a foto do perfil redonda grande da tela
+    document.getElementById('p-avatar-img').src = novaFotoPerfil;
+    
+    // Salva automaticamente no álbum de "Fotos do perfil"
+    registrarFotoNoAlbum(novaFotoPerfil, 'avatar');
+});
+
+// Gatilho 2: Quando clicar no botão de mudar a capa
+document.querySelector('.btn-edit-cover').addEventListener('click', () => {
+    const semente = Math.random().toString(36).substring(7);
+    const novaFotoCapa = `https://dicebear.com{semente}`;
+    
+    // Troca o fundo da foto de capa na tela
+    document.querySelector('.profile-cover-wrapper').style.backgroundImage = `url('${novaFotoCapa}')`;
+    document.querySelector('.profile-cover-wrapper').style.backgroundSize = 'cover';
+    
+    // Salva automaticamente no álbum de "Fotos da capa"
+    registrarFotoNoAlbum(novaFotoCapa, 'capa');
+});
+
+// Gatilho 3: Quando clicar no botão "Postar fotos" da aba
+document.getElementById('btn-postar-fotos-aba').addEventListener('click', () => {
+    const semente = Math.random().toString(36).substring(7);
+    const novaFotoFeed = `https://dicebear.com{semente}`;
+    
+    // Salva automaticamente no álbum de "Fotos carregadas"
+    registrarFotoNoAlbum(novaFotoFeed, 'feed');
+});
+
+            
 </script>
 </body>
     </html>
