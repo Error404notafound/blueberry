@@ -4040,40 +4040,89 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 function carregarStoriesRealtime() {
-    const q = query(collection(db, "stories"), orderBy("createdAt", "desc"), limit(15));
-    
-    onSnapshot(q, (snapshot) => {
-        const storiesList = document.getElementById("stories-list");
-        if (!storiesList) return;
+// Função para carregar e renderizar os stories sem duplicar os cards
+function carregarStories() {
+    const wrapper = document.querySelector('.stories-wrapper');
+    if (!wrapper) return;
 
-        // Mantém apenas o card inicial de "Criar Story"
-        storiesList.innerHTML = `
-            <div class="story-card create-story-trigger" id="btn-open-story-modal">
-                <div class="story-preview-img-box"><img src="${pAvatarImg.src}" id="user-story-avatar"></div>
-                <div class="create-story-badge"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
-                <span>Criar story</span>
-            </div>
-        `;
-        
-        // Reatribui o evento de clique do modal após limpar o HTML
-        document.getElementById("btn-open-story-modal").addEventListener("click", () => {
-            document.getElementById("modal-create-story").style.display = "flex";
-        });
+    // 1. Escuta a coleção do Firestore em tempo real
+    db.collection('stories')
+      .orderBy('timestamp', 'desc')
+      .onSnapshot(snapshot => {
+          
+          // Mantém o card fixo de "Criar Story" intacto no início da barra
+          const criarStoryCard = wrapper.querySelector('.create-story-trigger')?.outerHTML || '';
+          
+          // 2. Agrupa os documentos por e-mail do autor
+          const storiesAgrupados = {};
 
-        snapshot.forEach((docSnap) => {
-            const story = docSnap.data();
-            const nomeBase = story.autor.split('@')[0];
-            const card = document.createElement("div");
-            card.className = "story-card";
-            
-            card.innerHTML = `
-                <img src="${story.mediaUrl}" onerror="this.src='https://via.placeholder.com/110x180'">
-                <span>@${nomeBase}</span>
-            `;
-            storiesList.appendChild(card);
-        });
-    });
+          snapshot.docs.forEach(doc => {
+              const dados = doc.data();
+              const emailAutor = dados.autor;
+
+              if (!storiesAgrupados[emailAutor]) {
+                  storiesAgrupados[emailAutor] = {
+                      nome: dados.nomeUsuario || emailAutor.split('@')[0], // Fallback pro nome
+                      avatar: dados.avatarUsuario || 'https://placeholder.com',
+                      midias: [] // Array contendo todos os stories desse usuário
+                  };
+              }
+              // Adiciona a mídia e o ID do documento ao grupo do usuário
+              storiesAgrupados[emailAutor].midias.push({
+                  id: doc.id,
+                  url: dados.url,
+                  tipo: dados.tipo || 'imagem'
+              });
+          });
+
+          // 3. Monta o HTML limpando as duplicações
+          let htmlFinal = criarStoryCard;
+
+          Object.keys(storiesAgrupados).forEach(email => {
+              const grupo = storiesAgrupados[email];
+              const totalStories = grupo.midias.length;
+              // Pega a URL do story mais recente para servir de capa do card
+              const ultimaMidiaUrl = grupo.midias[0].url; 
+
+              htmlFinal += `
+                  <div class="story-card" onclick="abrirVisualizadorStories('${email}')">
+                      <!-- Capa do Card -->
+                      <img src="${ultimaMidiaUrl}" alt="Capa Story de ${grupo.nome}">
+                      
+                      <!-- Badge Azul com o número total agrupado (Idêntico ao Face) -->
+                      <div class="story-friend-badge" style="display: ${totalStories > 1 ? 'flex' : 'none'}">
+                          ${totalStories}
+                      </div>
+                      
+                      <!-- Nome do Usuário no Rodapé do Card -->
+                      <span>${grupo.nome}</span>
+                  </div>
+              `;
+          });
+
+          wrapper.innerHTML = htmlFinal;
+          
+          // Salva os dados agrupados globalmente na janela para o visualizador abrir depois
+          window.dadosStoriesAtivos = storiesAgrupados;
+      });
 }
+
+// Função para abrir o visualizador contendo o carrossel de mídias daquele usuário
+function abrirVisualizadorStories(emailAutor) {
+    const grupo = window.dadosStoriesAtivos[emailAutor];
+    if (!grupo) return;
+
+    console.log("Abrindo stories de:", grupo.nome, "Total de mídias:", grupo.midias);
+    
+    // Aqui você chama a lógica de exibir o modal de tela cheia (como a imagem 2 que você enviou)
+    // Passando o array `grupo.midias` para renderizar os tracinhos de progresso no topo.
+    alert(`Abrindo carrossel com os ${grupo.midias.length} stories de ${grupo.nome}`);
+}
+
+// Inicializa a escuta quando o app carregar
+document.addEventListener('DOMContentLoaded', () => {
+    carregarStories();
+});
 
 
         // Clique Criar Conta
