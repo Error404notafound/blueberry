@@ -6288,32 +6288,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Fecha se clicar fora da caixa do modal
-    storyModal.addEventListener("click", (e) => {
-        if (e.target === storyModal) {
-            storyModal.style.display = "none";
-        }
-    });
+    if (storyModal) {
+        storyModal.addEventListener("click", (e) => {
+            if (e.target === storyModal) {
+                storyModal.style.display = "none";
+            }
+        });
+    }
 
-    // Processa a publicação do Story (CORRIGIDO)
-if (btnSubmitStory) {
-    btnSubmitStory.addEventListener("click", async () => {
-        const mediaUrl = inputMediaUrl.value.trim();
-        const selectedType = document.querySelector('input[name="story-type"]:checked').value;
-        if (!mediaUrl || !auth.currentUser) return;
+    // Processa a publicação do Story no Firebase (CORRIGIDO)
+    if (btnSubmitStory) {
+        btnSubmitStory.addEventListener("click", async () => {
+            const mediaUrl = inputMediaUrl.value.trim();
+            const selectedType = document.querySelector('input[name="story-type"]:checked').value;
+            if (!mediaUrl || !auth.currentUser) return;
 
-        try {
-            await addDoc(collection(db, "stories"), {
-                autor: auth.currentUser.email,
-                mediaUrl: mediaUrl,
-                type: selectedType,
-                createdAt: Date.now()
-            });
-            storyModal.style.display = "none";
-        } catch (e) {
-            console.error("Erro ao salvar story no Firebase:", e);
-        }
-    });
-}
+            try {
+                await addDoc(collection(db, "stories"), {
+                    autor: auth.currentUser.email,
+                    mediaUrl: mediaUrl,
+                    type: selectedType,
+                    createdAt: Date.now()
+                });
+                storyModal.style.display = "none";
+            } catch (e) {
+                console.error("Erro ao salvar story no Firebase:", e);
+            }
+        });
+    }
+});
+
 
 
 
