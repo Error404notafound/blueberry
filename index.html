@@ -4040,89 +4040,86 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 function carregarStoriesRealtime() {
-// Função para carregar e renderizar os stories sem duplicar os cards
-function carregarStories() {
-    const wrapper = document.querySelector('.stories-wrapper');
-    if (!wrapper) return;
-
-    // 1. Escuta a coleção do Firestore em tempo real
-    db.collection('stories')
-      .orderBy('timestamp', 'desc')
-      .onSnapshot(snapshot => {
-          
-          // Mantém o card fixo de "Criar Story" intacto no início da barra
-          const criarStoryCard = wrapper.querySelector('.create-story-trigger')?.outerHTML || '';
-          
-          // 2. Agrupa os documentos por e-mail do autor
-          const storiesAgrupados = {};
-
-          snapshot.docs.forEach(doc => {
-              const dados = doc.data();
-              const emailAutor = dados.autor;
-
-              if (!storiesAgrupados[emailAutor]) {
-                  storiesAgrupados[emailAutor] = {
-                      nome: dados.nomeUsuario || emailAutor.split('@')[0], // Fallback pro nome
-                      avatar: dados.avatarUsuario || 'https://placeholder.com',
-                      midias: [] // Array contendo todos os stories desse usuário
-                  };
-              }
-              // Adiciona a mídia e o ID do documento ao grupo do usuário
-              storiesAgrupados[emailAutor].midias.push({
-                  id: doc.id,
-                  url: dados.url,
-                  tipo: dados.tipo || 'imagem'
-              });
-          });
-
-          // 3. Monta o HTML limpando as duplicações
-          let htmlFinal = criarStoryCard;
-
-          Object.keys(storiesAgrupados).forEach(email => {
-              const grupo = storiesAgrupados[email];
-              const totalStories = grupo.midias.length;
-              // Pega a URL do story mais recente para servir de capa do card
-              const ultimaMidiaUrl = grupo.midias[0].url; 
-
-              htmlFinal += `
-                  <div class="story-card" onclick="abrirVisualizadorStories('${email}')">
-                      <!-- Capa do Card -->
-                      <img src="${ultimaMidiaUrl}" alt="Capa Story de ${grupo.nome}">
-                      
-                      <!-- Badge Azul com o número total agrupado (Idêntico ao Face) -->
-                      <div class="story-friend-badge" style="display: ${totalStories > 1 ? 'flex' : 'none'}">
-                          ${totalStories}
-                      </div>
-                      
-                      <!-- Nome do Usuário no Rodapé do Card -->
-                      <span>${grupo.nome}</span>
-                  </div>
-              `;
-          });
-
-          wrapper.innerHTML = htmlFinal;
-          
-          // Salva os dados agrupados globalmente na janela para o visualizador abrir depois
-          window.dadosStoriesAtivos = storiesAgrupados;
-      });
-}
-
-// Função para abrir o visualizador contendo o carrossel de mídias daquele usuário
-function abrirVisualizadorStories(emailAutor) {
-    const grupo = window.dadosStoriesAtivos[emailAutor];
-    if (!grupo) return;
-
-    console.log("Abrindo stories de:", grupo.nome, "Total de mídias:", grupo.midias);
+    // Mantém a sua consulta original ordenada por data
+    const q = query(collection(db, "stories"), orderBy("createdAt", "desc"), limit(15));
     
-    // Aqui você chama a lógica de exibir o modal de tela cheia (como a imagem 2 que você enviou)
-    // Passando o array `grupo.midias` para renderizar os tracinhos de progresso no topo.
-    alert(`Abrindo carrossel com os ${grupo.midias.length} stories de ${grupo.nome}`);
+    onSnapshot(q, (snapshot) => {
+        const storiesList = document.getElementById("stories-list");
+        if (!storiesList) return;
+
+        // 1. Renderiza o card fixo inicial de "Criar Story" idêntico ao seu código
+        storiesList.innerHTML = `
+            <div class="story-card create-story-trigger" id="btn-open-story-modal">
+                <div class="story-preview-img-box"><img src="${pAvatarImg.src}" id="user-story-avatar"></div>
+                <div class="create-story-badge"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></div>
+                <span>Criar story</span>
+            </div>
+        `;
+        
+        // Mantém a sua reatribuição do evento de clique para abrir o modal
+        document.getElementById("btn-open-story-modal").addEventListener("click", () => {
+            document.getElementById("modal-create-story").style.display = "flex";
+        });
+
+        // Objeto temporário para consolidar os autores na memória e evitar a duplicação
+        const autoresAgrupados = {};
+
+        // 2. FASE DE AGRUPAMENTO: Organiza os documentos soltos do banco por e-mail do autor
+        snapshot.forEach((docSnap) => {
+            const story = docSnap.data();
+            const email = story.autor;
+
+            // Se for a primeira vez que esse e-mail aparece, cria a estrutura dele
+            if (!autoresAgrupados[email]) {
+                autoresAgrupados[email] = {
+                    autor: email,
+                    nomeBase: email.split('@')[0],
+                    listaMidias: [] // Array que vai acumular os stories dessa pessoa
+                };
+            }
+
+            // Adiciona os dados da foto na lista interna deste usuário específico
+            autoresAgrupados[email].listaMidias.push({
+                id: docSnap.id,
+                mediaUrl: story.mediaUrl,
+                type: story.type
+            });
+        });
+
+        // 3. FASE DE RENDERIZAÇÃO: Cria apenas um único card por pessoa na tela
+        Object.keys(autoresAgrupados).forEach((email) => {
+            const usuario = autoresAgrupados[email];
+            const totalStories = usuario.listaMidias.length;
+            
+            // Define a primeira foto (a mais recente por conta do orderBy) como a imagem de capa do card
+            const urlCapa = usuario.listaMidias[0].mediaUrl;
+
+            const card = document.createElement("div");
+            card.className = "story-card";
+            
+            // Configura o evento de clique enviando o e-mail para abrir o visualizador de tela cheia
+            card.setAttribute("onclick", `abrirVisualizadorStories('${email}')`);
+            
+            // Injeta o HTML usando a classe exata do badge azul contida na página 39 do seu PDF
+            card.innerHTML = `
+                <img src="${urlCapa}" onerror="this.src='https://via.placeholder.com/110x180'">
+                
+                <!-- O contador numérico azul só aparece se o usuário tiver mais de 1 story postado -->
+                <div class="story-friend-badge" style="display: ${totalStories > 1 ? 'flex' : 'none'}">
+                    ${totalStories}
+                </div>
+                
+                <span>@${usuario.nomeBase}</span>
+            `;
+            
+            storiesList.appendChild(card);
+        });
+
+        // Salva os dados consolidados globalmente na janela para o clique ler depois
+        window.colecaoStoriesAtivos = autoresAgrupados;
+    });
 }
 
-// Inicializa a escuta quando o app carregar
-document.addEventListener('DOMContentLoaded', () => {
-    carregarStories();
-});
 
 
         // Clique Criar Conta
@@ -6312,6 +6309,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+import { collection, addDoc, onSnapshot, query, orderBy } from "https://gstatic.com"; // Certifique-se de importar o onSnapshot, query e orderBy
+
 document.addEventListener("DOMContentLoaded", () => {
     const storyModal = document.getElementById("modal-create-story");
     const btnOpenStoryModal = document.getElementById("btn-open-story-modal");
@@ -6319,7 +6318,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnSubmitStory = document.getElementById("btn-submit-story");
     
     const inputMediaUrl = document.getElementById("story-media-url");
-    const storiesListContainer = document.getElementById("stories-list");
+    // Seletor corrigido para bater com a classe .stories-wrapper contida na página 36 do seu PDF
+    const storiesWrapper = document.querySelector('.stories-wrapper');
 
     // Abre o modal ao clicar no card azul de criar story
     if (btnOpenStoryModal) {
@@ -6345,7 +6345,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Processa a publicação do Story no Firebase (CORRIGIDO)
+    // Processa a publicação do Story no Firebase (Mantido original)
     if (btnSubmitStory) {
         btnSubmitStory.addEventListener("click", async () => {
             const mediaUrl = inputMediaUrl.value.trim();
@@ -6365,7 +6365,91 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // === ADICIONE ESTA FUNÇÃO AQUI PARA ESCUTAR E AGRUPAR OS STORIES ===
+    function escutarStories() {
+        if (!storiesWrapper) return;
+
+        // Cria a consulta ordenando pelos mais recentes usando o seu campo 'createdAt'
+        const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
+
+        // Escuta as alterações do Firestore em tempo real
+        onSnapshot(q, (snapshot) => {
+            // Captura e preserva a tag original do botão fixo de criar story que já veio do seu HTML (.create-story-trigger)
+            const criarStoryCard = storiesWrapper.querySelector('.create-story-trigger')?.outerHTML || '';
+            
+            // Objeto temporário para consolidar os e-mails e evitar cards duplicados
+            const storiesAgrupados = {};
+
+            // 1ª ETAPA: Varre os registros do Firebase e empilha as mídias dentro do mesmo autor
+            snapshot.docs.forEach(doc => {
+                const dados = doc.data();
+                const email = dados.autor;
+
+                if (!storiesAgrupados[email]) {
+                    storiesAgrupados[email] = {
+                        autor: email,
+                        listaMidias: [] // Lista vazia que vai acumular as fotos deste e-mail
+                    };
+                }
+
+                // Adiciona a URL (usando seu campo mediaUrl) e o tipo à lista do usuário
+                storiesAgrupados[email].listaMidias.push({
+                    id: doc.id,
+                    mediaUrl: dados.mediaUrl,
+                    type: dados.type
+                });
+            });
+
+            // 2ª ETAPA: Varre o objeto consolidado e monta um card único por pessoa
+            let htmlFinal = criarStoryCard;
+
+            Object.keys(storiesAgrupados).forEach(email => {
+                const usuario = storiesAgrupados[email];
+                const totalStories = usuario.listaMidias.length;
+                
+                // Pega a primeira mídia do array (a mais recente) para servir de capa de fundo do card
+                const urlCapa = usuario.listaMidias[0].mediaUrl;
+
+                // Monta a estrutura injetando a classe exata do seu badge azul (.story-friend-badge) da página 39 do PDF
+                htmlFinal += `
+                    <div class="story-card" onclick="visualizarStoriesDoAmigo('${email}')">
+                        <img src="${urlCapa}" alt="Story">
+                        
+                        <!-- O contador azul só ganha display flex se o usuário tiver postado mais de 1 foto -->
+                        <div class="story-friend-badge" style="display: ${totalStories > 1 ? 'flex' : 'none'}">
+                            ${totalStories}
+                        </div>
+                        
+                        <span>${email}</span>
+                    </div>
+                `;
+            });
+
+            // Substitui o conteúdo interno do contêiner limpando os duplicados da tela
+            storiesWrapper.innerHTML = htmlFinal;
+
+            // Salva na memória global da janela do navegador para o clique abrir depois
+            window.dadosStories Blueberry = storiesAgrupados;
+        });
+    }
+
+    // Inicializa a escuta em tempo real assim que o app carrega
+    escutarStories();
 });
+
+// Funçao de clique nos cards da horizontal
+window.visualizarStoriesDoAmigo = function(email) {
+    const grupo = window.dadosStoriesBlueberry[email];
+    if (!grupo) return;
+
+    // Array contendo todas as mídias consolidadas desse autor {id, mediaUrl, type}
+    const midiasParaExibir = grupo.listaMidias;
+    
+    console.log(`Abrindo os stories de ${email}. Total de segmentos no topo: ${midiasParaExibir.length}`);
+    // Passe o array 'midiasParaExibir' para o seu modal de exibição desenhar as barrinhas de progresso
+};
+
 
 
 
