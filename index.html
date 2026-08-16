@@ -6443,41 +6443,7 @@ async function carregarAlbunsDoUsuarioReal(email) {
 
 
 // --- CONECTANDO OS BOTÕES DA TELA AOS ÁLBUNS ---
-
-// Gatilho 1: Quando clicar no botão da camerazinha do avatar
-// Gatilho 1: Quando clicar no botão da camerazinha do avatar
-document.getElementById('btn-open-camera-options').addEventListener('click', () => {
-    const semente = Math.random().toString(36).substring(7);
-    const novaFotoPerfil = `https://api.dicebear.com/7.x/bottts/svg?seed=${semente}`;
-    
-    // Troca a foto do perfil redonda grande da tela
-    document.getElementById('p-avatar-img').src = novaFotoPerfil;
-    
-    // Salva automaticamente no álbum de "Fotos do perfil"
-    registrarFotoNoAlbum(novaFotoPerfil, 'avatar');
-});
-
-// Gatilho 2: Quando clicar no botão de mudar a capa
-document.querySelector('.btn-edit-cover').addEventListener('click', () => {
-    const semente = Math.random().toString(36).substring(7);
-    const novaFotoCapa = `https://api.dicebear.com/7.x/identicon/svg?seed=${semente}`;
-    
-    // Troca o fundo da foto de capa na tela
-    document.querySelector('.profile-cover-wrapper').style.backgroundImage = `url('${novaFotoCapa}')`;
-    document.querySelector('.profile-cover-wrapper').style.backgroundSize = 'cover';
-    
-    // Salva automaticamente no álbum de "Fotos da capa"
-    registrarFotoNoAlbum(novaFotoCapa, 'capa');
-});
-
-// Gatilho 3: Quando clicar no botão "Postar fotos" da aba
-document.getElementById('btn-postar-fotos-aba').addEventListener('click', () => {
-    const semente = Math.random().toString(36).substring(7);
-    const novaFotoFeed = `https://api.dicebear.com/7.x/lorelei/svg?seed=${semente}`;
-    
-    // Salva automaticamente no álbum de "Fotos carregadas"
-    registrarFotoNoAlbum(novaFotoFeed, 'feed');
-});
+// Salva automaticamente
 
 // --- CONTROLE DE ALTERNÂNCIA DE ABAS NO PERFIL ---
 
