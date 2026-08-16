@@ -3507,23 +3507,24 @@ document.addEventListener('click', (e) => {
         const drawerLogoutBtn = document.getElementById('drawer-logout-btn');
 
         const privacySettingsBtn = document.getElementById('privacy-settings-btn');
-        const homeIcon = document.getElementById('home-icon');
+        // 👇 [TRECHO CORRIGIDO PARA EVITAR O CRASH] 👇
+
+// 1. Primeiro declaramos os elementos para o JS conhecê-los
+const homeIcon = document.getElementById('home-icon');
 const friendsIcon = document.getElementById('friends-icon');
 const messagesIcon = document.getElementById('messages-icon');
-
-// 👇 [TRECHO ATUALIZADO E CORRIGIDO] 👇
 
 const feedSection = document.getElementById('feed');
 const friendsScreen = document.getElementById('friends-screen-container');
 const createPostContainer = document.getElementById('create-post-container');
 
-// Evento para abrir a tela de amigos limpando a área de postagem superior
+// 2. Agora associamos o evento de clique com segurança
 friendsIcon.addEventListener('click', () => {
     // Esconde o feed e a área de criação de posts
     if (feedSection) feedSection.style.display = 'none';
     if (createPostContainer) createPostContainer.style.display = 'none';
     
-    // 🟢 ADICIONADO: Oculta a barra de Stories na tela de amigos
+    // Oculta a barra de Stories na tela de amigos
     const storiesContainer = document.querySelector('.stories-container');
     if (storiesContainer) storiesContainer.style.display = 'none';
     
@@ -3531,11 +3532,10 @@ friendsIcon.addEventListener('click', () => {
     if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
     
-    // Exibe a tela de recomendações/pedidos
     friendsScreen.style.display = 'block';
-    
     carregarSugestoesAleatorias();
 });
+
 
 // Substitua apenas a função carregarSugestoesAleatorias no seu script por esta:
 
