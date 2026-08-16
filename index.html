@@ -4144,18 +4144,42 @@ function carregarStoriesRealtime() {
             document.getElementById("modal-create-story").style.display = "flex";
         });
 
-        snapshot.forEach((docSnap) => {
-            const story = docSnap.data();
-            const nomeBase = story.autor.split('@')[0];
-            const card = document.createElement("div");
-            card.className = "story-card";
-            
-            card.innerHTML = `
-                <img src="${story.mediaUrl}" onerror="this.src='https://via.placeholder.com/110x180'">
-                <span>@${nomeBase}</span>
-            `;
-            storiesList.appendChild(card);
-        });
+        const grouped = {};
+
+// 1. Agrupa as fotos no formato { 'autor@email.com': [url1, url2...] }
+snapshot.forEach((docSnap) => {
+    const story = docSnap.data();
+    if (!grouped[story.autor]) {
+        grouped[story.autor] = [];
+    }
+    grouped[story.autor].push(story.mediaUrl);
+});
+
+// 2. Renderiza apenas um único card por autor
+Object.keys(grouped).forEach((autor) => {
+    const fotos = grouped[autor];
+    const nomeBase = autor.split('@')[0];
+    const ultimaFoto = fotos[0]; // Foto mais recente (pois a consulta usa 'desc')
+    const qtd = fotos.length;
+    const badgeAzul = qtd > 1 ? `<div class="story-count-badge">${qtd}</div>` : '';
+
+    const card = document.createElement("div");
+    card.className = "story-card";
+    
+    // Conecta as fotos reais do Firebase ao seu visualizador de stories ao clicar
+    card.addEventListener('click', () => {
+        bancoStoriesGlobais[nomeBase] = { username: nomeBase, fotos: [...fotos].reverse() }; // Ordem cronológica
+        ativarVisualizadorDeStories(nomeBase);
+    });
+
+    card.innerHTML = `
+        ${badgeAzul}
+        <img src="${ultimaFoto}" onerror="this.src='https://via.placeholder.com/110x180'">
+        <span>@${nomeBase}</span>
+    `;
+    storiesList.appendChild(card);
+});
+
     });
 }
 
