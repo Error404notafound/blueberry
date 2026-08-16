@@ -1942,26 +1942,47 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 .btn-story-submit:hover {
     background-color: #2e81f7;
 }
+/* ================== ADICIONE ESTE BLOCO AQUI ================== */
 .story-count-badge {
     position: absolute;
     top: 10px;
     left: 10px;
-    background-color: #1877f2; /* Azul padrão do Facebook */
+    background-color: #1877f2;
     color: white;
     font-size: 11px;
     font-weight: bold;
     min-width: 18px;
     height: 18px;
-    border-radius: 4px; /* Cantos levemente quadrados do mobile */
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 3; /* Garante que fica por cima da imagem */
+    z-index: 3;
     padding: 0 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
-
-
+.story-progress-container {
+    position: absolute;
+    top: 15px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    gap: 4px;
+    z-index: 10;
+}
+.story-progress-bar {
+    flex: 1;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 1px;
+    overflow: hidden;
+}
+.story-progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #ffffff;
+    transition: width 0.1s linear;
+}
 </style>
 </head>
 
@@ -2415,7 +2436,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 <!-- 👇 COLE A NOVA SEÇÃO DE STORIES BEM AQUI 👇 -->
 <div class="stories-container">
     <div class="stories-wrapper" id="stories-list">
-        <!-- Seu card fixo de Criar Story (Intacto) -->
+        <!-- MANTENHA APENAS ESTE CARD FIXO ABAIXO -->
         <div class="story-card create-story-trigger" id="btn-open-story-modal">
             <div class="story-preview-img-box">
                 <img src="https://placeholder.com" id="user-story-avatar" alt="Minha Foto">
@@ -2425,9 +2446,10 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
             </div>
             <span>Criar story</span>
         </div>
-
-        </div>
+        <!-- O espaço daqui para baixo fica totalmente vazio no HTML bruto! -->
+    </div>
 </div>
+
 
 <!-- 👆 FIM DA NOVA SEÇÃO DE STORIES 👆 -->
 <!-- ================= MODAL DE STORIES (ESTILO IDENTICO AO SEU PRINT) ================= -->
@@ -6526,173 +6548,144 @@ abasPerfil.forEach(aba => {
         }
     });
 });
-// 1. BANCO DE DADOS LOCAL (Armazena os stories agrupados por ID numérico de usuário)
-let bancoStories = {
-    "user_77": {
-        username: "@error404nota...",
-        avatar: "https://placeholder.com",
-        listaFotos: [] // Array que vai acumular as fotos postadas
-    }
-};
+let bancoStoriesGlobais = {};
+    let usuarioNoVisualizador = null;
+    let indiceDaFotoVisivel = 0;
+    let ponteiroDoTimer = null;
+    const TEMPO_EXIBICAO = 5000;
 
-// Variaveis de controle do Player/Cronômetro
-let usuarioAtivoNoPlayer = null;
-let indiceFotoAtiva = 0;
-let temporizadorStory = null;
-const TEMPO_CADA_FOTO = 5000; // 5 segundos por foto
-
-// 2. FUNÇÃO EXECUTADA AO POSTAR UM NOVO STORY
-// Chame essa função quando o formulário/modal de criar story enviar a URL da foto
-function adicionarFotoAoStory(idDoUsuario, usernameDoUsuario, urlNovaFoto) {
-    // Se o usuário não existir no banco, cria a estrutura base dele
-    if (!bancoStories[idDoUsuario]) {
-        bancoStories[idDoUsuario] = {
-            username: usernameDoUsuario,
-            listaFotos: []
-        };
-    }
-    
-    // Injeta a foto dentro do array do usuário (Evita duplicar o card externo!)
-    bancoStories[idDoUsuario].listaFotos.push(urlNovaFoto);
-    
-    // Recarrega a barra horizontal de stories na tela
-    renderizarCarrosselStories();
-}
-
-// 3. FUNÇÃO QUE RENDERIZA O FEED HORIZONTAL DE STORIES
-function renderizarCarrosselStories() {
-    const containerStories = document.getElementById('stories-list');
-    const botaoCriar = document.getElementById('btn-open-story-modal');
-    
-    // Mantém apenas o seu botão fixo de "Criar Story" e limpa os cards antigos
-    containerStories.innerHTML = '';
-    containerStories.appendChild(botaoCriar);
-    
-    // Varre o banco de dados gerando apenas UM card único por ID de usuário
-    Object.keys(bancoStories).forEach(idDoUsuario => {
-        const dados = bancoStories[idDoUsuario];
-        const totalDeFotos = dados.listaFotos.length;
+    document.addEventListener('DOMContentLoaded', () => {
+        const botaoEnviar = document.querySelector('.btn-story-submit');
+        const campoUrl = document.querySelector('input[type="url"]');
         
-        // Só renderiza o card se o usuário tiver de fato alguma foto postada
-        if (totalDeFotos > 0) {
-            const fotoMaisRecente = dados.listaFotos[totalDeFotos - 1]; // Capa do card
+        if (botaoEnviar && campoUrl) {
+            botaoEnviar.addEventListener('click', () => {
+                const linkImagem = campoUrl.value.trim();
+                if (!linkImagem) return;
+
+                // Identifica quem está postando pelo menu lateral
+                const elNome = document.getElementById('drawer-user-name');
+                const donoDoStory = elNome ? elNome.innerText : "@error404nota...";
+
+                // Cria o lote se for a primeira foto, senão usa o mesmo bloco
+                if (!bancoStoriesGlobais[donoDoStory]) {
+                    bancoStoriesGlobais[donoDoStory] = { username: donoDoStory, fotos: [] };
+                }
+                
+                // Adiciona no array do usuário (EVITA DUPLICAR CARD)
+                bancoStoriesGlobais[donoDoStory].fotos.push(linkImagem);
+                
+                campoUrl.value = '';
+                document.querySelector('.story-modal-overlay').style.display = 'none';
+                
+                desenharStoriesNaTela();
+            });
+        }
+
+        // Fecha o timer se clicar no 'X' ou em 'Cancelar'
+        const fecharX = document.querySelector('.story-modal-close');
+        const btnCancelar = document.querySelector('.btn-story-cancel');
+        if (fecharX) fecharX.addEventListener('click', encerrarVisualizador);
+        if (btnCancelar) btnCancelar.addEventListener('click', encerrarVisualizador);
+    });
+
+    function desenharStoriesNaTela() {
+        const wrapper = document.getElementById('stories-list');
+        const btnCriar = document.getElementById('btn-open-story-modal');
+        if (!wrapper) return;
+
+        wrapper.innerHTML = '';
+        wrapper.appendChild(btnCriar);
+
+        Object.keys(bancoStoriesGlobais).forEach(chaveUsuario => {
+            const dados = bancoStoriesGlobais[chaveUsuario];
+            const qtd = dados.fotos.length;
             
-            // Regra do Badge Azul: Se tiver mais de 1 foto, insere o marcador com o número
-            const badgeHTML = totalDeFotos > 1 ? `<div class="story-count-badge">${totalDeFotos}</div>` : '';
-            
-            const cardHTML = `
-                <div class="story-card" data-user-id="${idDoUsuario}" onclick="abrirPlayerDeStories('${idDoUsuario}')">
-                    ${badgeHTML}
-                    <img src="${fotoMaisRecente}" alt="Story">
-                    <span>${dados.username}</span>
+            if (qtd > 0) {
+                const ultimaFoto = dados.fotos[qtd - 1];
+                const badgeAzul = qtd > 1 ? `<div class="story-count-badge">${qtd}</div>` : '';
+
+                const cardHTML = `
+                    <div class="story-card" onclick="ativarVisualizadorDeStories('${chaveUsuario}')">
+                        ${badgeAzul}
+                        <img src="${ultimaFoto}" alt="Story">
+                        <span>${dados.username}</span>
+                    </div>
+                `;
+                wrapper.insertAdjacentHTML('beforeend', cardHTML);
+            }
+        });
+    }
+
+    function ativarVisualizadorDeStories(chaveUsuario) {
+        usuarioNoVisualizador = chaveUsuario;
+        indiceDaFotoVisivel = 0;
+        const overlay = document.querySelector('.story-modal-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            renderizarFotoNoModal();
+        }
+    }
+
+    function renderizarFotoNoModal() {
+        const dados = bancoStoriesGlobais[usuarioNoVisualizador];
+        const linkFoto = dados.fotos[indiceDaFotoVisivel];
+        const corpoModal = document.querySelector('.story-modal-body');
+        
+        if (!corpoModal) return;
+
+        corpoModal.innerHTML = `
+            <div class="story-progress-container"></div>
+            <img src="${linkFoto}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
+        `;
+
+        const barrasContainer = corpoModal.querySelector('.story-progress-container');
+        dados.fotos.forEach((_, i) => {
+            let widthInicial = i < indiceDaFotoVisivel ? '100%' : '0%';
+            barrasContainer.insertAdjacentHTML('beforeend', `
+                <div class="story-progress-bar">
+                    <div class="story-progress-fill" id="fill-bar-${i}" style="width: ${widthInicial}"></div>
                 </div>
-            `;
-            containerStories.insertAdjacentHTML('beforeend', cardHTML);
-        }
-    });
-}
+            `);
+        });
 
-// 4. LÓGICA DO PLAYER: ABRIR O VISUALIZADOR DE STORIES
-function abrirPlayerDeStories(idDoUsuario) {
-    usuarioAtivoNoPlayer = idDoUsuario;
-    indiceFotoAtiva = 0; // Começa sempre na primeira foto do lote
-    
-    // Seleciona o modal de visualização baseado nas classes do seu PDF (Página 39/40)
-    const modalOverlay = document.querySelector('.story-modal-overlay');
-    if (modalOverlay) {
-        modalOverlay.style.display = 'flex';
-        mostrarMidiaNoPlayer();
+        dispararRelogioStory();
     }
-}
 
-// 5. EXIBIR A MÍDIA ATUAL E CRIAR OS CRONÔMETROS NO TOPO
-function mostrarMidiaNoPlayer() {
-    const dadosUsuario = bancoStories[usuarioAtivoNoPlayer];
-    const fotoAtual = dadosUsuario.listaFotos[indiceFotoAtiva];
-    const modalBody = document.querySelector('.story-modal-body');
-    
-    // Limpa o interior do modal para reconstruir a interface do player
-    modalBody.innerHTML = `
-        <!-- Barra de Progresso Superior (Cronômetros) -->
-        <div class="story-progress-container" style="position: absolute; top: 15px; left: 10px; right: 10px; display: flex; gap: 4px; z-index: 10;"></div>
-        
-        <!-- Imagem do Story Ativo -->
-        <img src="${fotoAtual}" style="width: 100%; height: 100%; object-fit: contain;">
-    `;
-    
-    const containerProgresso = modalBody.querySelector('.story-progress-container');
-    
-    // Injeta os tracinhos do cronômetro baseado na quantidade de fotos que o usuário tem
-    dadosUsuario.listaFotos.forEach((_, index) => {
-        let larguraInicial = '0%';
-        if (index < indiceFotoAtiva) larguraInicial = '100%'; // Fotos que já passaram ficam cheias
-        
-        containerProgresso.insertAdjacentHTML('beforeend', `
-            <div class="story-progress-bar" style="flex: 1; height: 2px; background-color: rgba(255, 255, 255, 0.3); border-radius: 1px; overflow: hidden;">
-                <div class="story-progress-fill" id="timer-bar-${index}" style="height: 100%; width: ${larguraInicial}; background-color: #ffffff; transition: width 0.1s linear;"></div>
-            </div>
-        `);
-    });
-    
-    // Dispara a animação de preenchimento do cronômetro ativo
-    iniciarContagemRegressiva();
-}
+    function dispararRelogioStory() {
+        clearInterval(ponteiroDoTimer);
+        const barraDePreenchimento = document.getElementById(`fill-bar-${indiceDaFotoVisivel}`);
+        const marcoInicial = Date.now();
 
-// 6. GERENCIAR O TEMPO (A BARRINHA ENCHENDO EM TEMPO REAL)
-function iniciarContagemRegressiva() {
-    clearInterval(temporizadorStory);
-    
-    const barraAtiva = document.getElementById(`timer-bar-${indiceFotoAtiva}`);
-    const tempoInicial = Date.now();
-    
-    temporizadorStory = setInterval(() => {
-        const tempoDecorrido = Date.now() - tempoInicial;
-        const porcentagem = Math.min((tempoDecorrido / TEMPO_CADA_FOTO) * 100, 100);
-        
-        if (barraAtiva) {
-            barraAtiva.style.width = porcentagem + '%';
-        }
-        
-        // Quando o cronômetro bate 100% (5 segundos), ele pula para a próxima foto
-        if (tempoDecorrido >= TEMPO_CADA_FOTO) {
-            clearInterval(temporizadorStory);
-            avancarStory();
-        }
-    }, 100); // Atualiza a cada 100ms para a animação ficar fluida
-}
-
-// 7. AVANÇAR OU FECHAR O STORY AUTOMATICAMENTE
-function avancarStory() {
-    const dadosUsuario = bancoStories[usuarioAtivoNoPlayer];
-    
-    // Se ainda houver fotos no lote desse mesmo usuário, pula para a próxima
-    if (indiceFotoAtiva < dadosUsuario.listaFotos.length - 1) {
-        indiceFotoAtiva++;
-        mostrarMidiaNoPlayer();
-    } else {
-        // Se as fotos do lote acabaram, limpa o temporizador e fecha o modal
-        fecharPlayerDeStories();
-    }
-}
-
-// 8. FUNÇÃO PARA FECHAR O PLAYER E LIMPAR OS TIMERS
-function fecharPlayerDeStories() {
-    clearInterval(temporizadorStory);
-    const modalOverlay = document.querySelector('.story-modal-overlay');
-    if (modalOverlay) {
-        modalOverlay.style.display = 'none';
-    }
-}
-
-// Adiciona o evento de fechamento no botão 'X' do seu modal (Página 40 do PDF)
-document.addEventListener('DOMContentLoaded', () => {
-    const botaoFechar = document.querySelector('.story-modal-close');
-    if (botaoFechar) {
-        botaoFechar.addEventListener('click', fecharPlayerDeStories);
-    }
-});
-
+        ponteiroDoTimer = setInterval(() => {
+            const passado = Date.now() - marcoInicial;
+            const porc = Math.min((passado / TEMPO_EXIBICAO) * 100, 100);
             
+            if (barraDePreenchimento) barraDePreenchimento.style.width = porc + '%';
+
+            if (passado >= TEMPO_EXIBICAO) {
+                clearInterval(ponteiroDoTimer);
+                mudarParaProximaFoto();
+            }
+        }, 100);
+    }
+
+    function mudarParaProximaFoto() {
+        const dados = bancoStoriesGlobais[usuarioNoVisualizador];
+        if (indiceDaFotoVisivel < dados.fotos.length - 1) {
+            indiceDaFotoVisivel++;
+            renderizarFotoNoModal();
+        } else {
+            encerrarVisualizador();
+        }
+    }
+
+    function encerrarVisualizador() {
+        clearInterval(ponteiroDoTimer);
+        const overlay = document.querySelector('.story-modal-overlay');
+        if (overlay) overlay.style.display = 'none';
+    }
+            // sistema de backup pra evitar leitada (1)
 </script>
 </body>
     </html>
