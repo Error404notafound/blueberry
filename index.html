@@ -3523,6 +3523,10 @@ friendsIcon.addEventListener('click', () => {
     if (feedSection) feedSection.style.display = 'none';
     if (createPostContainer) createPostContainer.style.display = 'none';
     
+    // 🟢 ADICIONADO: Oculta a barra de Stories na tela de amigos
+    const storiesContainer = document.querySelector('.stories-container');
+    if (storiesContainer) storiesContainer.style.display = 'none';
+    
     // Oculta outras seções caso estejam abertas
     if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
@@ -4243,6 +4247,10 @@ drawerLogoutBtn.addEventListener('click', async () => {
             if(friendsScreen) friendsScreen.style.display = 'none';
             if(feedSection) feedSection.style.display = 'block';
             if(createPostContainer) createPostContainer.style.display = 'flex';
+
+    // 🟢 ADICIONADO: Mostra a barra de Stories novamente ao retornar à Home
+    const storiesContainer = document.querySelector('.stories-container');
+    if (storiesContainer) storiesContainer.style.display = 'block';
 
             appContainer.querySelector('.main-container').style.display = 'block';
             
