@@ -3111,6 +3111,18 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <button id="btn-chat-share-media" style="width: 100%; background: #0077ff; color: white; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s;">Compartilhar no Chat</button>
     </div>
 </div>
+<!-- 🟢 VISUALIZADOR DE STORIES (Faltava este elemento no HTML!) -->
+<div class="story-modal-overlay" style="display: none;">
+    <div class="story-modal-content">
+        <div class="story-modal-header">
+            <h3>Visualizar Stories</h3>
+            <span class="story-modal-close" onclick="encerrarVisualizador()">&times;</span>
+        </div>
+        <div class="story-modal-body" style="height: 480px; position: relative; display: flex; align-items: center; justify-content: center; background-color: #18191a;">
+            <!-- O JavaScript injetará a imagem e a barra de progresso dinamicamente aqui -->
+        </div>
+    </div>
+</div>
 
             <!-- Scripts Firebase e Lógica da Aplicação -->
 <script type="module">
@@ -6704,11 +6716,15 @@ let bancoStoriesGlobais = {};
         }
     }
 
-    function encerrarVisualizador() {
+        function encerrarVisualizador() {
         clearInterval(ponteiroDoTimer);
         const overlay = document.querySelector('.story-modal-overlay');
         if (overlay) overlay.style.display = 'none';
     }
+
+    // 🟢 ADICIONADO: Torna a função acessível globalmente
+    window.encerrarVisualizador = encerrarVisualizador;
+
             // sistema de backup pra evitar leitada (1)
 </script>
 </body>
