@@ -1,3 +1,23 @@
+
+Edit file...
+Open with...
+Raw file content
+Skip to content
+blueberry
+Repository navigation
+Code
+Issues
+Pull requests
+blueberry
+/index.html
+Error404notafound
+Error404notafound
+2 hours ago
+6513 lines (5630 loc) · 281 KB
+
+Code
+
+Blame
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3098,14 +3118,6 @@ import { getDatabase, ref as rtdbRef, onValue as onRtdbValue, set as rtdbSet, on
         const rtdb = getDatabase(app);
 
 
-// 🟢 DEPOIS: Mova as declarações para cá, no topo do script:
-const homeIcon = document.getElementById('home-icon');
-const friendsIcon = document.getElementById('friends-icon');
-const messagesIcon = document.getElementById('messages-icon');
-const feedSection = document.getElementById('feed');
-const friendsScreen = document.getElementById('friends-screen-container');
-const createPostContainer = document.getElementById('create-post-container');
-
 // As variáveis do chat que adicionamos:
 let currentChatRecipient = null;
 let currentRoomId = null;
@@ -3515,35 +3527,31 @@ document.addEventListener('click', (e) => {
         const drawerLogoutBtn = document.getElementById('drawer-logout-btn');
 
         const privacySettingsBtn = document.getElementById('privacy-settings-btn');
-        // 👇 [TRECHO CORRIGIDO PARA EVITAR O CRASH] 👇
-
-// 1. Primeiro declaramos os elementos para o JS conhecê-los
-const homeIcon = document.getElementById('home-icon');
+        const homeIcon = document.getElementById('home-icon');
 const friendsIcon = document.getElementById('friends-icon');
 const messagesIcon = document.getElementById('messages-icon');
+
+// 👇 [TRECHO ATUALIZADO E CORRIGIDO] 👇
 
 const feedSection = document.getElementById('feed');
 const friendsScreen = document.getElementById('friends-screen-container');
 const createPostContainer = document.getElementById('create-post-container');
 
-// 2. Agora associamos o evento de clique com segurança
+// Evento para abrir a tela de amigos limpando a área de postagem superior
 friendsIcon.addEventListener('click', () => {
     // Esconde o feed e a área de criação de posts
     if (feedSection) feedSection.style.display = 'none';
     if (createPostContainer) createPostContainer.style.display = 'none';
     
-    // Oculta a barra de Stories na tela de amigos
-    const storiesContainer = document.querySelector('.stories-container');
-    if (storiesContainer) storiesContainer.style.display = 'none';
-    
     // Oculta outras seções caso estejam abertas
     if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
     
+    // Exibe a tela de recomendações/pedidos
     friendsScreen.style.display = 'block';
+    
     carregarSugestoesAleatorias();
 });
-
 
 // Substitua apenas a função carregarSugestoesAleatorias no seu script por esta:
 
@@ -4155,11 +4163,18 @@ function carregarStoriesRealtime() {
 // 1. Vincula o botão da câmera da foto de CAPAL
 if (btnEditCover) {
     btnEditCover.addEventListener('click', () => {
-        activeUploadType = 'cover';
+        activeUploadType = 'cover'; // <--- Altera para capa
         if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
     });
 }
 
+// 1. Vincula o botão da câmera da foto de CAPAL
+if (btnEditCover) {
+    btnEditCover.addEventListener('click', () => {
+        activeUploadType = 'cover'; // <--- Altera para capa
+        if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
+    });
+}
 
 // 2. Vincula o botão da câmera do AVATAR (Unificado e Declarado Primeiro)
 const btnEditAvatar = document.getElementById('btn-open-camera-options');
@@ -4248,10 +4263,6 @@ drawerLogoutBtn.addEventListener('click', async () => {
             if(friendsScreen) friendsScreen.style.display = 'none';
             if(feedSection) feedSection.style.display = 'block';
             if(createPostContainer) createPostContainer.style.display = 'flex';
-
-    // 🟢 ADICIONADO: Mostra a barra de Stories novamente ao retornar à Home
-    const storiesContainer = document.querySelector('.stories-container');
-    if (storiesContainer) storiesContainer.style.display = 'block';
 
             appContainer.querySelector('.main-container').style.display = 'block';
             
@@ -6443,7 +6454,41 @@ async function carregarAlbunsDoUsuarioReal(email) {
 
 
 // --- CONECTANDO OS BOTÕES DA TELA AOS ÁLBUNS ---
-// Salva automaticamente
+
+// Gatilho 1: Quando clicar no botão da camerazinha do avatar
+// Gatilho 1: Quando clicar no botão da camerazinha do avatar
+document.getElementById('btn-open-camera-options').addEventListener('click', () => {
+    const semente = Math.random().toString(36).substring(7);
+    const novaFotoPerfil = `https://api.dicebear.com/7.x/bottts/svg?seed=${semente}`;
+    
+    // Troca a foto do perfil redonda grande da tela
+    document.getElementById('p-avatar-img').src = novaFotoPerfil;
+    
+    // Salva automaticamente no álbum de "Fotos do perfil"
+    registrarFotoNoAlbum(novaFotoPerfil, 'avatar');
+});
+
+// Gatilho 2: Quando clicar no botão de mudar a capa
+document.querySelector('.btn-edit-cover').addEventListener('click', () => {
+    const semente = Math.random().toString(36).substring(7);
+    const novaFotoCapa = `https://api.dicebear.com/7.x/identicon/svg?seed=${semente}`;
+    
+    // Troca o fundo da foto de capa na tela
+    document.querySelector('.profile-cover-wrapper').style.backgroundImage = `url('${novaFotoCapa}')`;
+    document.querySelector('.profile-cover-wrapper').style.backgroundSize = 'cover';
+    
+    // Salva automaticamente no álbum de "Fotos da capa"
+    registrarFotoNoAlbum(novaFotoCapa, 'capa');
+});
+
+// Gatilho 3: Quando clicar no botão "Postar fotos" da aba
+document.getElementById('btn-postar-fotos-aba').addEventListener('click', () => {
+    const semente = Math.random().toString(36).substring(7);
+    const novaFotoFeed = `https://api.dicebear.com/7.x/lorelei/svg?seed=${semente}`;
+    
+    // Salva automaticamente no álbum de "Fotos carregadas"
+    registrarFotoNoAlbum(novaFotoFeed, 'feed');
+});
 
 // --- CONTROLE DE ALTERNÂNCIA DE ABAS NO PERFIL ---
 
