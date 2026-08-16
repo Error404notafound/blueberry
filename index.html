@@ -3098,6 +3098,14 @@ import { getDatabase, ref as rtdbRef, onValue as onRtdbValue, set as rtdbSet, on
         const rtdb = getDatabase(app);
 
 
+// 🟢 DEPOIS: Mova as declarações para cá, no topo do script:
+const homeIcon = document.getElementById('home-icon');
+const friendsIcon = document.getElementById('friends-icon');
+const messagesIcon = document.getElementById('messages-icon');
+const feedSection = document.getElementById('feed');
+const friendsScreen = document.getElementById('friends-screen-container');
+const createPostContainer = document.getElementById('create-post-container');
+
 // As variáveis do chat que adicionamos:
 let currentChatRecipient = null;
 let currentRoomId = null;
@@ -4147,18 +4155,11 @@ function carregarStoriesRealtime() {
 // 1. Vincula o botão da câmera da foto de CAPAL
 if (btnEditCover) {
     btnEditCover.addEventListener('click', () => {
-        activeUploadType = 'cover'; // <--- Altera para capa
+        activeUploadType = 'cover';
         if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
     });
 }
 
-// 1. Vincula o botão da câmera da foto de CAPAL
-if (btnEditCover) {
-    btnEditCover.addEventListener('click', () => {
-        activeUploadType = 'cover'; // <--- Altera para capa
-        if (drawerAvatarOptions) drawerAvatarOptions.style.display = 'block';
-    });
-}
 
 // 2. Vincula o botão da câmera do AVATAR (Unificado e Declarado Primeiro)
 const btnEditAvatar = document.getElementById('btn-open-camera-options');
