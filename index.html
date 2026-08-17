@@ -4082,45 +4082,14 @@ onAuthStateChanged(auth, async (user) => {
         // Ativa os monitores em tempo real
         escutarPedidosDeAmizade();
         gerenciarPresencaUsuario(user.email);
+        
         monitorarChamadasEntrantes(user.email);
         monitorarChamadasVozEntrantes(user.email);
         
-        // 1. Buscamos a foto de perfil primeiro
+        // 1. Buscaremos primeiro a foto de perfil customizada no Firestore
         try {
             const userDocRef = doc(db, 'usuarios', user.email);
             const docSnap = await getDoc(userDocRef);
-            const profilePostAvatar = document.getElementById('profile-post-avatar');
-
-            if (docSnap.exists() && docSnap.data().fotoPerfil) {
-                const fotoUrl = docSnap.data().fotoPerfil;
-                pAvatarImg.src = fotoUrl;
-                if (postAreaAvatar) postAreaAvatar.src = fotoUrl; 
-                if (profilePostAvatar) profilePostAvatar.src = fotoUrl;
-
-                const userStoryAvatar = document.getElementById('user-story-avatar');
-                if (userStoryAvatar) userStoryAvatar.src = fotoUrl;
-            } else {
-                const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
-                pAvatarImg.src = defaultAvatar;
-                if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; 
-                if (profilePostAvatar) profilePostAvatar.src = defaultAvatar;
-
-                const userStoryAvatar = document.getElementById('user-story-avatar');
-                if (userStoryAvatar) userStoryAvatar.src = defaultAvatar;
-            }
-        } catch (erro) {
-            console.error("Erro ao recuperar foto do Firebase:", erro);
-        }
-
-        // 2. Chamamos os Stories por último, agora que pAvatarImg.src já está preenchido!
-        carregarStoriesRealtime();
-
-        document.getElementById('feed').innerHTML = '';
-        lastVisible = null;
-        isFetchingPosts = false;
-        loadMorePosts();
-    } else {
-    // ..
             
             // Captura o elemento do post do perfil
             const profilePostAvatar = document.getElementById('profile-post-avatar');
@@ -4146,7 +4115,10 @@ onAuthStateChanged(auth, async (user) => {
             }
         } catch (erro) {
             console.error("Erro ao recuperar foto do Firebase:", erro);
-        } // 🟢 O bloco 'try/catch' agora fecha corretamente aqui!
+        }
+
+        // 2. Agora sim chamamos os stories com a imagem de perfil do usuário já carregada!
+        carregarStoriesRealtime();
 
         // Carrega o feed inicial do Blueberry
         document.getElementById('feed').innerHTML = '';
@@ -4161,6 +4133,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     }
 });
+
 function carregarStoriesRealtime() {
     const q = query(collection(db, "stories"), orderBy("createdAt", "desc"), limit(15));
     
