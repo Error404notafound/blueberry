@@ -6878,7 +6878,28 @@ async function gerenciarAcaoStory(acao, storyId) {
 
 // Vincula a função ao objeto window para os cliques inline funcionarem
 window.gerenciarAcaoStory = gerenciarAcaoStory;
+document.addEventListener("DOMContentLoaded", () => {
+    // Localiza os elementos com base nas classes exatas do arquivo
+    const gavetaPost = document.querySelector('.post-drawer-animated');
+    const botaoFotoSuperior = document.querySelector('.gallery-icon-right');
+    const botaoFotoInferior = document.querySelector('.green-photo-btn');
 
+    // Função que aplica a transição de subida (bottom: 0)
+    function abrirGavetaPostagem() {
+        if (gavetaPost) {
+            gavetaPost.style.bottom = '0';
+        }
+    }
+
+    // Vincula a ação de clique a ambos os botões destacados
+    if (botaoFotoSuperior) {
+        botaoFotoSuperior.addEventListener('click', abrirGavetaPostagem);
+    }
+
+    if (botaoFotoInferior) {
+        botaoFotoInferior.addEventListener('click', abrirGavetaPostagem);
+    }
+});
             // sistema de backup pra evitar leitada (1)
 </script>
 </body>
