@@ -6704,11 +6704,15 @@ let bancoStoriesGlobais = {};
         <img src="${linkFoto}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
 
         <!-- Barra de Interação Inferior -->
-        <div style="position: absolute; bottom: 15px; left: 15px; right: 15px; display: flex; align-items: center; gap: 10px; z-index: 13;">
-            <input type="text" placeholder="Enviar mensagem..." style="flex: 1; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; color: white; outline: none; font-size: 14px;">
-            <span style="cursor: pointer; font-size: 22px;" onclick="alert('Amei enviado!')">❤️</span>
-            <span style="cursor: pointer; font-size: 22px;" onclick="alert('Curtido!')">👍</span>
-        </div>
+        <!-- Barra de Interação Inferior -->
+<div style="position: absolute; bottom: 15px; left: 15px; right: 15px; display: flex; align-items: center; gap: 10px; z-index: 13;">
+    <input type="text" placeholder="Enviar mensagem..." style="flex: 1; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; color: white; outline: none; font-size: 14px;">
+    
+    <!-- Aciona a gravação em tempo real no banco, enviando a mídia e o comentário -->
+    <span style="cursor: pointer; font-size: 22px;" onclick="reagirAoStoryFirestore('❤️', '${linkFoto}', '${autorEmail}')">❤️</span>
+    <span style="cursor: pointer; font-size: 22px;" onclick="reagirAoStoryFirestore('👍', '${linkFoto}', '${autorEmail}')">👍</span>
+</div>
+
     `;
 
     // Recria as barras de progresso superiores
@@ -6772,6 +6776,37 @@ let bancoStoriesGlobais = {};
 
     // 🟢 ADICIONADO: Torna a função acessível globalmente
     window.encerrarVisualizador = encerrarVisualizador;
+async function reagirAoStoryFirestore(emoji, linkFoto, autorEmail) {
+    if (!auth.currentUser) return alert("Você precisa fazer login para reagir!");
+    const meuEmail = auth.currentUser.email;
+    
+    // Evita enviar mensagens para si mesmo
+    if (meuEmail === autorEmail) {
+        return alert("Você não pode reagir ao seu próprio story!");
+    }
+
+    const meuNome = meuEmail.split('@')[0];
+    const nomeFormatado = meuNome.charAt(0).toUpperCase() + meuNome.slice(1);
+    
+    // Calcula a sala de chat privada em ordem alfabética estável (igual ao seu app)
+    const roomId = meuEmail < autorEmail ? `${meuEmail}_${autorEmail}` : `${autorEmail}_${meuEmail}`;
+
+    try {
+        await addDoc(collection(db, 'messages'), {
+            roomId: roomId,
+            senderId: meuEmail,
+            text: `${nomeFormatado} reagiu com ${emoji} ao seu story`,
+            mediaUrl: linkFoto, // Envia a foto do story junto no chat!
+            createdAt: Date.now()
+        });
+        alert(`Reação ${emoji} enviada no chat de @${autorEmail.split('@')[0]}!`);
+    } catch (error) {
+        console.error("Erro ao enviar reação ao Firestore:", error);
+    }
+}
+
+// Expõe globalmente para o 'onclick' do HTML encontrar a função
+window.reagirAoStoryFirestore = reagirAoStoryFirestore;
 
             // sistema de backup pra evitar leitada (1)
 </script>
