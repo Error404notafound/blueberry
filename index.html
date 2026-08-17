@@ -4176,24 +4176,24 @@ snapshot.forEach((docSnap) => {
 Object.keys(grouped).forEach((autor) => {
     const fotos = grouped[autor];
     const nomeBase = autor.split('@')[0];
-    const ultimaFoto = fotos[0]; // Foto mais recente (pois a consulta usa 'desc')
-    const qtd = fotos.length;
-    const badgeAzul = qtd > 1 ? `<div class="story-count-badge">${qtd}</div>` : '';
+    const ultimaFotoUrl = fotos[0].mediaUrl; // 🟢 Correção: Extrai apenas o link em texto!
+const qtd = fotos.length;
+const badgeAzul = qtd > 1 ? `<div class="story-count-badge">${qtd}</div>` : '';
 
-    const card = document.createElement("div");
-    card.className = "story-card";
-    
-    // Conecta as fotos reais do Firebase ao seu visualizador de stories ao clicar
-    card.addEventListener('click', () => {
-        bancoStoriesGlobais[nomeBase] = { username: nomeBase, fotos: [...fotos].reverse() }; // Ordem cronológica
-        ativarVisualizadorDeStories(nomeBase);
-    });
+const card = document.createElement("div");
+card.className = "story-card";
 
-    card.innerHTML = `
-        ${badgeAzul}
-        <img src="${ultimaFoto}" onerror="this.src='https://via.placeholder.com/110x180'">
-        <span>@${nomeBase}</span>
-    `;
+card.addEventListener('click', () => {
+    bancoStoriesGlobais[nomeBase] = { username: nomeBase, fotos: [...fotos].reverse() };
+    ativarVisualizadorDeStories(nomeBase);
+});
+
+card.innerHTML = `
+    ${badgeAzul}
+    <img src="${ultimaFotoUrl}" onerror="this.src='https://via.placeholder.com/110x180'">
+    <span>@${nomeBase}</span>
+`;
+
     storiesList.appendChild(card);
 });
 
