@@ -6673,6 +6673,7 @@ let bancoStoriesGlobais = {};
     const dados = bancoStoriesGlobais[usuarioNoVisualizador];
     const itemStory = dados.fotos[indiceDaFotoVisivel];
     
+    // Extrai os dados do objeto dinâmico do Firebase
     const linkFoto = itemStory.mediaUrl || itemStory;
     const createdAt = itemStory.createdAt || null;
     const autorEmail = itemStory.autor || '';
@@ -6680,16 +6681,17 @@ let bancoStoriesGlobais = {};
     const nomeSemDominio = autorEmail ? autorEmail.split('@')[0] : usuarioNoVisualizador;
     const nomeFormatado = nomeSemDominio.charAt(0).toUpperCase() + nomeSemDominio.slice(1);
     const fotoDoAutor = cacheUsuarios[autorEmail] || `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeSemDominio}`;
+    
+    // 🟢 Calcula o tempo decorrido usando a função amigável nativa do seu feed!
     const tempoFormatado = formatarDataFriendly(createdAt);
 
     const corpoModal = document.querySelector('.story-modal-body');
     if (!corpoModal) return;
 
-        // Injeta o HTML completo com cabeçalho, imagem e a barra de interação atualizada com SVGs
     corpoModal.innerHTML = `
         <div class="story-progress-container"></div>
         
-        <!-- Cabeçalho do Autor -->
+        <!-- 🟢 ADICIONADO: Informações do criador flutuando no topo do Story -->
         <div style="position: absolute; top: 30px; left: 15px; display: flex; align-items: center; gap: 10px; z-index: 15; text-shadow: 1px 1.5px 3px rgba(0,0,0,0.9);">
             <img src="${fotoDoAutor}" style="width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #fff; object-fit: cover;">
             <div style="display: flex; flex-direction: column; text-align: left;">
@@ -6698,78 +6700,8 @@ let bancoStoriesGlobais = {};
             </div>
         </div>
 
-        <!-- Imagem do Story -->
         <img src="${linkFoto}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
-
-        <!-- Barra de interação inferior com SVGs modernos -->
-        <div style="position: absolute; bottom: 20px; left: 15px; right: 15px; display: flex; align-items: center; gap: 10px; z-index: 15;">
-            <input type="text" id="story-reply-input" placeholder="Enviar mensagem..." style="flex: 1; padding: 10px 15px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.2); border-radius: 20px; color: #fff; font-size: 14px; outline: none; box-sizing: border-box;">
-            
-            <!-- Botão de Coração (SVG Vermelho) -->
-            <button id="story-btn-heart" style="background: rgba(0,0,0,0.6); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="#ff4d4d">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.5 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>
-            </button>
-            
-            <!-- Botão de Joinha (SVG Azul) -->
-            <button id="story-btn-like" style="background: rgba(0,0,0,0.6); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="#2374e1">
-                    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-                </svg>
-            </button>
-        </div>
     `;
-
-
-    // Ativa o contador visual e timer das barras de progresso
-    dispararRelogioStory();
-
-    // 🟢 Programação das interações reais enviadas à DM (Firestore)
-    const replyInput = document.getElementById('story-reply-input');
-    const heartBtn = document.getElementById('story-btn-heart');
-    const likeBtn = document.getElementById('story-btn-like');
-
-    const enviarInteracaoDM = async (textoDM) => {
-        if (!auth.currentUser || !autorEmail) return;
-        const meuEmail = auth.currentUser.email;
-
-        if (meuEmail === autorEmail) {
-            alert("Você não pode interagir com o seu próprio story!");
-            return;
-        }
-
-        // Calcula a mesma sala de chat privada em ordem alfabética estável
-        const roomId = meuEmail < autorEmail ? `${meuEmail}_${autorEmail}` : `${autorEmail}_${meuEmail}`;
-
-        try {
-            await addDoc(collection(db, 'messages'), {
-                roomId: roomId,
-                senderId: meuEmail,
-                text: textoDM,
-                createdAt: Date.now()
-            });
-            alert("Enviado para a DM do usuário!");
-        } catch (error) {
-            console.error("Erro ao enviar DM pelo Story:", error);
-        }
-    };
-
-    if (replyInput) {
-        replyInput.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter') {
-                const text = replyInput.value.trim();
-                if (!text) return;
-                await enviarInteracaoDM(`💬 Respondeu ao seu Story: "${text}"`);
-                replyInput.value = '';
-            }
-        });
-    }
-
-    if (heartBtn) heartBtn.addEventListener('click', () => enviarInteracaoDM('❤️ Reagiu ao seu Story com um coração!'));
-    if (likeBtn) likeBtn.addEventListener('click', () => enviarInteracaoDM('👍 Reagiu ao seu Story com um joinha!'));
-}
-
     // ... o código abaixo das barras de progresso continua exatamente igual ...
 
 
