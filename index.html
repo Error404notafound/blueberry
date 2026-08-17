@@ -1810,34 +1810,34 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
-    z-index: 5000; /* Fica acima das drawers padrão do app */
+    width: 100vw;
+    height: 100vh;
+    background-color: #000000; /* Fundo totalmente preto de tela cheia */
+    z-index: 5000;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .story-modal-content {
-    background-color: #242526;
-    border: 1px solid #3e4042;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 420px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    background-color: transparent; /* Remove o fundo de caixinha */
+    border: none;                  /* Remove as bordas do modal antigo */
+    border-radius: 0;              /* Remove cantos arredondados */
+    width: 100%;
+    height: 100%;
+    max-width: 480px;              /* Mantém proporção de celular mesmo se aberto no PC */
+    box-shadow: none;
     overflow: hidden;
     color: #e4e6eb;
     font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
 .story-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid #3e4042;
-}
+    display: none !important; 
+        }
 
 .story-modal-header h3 {
     margin: 0;
@@ -1857,9 +1857,24 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 }
 
 .story-modal-body {
-    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    position: relative;
+    background-color: #7b5c2a; /* Cor de fundo dinâmica ou padrão igual ao print */
+    width: 100%;
+    height: 100%;
 }
 
+/* Garante que a imagem do story se comporte como no app original */
+.story-modal-body img {
+    width: 100%;
+    max-height: 70vh; /* Ocupa a faixa central vertical */
+    object-fit: contain;
+}
 .story-modal-body p {
     font-size: 14px;
     color: #b0b3b8;
@@ -1963,12 +1978,25 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 }
 .story-progress-container {
     position: absolute;
-    top: 15px;
-    left: 10px;
-    right: 10px;
+    top: 12px;
+    left: 12px;
+    right: 12px;
     display: flex;
     gap: 4px;
-    z-index: 10;
+    z-index: 5010;
+}
+
+/* Ajuste das informações do criador no topo da tela */
+.story-meta-top {
+    position: absolute;
+    top: 24px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 5010;
+    padding: 10px 4px;
 }
 .story-progress-bar {
     flex: 1;
@@ -3112,17 +3140,52 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     </div>
 </div>
 <!-- 🟢 VISUALIZADOR DE STORIES (Faltava este elemento no HTML!) -->
-<div class="story-modal-overlay" style="display: none;">
+<!-- Nova Estrutura Estilo Facebook Mobile (Tela Cheia Nativa) -->
+<div class="story-modal-overlay">
     <div class="story-modal-content">
-        <div class="story-modal-header">
-            <h3>Visualizar Stories</h3>
-            <span class="story-modal-close" onclick="encerrarVisualizador()">&times;</span>
+        
+        <!-- 1. Barras de Progresso Flutuantes (Topo Absoluto) -->
+        <div class="story-progress-container">
+            <div class="story-progress-bar"><div class="story-progress-fill" style="width: 30%;"></div></div>
+            <div class="story-progress-bar"><div class="story-progress-fill"></div></div>
         </div>
-        <div class="story-modal-body" style="height: 480px; position: relative; display: flex; align-items: center; justify-content: center; background-color: #18191a;">
-            <!-- O JavaScript injetará a imagem e a barra de progresso dinamicamente aqui -->
+
+        <!-- 2. Informações do Criador e Botão Fechar (Logo abaixo das barras) -->
+        <div class="story-meta-top">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <!-- Avatar do usuário do story -->
+                <img src="https://placehold.co" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1.5px solid #fff;">
+                <div>
+                    <strong style="display: block; font-size: 14px; color: #ffffff; text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">@Error404notafound</strong>
+                    <span style="font-size: 12px; color: rgba(255,255,255,0.75); text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">13 h</span>
+                </div>
+            </div>
+            <!-- O "X" para fechar virou este botão discreto no canto direito -->
+            <span class="story-modal-close" style="font-size: 28px; font-weight: bold; color: #ffffff; cursor: pointer; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); line-height: 1;">&times;</span>
         </div>
+
+        <!-- 3. Centro da Tela (Exibição da Imagem com Fundo Colorido) -->
+        <div class="story-modal-body">
+            <!-- Aqui vai a imagem do macaco de chapéu -->
+            <img src="link-da-sua-imagem-do-macaco.jpg" alt="Story Ativo">
+        </div>
+
+        <!-- 4. Novo Rodapé de Interação (Sua marcação em azul na imagem 2) -->
+        <div class="story-modal-footer-fixed">
+            <div class="story-footer-input-wrapper">
+                <input type="text" placeholder="Enviar mensagem...">
+            </div>
+            <div class="story-footer-reactions">
+                <!-- Ícones de Reação Rápidas -->
+                <!-- Você pode substituir o texto por imagens/SVGs do coração e do like -->
+                <span class="story-reaction-icon" style="font-size: 28px;">❤️</span>
+                <span class="story-reaction-icon" style="font-size: 28px;">👍</span>
+            </div>
+        </div>
+
     </div>
 </div>
+
 
             <!-- Scripts Firebase e Lógica da Aplicação -->
 <script type="module">
