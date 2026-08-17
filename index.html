@@ -6879,19 +6879,19 @@ async function gerenciarAcaoStory(acao, storyId) {
 // Vincula a função ao objeto window para os cliques inline funcionarem
 window.gerenciarAcaoStory = gerenciarAcaoStory;
 document.addEventListener("DOMContentLoaded", () => {
-    // Localiza os elementos com base nas classes exatas do arquivo
+    // Seleciona a gaveta de postagem e os dois botões pelas classes exatas do CSS do PDF
     const gavetaPost = document.querySelector('.post-drawer-animated');
     const botaoFotoSuperior = document.querySelector('.gallery-icon-right');
     const botaoFotoInferior = document.querySelector('.green-photo-btn');
 
-    // Função que aplica a transição de subida (bottom: 0)
+    // Altera a propriedade bottom para 0, fazendo a gaveta deslizar para cima
     function abrirGavetaPostagem() {
         if (gavetaPost) {
             gavetaPost.style.bottom = '0';
         }
     }
 
-    // Vincula a ação de clique a ambos os botões destacados
+    // Adiciona os ouvintes de clique nos elementos correspondentes
     if (botaoFotoSuperior) {
         botaoFotoSuperior.addEventListener('click', abrirGavetaPostagem);
     }
