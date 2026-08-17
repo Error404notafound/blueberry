@@ -6672,7 +6672,6 @@ let bancoStoriesGlobais = {};
     const dados = bancoStoriesGlobais[usuarioNoVisualizador];
     const itemStory = dados.fotos[indiceDaFotoVisivel];
     
-    // Extrai os dados do objeto dinâmico do Firebase
     const linkFoto = itemStory.mediaUrl || itemStory;
     const createdAt = itemStory.createdAt || null;
     const autorEmail = itemStory.autor || '';
@@ -6680,8 +6679,6 @@ let bancoStoriesGlobais = {};
     const nomeSemDominio = autorEmail ? autorEmail.split('@')[0] : usuarioNoVisualizador;
     const nomeFormatado = nomeSemDominio.charAt(0).toUpperCase() + nomeSemDominio.slice(1);
     const fotoDoAutor = cacheUsuarios[autorEmail] || `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeSemDominio}`;
-    
-    // 🟢 Calcula o tempo decorrido usando a função amigável nativa do seu feed!
     const tempoFormatado = formatarDataFriendly(createdAt);
 
     const corpoModal = document.querySelector('.story-modal-body');
@@ -6690,7 +6687,7 @@ let bancoStoriesGlobais = {};
     corpoModal.innerHTML = `
         <div class="story-progress-container"></div>
         
-        <!-- 🟢 ADICIONADO: Informações do criador flutuando no topo do Story -->
+        <!-- Info do Criador -->
         <div style="position: absolute; top: 30px; left: 15px; display: flex; align-items: center; gap: 10px; z-index: 15; text-shadow: 1px 1.5px 3px rgba(0,0,0,0.9);">
             <img src="${fotoDoAutor}" style="width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #fff; object-fit: cover;">
             <div style="display: flex; flex-direction: column; text-align: left;">
@@ -6699,23 +6696,45 @@ let bancoStoriesGlobais = {};
             </div>
         </div>
 
+        <!-- Áreas Invisíveis de Clique Lateral (Voltar/Avançar) -->
+        <div id="story-click-left" style="position: absolute; left: 0; top: 0; width: 50%; height: 80%; z-index: 12; cursor: pointer;"></div>
+        <div id="story-click-right" style="position: absolute; right: 0; top: 0; width: 50%; height: 80%; z-index: 12; cursor: pointer;"></div>
+
+        <!-- Imagem do Story -->
         <img src="${linkFoto}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
+
+        <!-- Barra de Interação Inferior -->
+        <div style="position: absolute; bottom: 15px; left: 15px; right: 15px; display: flex; align-items: center; gap: 10px; z-index: 13;">
+            <input type="text" placeholder="Enviar mensagem..." style="flex: 1; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; color: white; outline: none; font-size: 14px;">
+            <span style="cursor: pointer; font-size: 22px;" onclick="alert('Amei enviado!')">❤️</span>
+            <span style="cursor: pointer; font-size: 22px;" onclick="alert('Curtido!')">👍</span>
+        </div>
     `;
-    // ... o código abaixo das barras de progresso continua exatamente igual ...
 
+    // Recria as barras de progresso superiores
+    const barrasContainer = corpoModal.querySelector('.story-progress-container');
+    dados.fotos.forEach((_, i) => {
+        let widthInicial = i < indiceDaFotoVisivel ? '100%' : '0%';
+        barrasContainer.insertAdjacentHTML('beforeend', `
+            <div class="story-progress-bar">
+                <div class="story-progress-fill" id="fill-bar-${i}" style="width: ${widthInicial}"></div>
+            </div>
+        `);
+    });
 
-        const barrasContainer = corpoModal.querySelector('.story-progress-container');
-        dados.fotos.forEach((_, i) => {
-            let widthInicial = i < indiceDaFotoVisivel ? '100%' : '0%';
-            barrasContainer.insertAdjacentHTML('beforeend', `
-                <div class="story-progress-bar">
-                    <div class="story-progress-fill" id="fill-bar-${i}" style="width: ${widthInicial}"></div>
-                </div>
-            `);
-        });
+    // Mapeia eventos de toque nas setas invisíveis
+    document.getElementById('story-click-left').addEventListener('click', () => {
+        if (indiceDaFotoVisivel > 0) {
+            indiceDaFotoVisivel--;
+            renderizarFotoNoModal();
+        }
+    });
 
-        dispararRelogioStory();
-    }
+    document.getElementById('story-click-right').addEventListener('click', mudarParaProximaFoto);
+
+    dispararRelogioStory();
+}
+
 
     function dispararRelogioStory() {
         clearInterval(ponteiroDoTimer);
