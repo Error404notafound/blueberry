@@ -4158,18 +4158,27 @@ function carregarStoriesRealtime() {
         const grouped = {};
 
 // 1. Agrupa as fotos no formato { 'autor@email.com': [url1, url2...] }
+// 1. Agrupa as fotos e filtra os stories ocultados localmente
+const ocultos = JSON.parse(localStorage.getItem('blueberry_stories_ocultos') || '[]');
+
 snapshot.forEach((docSnap) => {
     const story = docSnap.data();
+    const storyId = docSnap.id; // Captura o ID real do documento no Firestore
+
+    // Pula o story se o ID dele estiver na sua lista local de ocultos
+    if (ocultos.includes(storyId)) return;
+
     if (!grouped[story.autor]) {
         grouped[story.autor] = [];
     }
-    // 🟢 Agora guardamos o objeto completo com a imagem, autor e data de envio
     grouped[story.autor].push({
+        id: storyId, // ID inserido para permitir que as funções do Kebab menu o encontrem
         mediaUrl: story.mediaUrl,
         createdAt: story.createdAt,
         autor: story.autor
     });
 });
+
 
 
 // 2. Renderiza apenas um único card por autor
@@ -6676,6 +6685,11 @@ let bancoStoriesGlobais = {};
     const createdAt = itemStory.createdAt || null;
     const autorEmail = itemStory.autor || '';
     
+    // 🟢 ADICIONADO: Variáveis de controle de propriedade
+    const storyId = itemStory.id || '';
+    const meuEmail = auth.currentUser ? auth.currentUser.email : '';
+    const ehDono = meuEmail === autorEmail;
+
     const nomeSemDominio = autorEmail ? autorEmail.split('@')[0] : usuarioNoVisualizador;
     const nomeFormatado = nomeSemDominio.charAt(0).toUpperCase() + nomeSemDominio.slice(1);
     const fotoDoAutor = cacheUsuarios[autorEmail] || `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeSemDominio}`;
@@ -6687,16 +6701,33 @@ let bancoStoriesGlobais = {};
     corpoModal.innerHTML = `
         <div class="story-progress-container"></div>
         
-        <!-- Info do Criador -->
-        <div style="position: absolute; top: 30px; left: 15px; display: flex; align-items: center; gap: 10px; z-index: 15; text-shadow: 1px 1.5px 3px rgba(0,0,0,0.9);">
-            <img src="${fotoDoAutor}" style="width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #fff; object-fit: cover;">
-            <div style="display: flex; flex-direction: column; text-align: left;">
-                <span style="color: #fff; font-weight: bold; font-size: 13px;">@${nomeFormatado}</span>
-                <span style="color: #b0b3b8; font-size: 11px;">${tempoFormatado}</span>
+        <!-- 🟢 ATUALIZADO: Info do Criador + Botão de 3 pontinhos -->
+        <div style="position: absolute; top: 30px; left: 15px; right: 15px; display: flex; align-items: center; justify-content: space-between; z-index: 15; text-shadow: 1px 1.5px 3px rgba(0,0,0,0.9);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${fotoDoAutor}" style="width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid #fff; object-fit: cover;">
+                <div style="display: flex; flex-direction: column; text-align: left;">
+                    <span style="color: #fff; font-weight: bold; font-size: 13px;">@${nomeFormatado}</span>
+                    <span style="color: #b0b3b8; font-size: 11px;">${tempoFormatado}</span>
+                </div>
+            </div>
+            
+            <!-- Botão dos 3 pontinhos (Kebab) -->
+            <div id="story-kebab-btn" style="cursor: pointer; padding: 5px;">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+                    <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
             </div>
         </div>
 
-        <!-- Áreas Invisíveis de Clique Lateral (Voltar/Avançar) -->
+        <!-- 🟢 ADICIONADO: Popover do Menu Flutuante -->
+        <div id="story-kebab-popover" style="display: none; position: absolute; top: 75px; right: 15px; background: #242526; border: 1px solid #3e4042; border-radius: 8px; z-index: 20; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+            ${ehDono 
+                ? `<div style="padding: 10px 15px; color: #ff4d4d; cursor: pointer; font-size: 14px; font-weight: bold;" onclick="gerenciarAcaoStory('excluir', '${storyId}')">Excluir story</div>`
+                : `<div style="padding: 10px 15px; color: #fff; cursor: pointer; font-size: 14px;" onclick="gerenciarAcaoStory('ocultar', '${storyId}')">Ocultar story</div>`
+            }
+        </div>
+
+        <!-- Áreas Invisíveis de Clique Lateral -->
         <div id="story-click-left" style="position: absolute; left: 0; top: 0; width: 50%; height: 80%; z-index: 12; cursor: pointer;"></div>
         <div id="story-click-right" style="position: absolute; right: 0; top: 0; width: 50%; height: 80%; z-index: 12; cursor: pointer;"></div>
 
@@ -6704,15 +6735,11 @@ let bancoStoriesGlobais = {};
         <img src="${linkFoto}" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
 
         <!-- Barra de Interação Inferior -->
-        <!-- Barra de Interação Inferior -->
-<div style="position: absolute; bottom: 15px; left: 15px; right: 15px; display: flex; align-items: center; gap: 10px; z-index: 13;">
-    <input type="text" placeholder="Enviar mensagem..." style="flex: 1; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; color: white; outline: none; font-size: 14px;">
-    
-    <!-- Aciona a gravação em tempo real no banco, enviando a mídia e o comentário -->
-    <span style="cursor: pointer; font-size: 22px;" onclick="reagirAoStoryFirestore('❤️', '${linkFoto}', '${autorEmail}')">❤️</span>
-    <span style="cursor: pointer; font-size: 22px;" onclick="reagirAoStoryFirestore('👍', '${linkFoto}', '${autorEmail}')">👍</span>
-</div>
-
+        <div style="position: absolute; bottom: 15px; left: 15px; right: 15px; display: flex; align-items: center; gap: 10px; z-index: 13;">
+            <input type="text" placeholder="Enviar mensagem..." style="flex: 1; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 8px 15px; color: white; outline: none; font-size: 14px;">
+            <span style="cursor: pointer; font-size: 22px;" onclick="reagirAoStoryFirestore('❤️', '${linkFoto}', '${autorEmail}')">❤️</span>
+            <span style="cursor: pointer; font-size: 22px;" onclick="reagirAoStoryFirestore('👍', '${linkFoto}', '${autorEmail}')">👍</span>
+        </div>
     `;
 
     // Recria as barras de progresso superiores
@@ -6724,6 +6751,14 @@ let bancoStoriesGlobais = {};
                 <div class="story-progress-fill" id="fill-bar-${i}" style="width: ${widthInicial}"></div>
             </div>
         `);
+    });
+
+    // 🟢 ADICIONADO: Ativa a abertura/fechamento do menu popover
+    const kebabBtn = document.getElementById('story-kebab-btn');
+    const popover = document.getElementById('story-kebab-popover');
+    kebabBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        popover.style.display = popover.style.display === 'none' ? 'flex' : 'none';
     });
 
     // Mapeia eventos de toque nas setas invisíveis
@@ -6738,6 +6773,7 @@ let bancoStoriesGlobais = {};
 
     dispararRelogioStory();
 }
+
 
 
     function dispararRelogioStory() {
@@ -6806,7 +6842,42 @@ async function reagirAoStoryFirestore(emoji, linkFoto, autorEmail) {
 }
 
 // Expõe globalmente para o 'onclick' do HTML encontrar a função
+// ... fim do seu código anterior ...
+
+// Expõe globalmente para o 'onclick' do HTML encontrar a função
 window.reagirAoStoryFirestore = reagirAoStoryFirestore;
+
+// 🟢 ADICIONADO: Nova função para Excluir (Firestore) ou Ocultar (Local)
+async function gerenciarAcaoStory(acao, storyId) {
+    if (!storyId) return;
+    
+    if (acao === 'excluir') {
+        if (confirm("Deseja realmente excluir permanentemente este story?")) {
+            try {
+                // Remove o documento da coleção "stories" no Firestore
+                await deleteDoc(doc(db, "stories", storyId));
+                encerrarVisualizador();
+                alert("Story excluído com sucesso!");
+            } catch (err) {
+                console.error("Erro ao excluir story:", err);
+                alert("Erro ao excluir o story.");
+            }
+        }
+    } else if (acao === 'ocultar') {
+        // Salva o ID localmente no navegador para esconder apenas deste usuário
+        const ocultos = JSON.parse(localStorage.getItem('blueberry_stories_ocultos') || '[]');
+        if (!ocultos.includes(storyId)) {
+            ocultos.push(storyId);
+            localStorage.setItem('blueberry_stories_ocultos', JSON.stringify(ocultos));
+        }
+        encerrarVisualizador();
+        carregarStoriesRealtime(); // Atualiza a barra de stories instantaneamente na tela
+        alert("Este story foi ocultado.");
+    }
+}
+
+// Vincula a função ao objeto window para os cliques inline funcionarem
+window.gerenciarAcaoStory = gerenciarAcaoStory;
 
             // sistema de backup pra evitar leitada (1)
 </script>
