@@ -2439,7 +2439,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         <!-- MANTENHA APENAS ESTE CARD FIXO ABAIXO -->
         <div class="story-card create-story-trigger" id="btn-open-story-modal">
             <div class="story-preview-img-box">
-                <img src="https://placeholder.com" id="user-story-avatar" alt="Minha Foto">
+                <img src="https://via.placeholder.com/150" id="user-story-avatar" alt="Minha Foto">
             </div>
             <div class="create-story-badge">
                 <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -4082,19 +4082,45 @@ onAuthStateChanged(auth, async (user) => {
         // Ativa os monitores em tempo real
         escutarPedidosDeAmizade();
         gerenciarPresencaUsuario(user.email);
-        
         monitorarChamadasEntrantes(user.email);
         monitorarChamadasVozEntrantes(user.email);
         
-        // 🟢 ADICIONE ESTA LINHA AQUI:
-        carregarStoriesRealtime();
-        
-        // Busca foto de perfil customizada
+        // 1. Buscamos a foto de perfil primeiro
         try {
             const userDocRef = doc(db, 'usuarios', user.email);
-            // ... restante do seu código intacto ...
-
             const docSnap = await getDoc(userDocRef);
+            const profilePostAvatar = document.getElementById('profile-post-avatar');
+
+            if (docSnap.exists() && docSnap.data().fotoPerfil) {
+                const fotoUrl = docSnap.data().fotoPerfil;
+                pAvatarImg.src = fotoUrl;
+                if (postAreaAvatar) postAreaAvatar.src = fotoUrl; 
+                if (profilePostAvatar) profilePostAvatar.src = fotoUrl;
+
+                const userStoryAvatar = document.getElementById('user-story-avatar');
+                if (userStoryAvatar) userStoryAvatar.src = fotoUrl;
+            } else {
+                const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email.split('@')[0]}`;
+                pAvatarImg.src = defaultAvatar;
+                if (postAreaAvatar) postAreaAvatar.src = defaultAvatar; 
+                if (profilePostAvatar) profilePostAvatar.src = defaultAvatar;
+
+                const userStoryAvatar = document.getElementById('user-story-avatar');
+                if (userStoryAvatar) userStoryAvatar.src = defaultAvatar;
+            }
+        } catch (erro) {
+            console.error("Erro ao recuperar foto do Firebase:", erro);
+        }
+
+        // 2. Chamamos os Stories por último, agora que pAvatarImg.src já está preenchido!
+        carregarStoriesRealtime();
+
+        document.getElementById('feed').innerHTML = '';
+        lastVisible = null;
+        isFetchingPosts = false;
+        loadMorePosts();
+    } else {
+    // ..
             
             // Captura o elemento do post do perfil
             const profilePostAvatar = document.getElementById('profile-post-avatar');
