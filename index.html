@@ -6970,6 +6970,7 @@ function formatarDataNotificacao(timestamp) {
 }
 
 // 3. Função para ler e exibir as notificações
+// 3. Função para ler e exibir as notificações (USANDO O ÍNDICE DO FIREBASE)
 async function carregarNotificacoes() {
     const listContainer = document.getElementById('notifications-list');
     listContainer.innerHTML = '<p style="text-align:center; color:#b0b3b8; padding: 20px;">Carregando...</p>';
@@ -6977,6 +6978,7 @@ async function carregarNotificacoes() {
     if (!auth.currentUser) return;
 
     try {
+        // A query original, super rápida, que agora vai funcionar com o Índice criado!
         const q = query(
             collection(db, 'notificacoes'), 
             where('receptor', '==', auth.currentUser.email), 
@@ -7024,7 +7026,7 @@ async function carregarNotificacoes() {
                 }
 
                 const notifHTML = `
-                    <div style="display: flex; align-items: center; padding: 12px 15px; background-color: ${notif.lida ? 'transparent' : 'rgba(35, 116, 225, 0.1)'}; cursor: pointer; transition: background 0.2s;">
+                    <div style="display: flex; align-items: center; padding: 12px 15px; background-color: ${notif.lida ? 'transparent' : 'rgba(35, 116, 225, 0.1)'}; cursor: pointer; transition: background 0.2s;" onclick="marcarNotificacaoLida('${docSnap.id}')">
                         
                         <!-- Avatar com Badge -->
                         <div style="position: relative; margin-right: 15px; flex-shrink: 0;">
@@ -7056,6 +7058,13 @@ async function carregarNotificacoes() {
     } catch (error) {
         console.error("Erro ao carregar notificações:", error);
     }
+}
+
+// Função auxiliar para marcar como lida ao clicar
+async function marcarNotificacaoLida(notifId) {
+    try {
+        await updateDoc(doc(db, 'notificacoes', notifId), { lida: true });
+    } catch (e) { console.error(e); }
 }
             // sistema de backup pra evitar leitada (1)
 </script>
