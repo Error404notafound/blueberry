@@ -3592,6 +3592,7 @@ const friendsScreen = document.getElementById('friends-screen-container');
 const createPostContainer = document.getElementById('create-post-container');
 
 // Evento para abrir a tela de amigos limpando a área de postagem superior
+// Evento para abrir a tela de amigos limpando a área de postagem superior
 friendsIcon.addEventListener('click', () => {
     // Esconde o feed e a área de criação de posts
     if (feedSection) feedSection.style.display = 'none';
@@ -3600,6 +3601,9 @@ friendsIcon.addEventListener('click', () => {
     // Oculta outras seções caso estejam abertas
     if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
+    
+    // 👇 CORREÇÃO: Esconde a tela de notificações
+    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
     
     // Exibe a tela de recomendações/pedidos
     friendsScreen.style.display = 'block';
@@ -4357,42 +4361,46 @@ drawerLogoutBtn.addEventListener('click', async () => {
         });
 
                         // Navegação principal
-        homeIcon.addEventListener('click', () => {
-            // Garante fechar as duas telas de chat, os reels e o perfil ao voltar pra home
-            if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
-            if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
-            if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
-            if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
-            
-            // 🔄 CORREÇÃO: Oculta a tela de amigos e mostra de volta o feed e a caixa de postagem
-            if(friendsScreen) friendsScreen.style.display = 'none';
-            if(feedSection) feedSection.style.display = 'block';
-            if(createPostContainer) createPostContainer.style.display = 'flex';
-
-            appContainer.querySelector('.main-container').style.display = 'block';
-            
-            // Seu código original de resetar o feed:
-            document.getElementById('feed').innerHTML = ''; 
-            lastVisible = null; 
-            isFetchingPosts = false; 
-            loadMorePosts(); 
-        });
-
-
-                // COLOQUE LOGO ABAIXO DO HOMEICON:
-logoLink.addEventListener('click', () => {
+        // Navegação principal
+// Navegação principal
+homeIcon.addEventListener('click', () => {
+    // Garante fechar as duas telas de chat, os reels e o perfil ao voltar pra home
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
     if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
     if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
     if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
+    
+    // 👇 CORREÇÃO: Esconde a tela de notificações
+    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
 
     // 🔄 CORREÇÃO: Oculta a tela de amigos e mostra de volta o feed e a caixa de postagem
     if(friendsScreen) friendsScreen.style.display = 'none';
     if(feedSection) feedSection.style.display = 'block';
     if(createPostContainer) createPostContainer.style.display = 'flex';
-
     appContainer.querySelector('.main-container').style.display = 'block';
 
+    // Seu código original de resetar o feed:
+    document.getElementById('feed').innerHTML = '';
+    lastVisible = null;
+    isFetchingPosts = false;
+    loadMorePosts();
+});
+
+// COLOQUE LOGO ABAIXO DO HOMEICON:
+logoLink.addEventListener('click', () => {
+    if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
+    if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
+    if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
+    if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
+    
+    // 👇 CORREÇÃO: Esconde a tela de notificações
+    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
+
+    // 🔄 CORREÇÃO: Oculta a tela de amigos e mostra de volta o feed e a caixa de postagem
+    if(friendsScreen) friendsScreen.style.display = 'none';
+    if(feedSection) feedSection.style.display = 'block';
+    if(createPostContainer) createPostContainer.style.display = 'flex';
+    appContainer.querySelector('.main-container').style.display = 'block';
     document.getElementById('feed').innerHTML = '';
     lastVisible = null;
     isFetchingPosts = false;
@@ -4403,30 +4411,37 @@ logoLink.addEventListener('click', () => {
 friendsIcon.addEventListener('click', () => alert('Abrindo página de Amigos e Recomendações'));
         
         // NOVO: Clicou no ícone de Mensagens abre a Lista do WhatsApp Verde
-        messagesIcon.addEventListener('click', () => {
-            appContainer.querySelector('.main-container').style.display = 'none';
-            if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'none';
-            document.getElementById('chat-list-container').style.display = 'block';
-            
-            // Dispara a leitura dos amigos do banco
-            loadConversationsList();
-        });
-        
-        reelsNavIcon.addEventListener('click', () => {
+        // NOVO: Clicou no ícone de Mensagens abre a Lista do WhatsApp Verde
+messagesIcon.addEventListener('click', () => {
+    appContainer.querySelector('.main-container').style.display = 'none';
+    if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
+    
+    // 👇 CORREÇÃO: Esconde a tela de notificações
+    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
+    
+    document.getElementById('chat-container').style.display = 'none';
+    document.getElementById('chat-list-container').style.display = 'block';
 
-            // Esconde o feed padrão e exibe a tela cheia de Reels
-            appContainer.querySelector('.main-container').style.display = 'none';
-            document.getElementById('reels-container').style.display = 'block';
-            
-            // Fecha a gaveta lateral se ela estiver aberta para não cobrir o vídeo
-            sideDrawer.classList.remove('open');
-            drawerOverlay.classList.remove('active');
+    // Dispara a leitura dos amigos do banco
+    loadConversationsList();
+});
 
-            // Aciona a busca dos links de embed no Firestore
-            // Aciona a busca dos links de embed no Firestore
-        loadReels();
-    });
+reelsNavIcon.addEventListener('click', () => {
+    // Esconde o feed padrão e exibe a tela cheia de Reels
+    appContainer.querySelector('.main-container').style.display = 'none';
+    
+    // 👇 CORREÇÃO: Esconde a tela de notificações
+    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
+    
+    document.getElementById('reels-container').style.display = 'block';
+
+    // Fecha a gaveta lateral se ela estiver aberta para não cobrir o vídeo
+    sideDrawer.classList.remove('open');
+    drawerOverlay.classList.remove('active');
+
+    // Aciona a busca dos links de embed no Firestore
+    loadReels();
+});
 
     // 👇 NAVEGAÇÃO PARA NOTIFICAÇÕES 👇
     notificationsIcon.addEventListener('click', () => {
@@ -5372,15 +5387,19 @@ function atualizarLayoutAmizade(status) {
         async function openUserProfilePage(email) {
     if (!email) return;
     profileViewedEmail = email; // Define de quem é o perfil em exibição
-    
+
     // 🟢 ADICIONADO: Ative o carregamento dos álbuns reais do usuário ativo
-    carregarAlbunsDoUsuarioReal(email);    
+    carregarAlbunsDoUsuarioReal(email);   
     // 1. Esconde containers antigos
     appContainer.querySelector('.main-container').style.display = 'none';
     if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
     if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
     if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
     
+    // 👇 CORREÇÃO: Esconde a tela de notificações e a tela de amigos
+    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
+    if(document.getElementById('friends-screen-container')) document.getElementById('friends-screen-container').style.display = 'none';
+
     // 2. Apresenta o perfil principal
     profileContainer.style.display = 'block';
     
