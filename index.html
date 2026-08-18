@@ -2359,54 +2359,74 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 <div id="comments-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:4400;"></div>
 
         <!-- Main Navigation Bar -->
+        <style>
+            /* Estilo global para as bolinhas de notificação do menu */
+            .nav-badge {
+                position: absolute;
+                top: -2px;
+                right: -4px;
+                background-color: #e41e3f;
+                color: white;
+                font-size: 11px;
+                font-weight: bold;
+                border-radius: 10px;
+                padding: 1px 5px;
+                border: 2px solid var(--bg-card);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10;
+            }
+        </style>
         <nav class="main-nav">
-            <div class="main-nav-item" id="home-icon">
+            <div class="main-nav-item" id="home-icon" style="position: relative;">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                <span class="nav-badge" id="badge-home">15+</span>
             </div>
-            <div class="main-nav-item" id="friends-icon">
-    <svg viewBox="0 0 24 24" style="fill: none !important; stroke: var(--accent-white) !important; stroke-width: 2.2px !important; stroke-linecap: round; stroke-linejoin: round;">
-        <!-- Usuário de trás (Direita) -->
-        <circle cx="15.5" cy="5.5" r="2.5" />
-        <path d="M12.5 11.5c1.2-.7 2.3-.7 3.5-.7 2 0 3.5 1.2 3.5 3v0c0 .8-.7 1.5-1.5 1.5H15" />
-        
-        <!-- Usuário da frente (Esquerda) -->
-        <circle cx="8.5" cy="8.5" r="2.5" />
-        <path d="M3.5 17.5c0-1.8 1.5-3 3.5-3h3c2 0 3.5 1.2 3.5 3v0c0 .8-.7 1.5-1.5 1.5h-7c-.8 0-1.5-.7-1.5-1.5z" />
-    </svg>
-</div>
-                        
-            <div class="main-nav-item" id="messages-icon">
-    <svg viewBox="0 0 24 24" style="fill: none !important; stroke: var(--accent-white) !important; stroke-width: 2.3px !important; stroke-linecap: round; stroke-linejoin: round;">
-        <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/>
-    </svg>
-</div>
-            <div class="main-nav-item" id="reels-nav-icon">
-    <svg class="reels-svg-fix" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5"></rect>
-        <line x1="2" y1="7" x2="22" y2="7"></line>
-        <line x1="7" y1="2" x2="10" y2="7"></line>
-        <line x1="14" y1="2" x2="17" y2="7"></line>
-        <polygon points="10,11 15,14 10,17" style="fill: var(--accent-blue) !important;"></polygon>
-    </svg>
-</div>           
-            <div class="main-nav-item" id="notifications-icon">
+            
+            <div class="main-nav-item" id="friends-icon" style="position: relative;">
+                <svg viewBox="0 0 24 24" style="fill: none !important; stroke: var(--accent-white) !important; stroke-width: 2.2px !important; stroke-linecap: round; stroke-linejoin: round;">
+                    <circle cx="15.5" cy="5.5" r="2.5" />
+                    <path d="M12.5 11.5c1.2-.7 2.3-.7 3.5-.7 2 0 3.5 1.2 3.5 3v0c0 .8-.7 1.5-1.5 1.5H15" />
+                    <circle cx="8.5" cy="8.5" r="2.5" />
+                    <path d="M3.5 17.5c0-1.8 1.5-3 3.5-3h3c2 0 3.5 1.2 3.5 3v0c0 .8-.7 1.5-1.5 1.5h-7c-.8 0-1.5-.7-1.5-1.5z" />
+                </svg>
+                <span class="nav-badge" id="badge-friends" style="display: none;">0</span>
+            </div>
+            
+            <div class="main-nav-item" id="messages-icon" style="position: relative;">
+                <svg viewBox="0 0 24 24" style="fill: none !important; stroke: var(--accent-white) !important; stroke-width: 2.3px !important; stroke-linecap: round; stroke-linejoin: round;">
+                    <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"/>
+                </svg>
+                <span class="nav-badge" id="badge-messages" style="display: none;">0</span>
+            </div>
+            
+            <div class="main-nav-item" id="reels-nav-icon" style="position: relative;">
+                <svg class="reels-svg-fix" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+                    <line x1="2" y1="7" x2="22" y2="7"></line>
+                    <line x1="7" y1="2" x2="10" y2="7"></line>
+                    <line x1="14" y1="2" x2="17" y2="7"></line>
+                    <polygon points="10,11 15,14 10,17" style="fill: var(--accent-blue) !important;"></polygon>
+                </svg>
+                <span class="nav-badge" id="badge-reels">15+</span>
+            </div>
+            
+            <div class="main-nav-item" id="notifications-icon" style="position: relative;">
                 <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5L4 18v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+                <span class="nav-badge" id="notif-badge" style="display: none;">0</span>
             </div>
-            <div class="main-nav-item" id="market-icon">
-    <svg class="reels-svg-fix" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- Barra superior da alça de empurrar -->
-        <path d="M1 3h3.5l3.2 11h11.1l2.5-7H6.5"></path>
-        
-        <!-- Grade do carrinho (linhas horizontais e verticais internas) -->
-        <path d="M7.7 7h11.8M8.3 10.5h10"></path>
-        <path d="M11.5 6.5v4.5M15.5 6.5v4.5"></path>
-        
-        <!-- Rodinhas (Preenchidas com a cor azul automaticamente) -->
-        <circle cx="8.5" cy="19.5" r="1.5" style="fill: var(--accent-blue) !important;"></circle>
-        <circle cx="16.5" cy="19.5" r="1.5" style="fill: var(--accent-blue) !important;"></circle>
-    </svg>
-</div>
-
+            
+            <div class="main-nav-item" id="market-icon" style="position: relative;">
+                <svg class="reels-svg-fix" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 3h3.5l3.2 11h11.1l2.5-7H6.5"></path>
+                    <path d="M7.7 7h11.8M8.3 10.5h10"></path>
+                    <path d="M11.5 6.5v4.5M15.5 6.5v4.5"></path>
+                    <circle cx="8.5" cy="19.5" r="1.5" style="fill: var(--accent-blue) !important;"></circle>
+                    <circle cx="16.5" cy="19.5" r="1.5" style="fill: var(--accent-blue) !important;"></circle>
+                </svg>
+                <span class="nav-badge" id="badge-market">15+</span>
+            </div>
         </nav>
 
         <main class="main-container">
@@ -3438,6 +3458,18 @@ function escutarPedidosDeAmizade() {
     onSnapshot(q, (snapshot) => {
         requestsListEl.innerHTML = '';
         countRequestsEl.innerText = snapshot.size;
+        
+        // 👇 ATUALIZA A BOLINHA VERMELHA DE AMIGOS 👇
+        const badgeFriends = document.getElementById('badge-friends');
+        if (badgeFriends) {
+            if (snapshot.size > 0) {
+                badgeFriends.style.display = 'flex';
+                badgeFriends.innerText = snapshot.size > 9 ? '9+' : snapshot.size;
+            } else {
+                badgeFriends.style.display = 'none';
+            }
+        }
+
         if (snapshot.empty) {
             requestsListEl.innerHTML = '<p style="color: #b0b3b8; font-size: 14px; text-align: center; width:100%;">Nenhum pedido pendente</p>';
             return;
@@ -4130,6 +4162,22 @@ onAuthStateChanged(auth, async (user) => {
         monitorarChamadasEntrantes(user.email);
         monitorarChamadasVozEntrantes(user.email);
         
+        // 👇 ATIVA OS MONITORES DAS BOLINHAS VERMELHAS 👇
+        escutarMensagensNaoLidas(user.email);
+
+        const qNotif = query(collection(db, 'notificacoes'), where('receptor', '==', user.email), where('lida', '==', false));
+        onSnapshot(qNotif, (snap) => {
+            const badge = document.getElementById('notif-badge');
+            if (badge) {
+                if (snap.size > 0) {
+                    badge.style.display = 'flex';
+                    badge.innerText = snap.size > 9 ? '9+' : snap.size;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        });
+        
         // 1. Buscaremos primeiro a foto de perfil customizada no Firestore
         try {
             const userDocRef = doc(db, 'usuarios', user.email);
@@ -4368,105 +4416,87 @@ drawerLogoutBtn.addEventListener('click', async () => {
         });
 
                         // Navegação principal
-        // Navegação principal
-// Navegação principal
+// ==========================================
+// NAVEGAÇÃO PRINCIPAL UNIFICADA E CORRIGIDA
+// ==========================================
+
+// Função blindada para esconder todas as telas antes de abrir uma nova
+function esconderTodasAsTelas() {
+    const telas = [
+        'chat-list-container', 'chat-container', 'reels-container', 
+        'profile-container', 'notifications-container', 'friends-screen-container', 
+        'feed', 'create-post-container'
+    ];
+    telas.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    const stories = document.querySelector('.stories-container');
+    if (stories) stories.style.display = 'none';
+}
+
 homeIcon.addEventListener('click', () => {
-    // Garante fechar as duas telas de chat, os reels e o perfil ao voltar pra home
-    if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
-    if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
-    if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
-    if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
+    document.getElementById('badge-home').style.display = 'none'; // Esconde bolinha
+    esconderTodasAsTelas();
     
-    // 👇 CORREÇÃO: Esconde a tela de notificações
-    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
-
-    // 🔄 CORREÇÃO: Oculta a tela de amigos e mostra de volta o feed e a caixa de postagem
-    if(friendsScreen) friendsScreen.style.display = 'none';
-    if(feedSection) feedSection.style.display = 'block';
-    if(createPostContainer) createPostContainer.style.display = 'flex';
     appContainer.querySelector('.main-container').style.display = 'block';
+    if(document.getElementById('feed')) document.getElementById('feed').style.display = 'block';
+    if(document.getElementById('create-post-container')) document.getElementById('create-post-container').style.display = 'flex';
+    if(document.querySelector('.stories-container')) document.querySelector('.stories-container').style.display = 'block';
 
-    // Seu código original de resetar o feed:
     document.getElementById('feed').innerHTML = '';
     lastVisible = null;
     isFetchingPosts = false;
     loadMorePosts();
 });
 
-// COLOQUE LOGO ABAIXO DO HOMEICON:
-logoLink.addEventListener('click', () => {
-    if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
-    if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
-    if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
-    if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
-    
-    // 👇 CORREÇÃO: Esconde a tela de notificações
-    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
+logoLink.addEventListener('click', () => homeIcon.click());
 
-    // 🔄 CORREÇÃO: Oculta a tela de amigos e mostra de volta o feed e a caixa de postagem
-    if(friendsScreen) friendsScreen.style.display = 'none';
-    if(feedSection) feedSection.style.display = 'block';
-    if(createPostContainer) createPostContainer.style.display = 'flex';
+friendsIcon.addEventListener('click', () => {
+    document.getElementById('badge-friends').style.display = 'none'; // Esconde bolinha
+    esconderTodasAsTelas();
+    
     appContainer.querySelector('.main-container').style.display = 'block';
-    document.getElementById('feed').innerHTML = '';
-    lastVisible = null;
-    isFetchingPosts = false;
-    loadMorePosts();
+    if(document.getElementById('friends-screen-container')) document.getElementById('friends-screen-container').style.display = 'block';
+    
+    carregarSugestoesAleatorias();
 });
 
-
-friendsIcon.addEventListener('click', () => alert('Abrindo página de Amigos e Recomendações'));
-        
-        // NOVO: Clicou no ícone de Mensagens abre a Lista do WhatsApp Verde
-        // NOVO: Clicou no ícone de Mensagens abre a Lista do WhatsApp Verde
 messagesIcon.addEventListener('click', () => {
+    remetentesNaoLidos.clear(); // Zera a contagem de usuários únicos
+    atualizarBadgeMensagens(); // Esconde a bolinha
+    
+    esconderTodasAsTelas();
     appContainer.querySelector('.main-container').style.display = 'none';
-    if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
-    
-    // 👇 CORREÇÃO: Esconde a tela de notificações
-    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
-    
-    document.getElementById('chat-container').style.display = 'none';
-    document.getElementById('chat-list-container').style.display = 'block';
+    if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'block';
 
-    // Dispara a leitura dos amigos do banco
     loadConversationsList();
 });
 
 reelsNavIcon.addEventListener('click', () => {
-    // Esconde o feed padrão e exibe a tela cheia de Reels
+    document.getElementById('badge-reels').style.display = 'none'; // Esconde bolinha
+    esconderTodasAsTelas();
     appContainer.querySelector('.main-container').style.display = 'none';
     
-    // 👇 CORREÇÃO: Esconde a tela de notificações
-    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'none';
+    if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'block';
     
-    document.getElementById('reels-container').style.display = 'block';
-
-    // Fecha a gaveta lateral se ela estiver aberta para não cobrir o vídeo
     sideDrawer.classList.remove('open');
     drawerOverlay.classList.remove('active');
-
-    // Aciona a busca dos links de embed no Firestore
     loadReels();
 });
 
-    // 👇 NAVEGAÇÃO PARA NOTIFICAÇÕES 👇
-    notificationsIcon.addEventListener('click', () => {
-        // Esconde tudo
-        appContainer.querySelector('.main-container').style.display = 'none';
-        if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
-        if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
-        if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
-        if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
-        if(document.getElementById('friends-screen-container')) document.getElementById('friends-screen-container').style.display = 'none';
-        
-        // Mostra notificações e carrega
-        document.getElementById('notifications-container').style.display = 'block';
-        carregarNotificacoes();
-    });
-    // 👆 FIM NAVEGAÇÃO NOTIFICAÇÕES 👆
+notificationsIcon.addEventListener('click', () => {
+    esconderTodasAsTelas();
+    appContainer.querySelector('.main-container').style.display = 'none';
+    
+    if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'block';
+    carregarNotificacoes();
+});
 
-    marketIcon.addEventListener('click', () => alert('Abrindo página de Mercado'));
+marketIcon.addEventListener('click', () => {
+    document.getElementById('badge-market').style.display = 'none'; // Esconde bolinha
+    alert('Abrindo página de Mercado');
+});
 // Lógica de clique para alternar as abas do Chat (CONVERSAS, ONLINE, GRUPOS)
 const abas = document.querySelectorAll('.tab-btn');
 const conteudos = document.querySelectorAll('.tab-content');
@@ -7092,6 +7122,43 @@ async function marcarNotificacaoLida(notifId) {
         await updateDoc(doc(db, 'notificacoes', notifId), { lida: true });
     } catch (e) { console.error(e); }
 }
+// ==========================================
+// SISTEMA DE NOTIFICAÇÃO DE MENSAGENS (USUÁRIOS ÚNICOS)
+// ==========================================
+let remetentesNaoLidos = new Set();
+
+function escutarMensagensNaoLidas(meuEmail) {
+    const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(30));
+    
+    onSnapshot(q, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+                const msg = change.doc.data();
+                // Se a mensagem é pra mim e não fui eu que enviei
+                if (msg.roomId && msg.roomId.includes(meuEmail) && msg.senderId !== meuEmail) {
+                    // Só conta se eu não estiver com o chat dessa pessoa aberto agora
+                    if (currentRoomId !== msg.roomId) {
+                        remetentesNaoLidos.add(msg.senderId);
+                    }
+                }
+            }
+        });
+        atualizarBadgeMensagens();
+    });
+}
+
+function atualizarBadgeMensagens() {
+    const badge = document.getElementById('badge-messages');
+    if (!badge) return;
+    
+    if (remetentesNaoLidos.size > 0) {
+        badge.style.display = 'flex';
+        badge.innerText = remetentesNaoLidos.size > 9 ? '9+' : remetentesNaoLidos.size;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
             // sistema de backup pra evitar leitada (1)
 </script>
 </body>
