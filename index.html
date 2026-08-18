@@ -4463,8 +4463,11 @@ friendsIcon.addEventListener('click', () => {
 });
 
 messagesIcon.addEventListener('click', () => {
-    remetentesNaoLidos.clear(); // Zera a contagem de usuários únicos
-    atualizarBadgeMensagens(); // Esconde a bolinha
+    // 👇 CORREÇÃO: Salva o momento exato que abriu as mensagens e zera a contagem
+    lastViewedMessages = Date.now();
+    localStorage.setItem('blueberry_last_viewed_messages', lastViewedMessages);
+    remetentesNaoLidos.clear(); 
+    atualizarBadgeMensagens(); 
     
     esconderTodasAsTelas();
     appContainer.querySelector('.main-container').style.display = 'none';
@@ -4491,6 +4494,9 @@ notificationsIcon.addEventListener('click', () => {
     
     if(document.getElementById('notifications-container')) document.getElementById('notifications-container').style.display = 'block';
     carregarNotificacoes();
+
+    // 👇 CORREÇÃO: Marca todas as notificações como lidas no banco para zerar a bolinha
+    marcarTodasNotificacoesComoLidas();
 });
 
 marketIcon.addEventListener('click', () => {
@@ -7126,6 +7132,8 @@ async function marcarNotificacaoLida(notifId) {
 // SISTEMA DE NOTIFICAÇÃO DE MENSAGENS (USUÁRIOS ÚNICOS)
 // ==========================================
 let remetentesNaoLidos = new Set();
+// 👇 CORREÇÃO: Recupera a última vez que a aba de mensagens foi aberta
+let lastViewedMessages = parseInt(localStorage.getItem('blueberry_last_viewed_messages')) || 0;
 
 function escutarMensagensNaoLidas(meuEmail) {
     const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(30));
@@ -7136,8 +7144,8 @@ function escutarMensagensNaoLidas(meuEmail) {
                 const msg = change.doc.data();
                 // Se a mensagem é pra mim e não fui eu que enviei
                 if (msg.roomId && msg.roomId.includes(meuEmail) && msg.senderId !== meuEmail) {
-                    // Só conta se eu não estiver com o chat dessa pessoa aberto agora
-                    if (currentRoomId !== msg.roomId) {
+                    // 👇 CORREÇÃO: Só conta se a mensagem for MAIS NOVA que a última vez que abri a aba
+                    if (msg.createdAt > lastViewedMessages && currentRoomId !== msg.roomId) {
                         remetentesNaoLidos.add(msg.senderId);
                     }
                 }
@@ -7156,6 +7164,22 @@ function atualizarBadgeMensagens() {
         badge.innerText = remetentesNaoLidos.size > 9 ? '9+' : remetentesNaoLidos.size;
     } else {
         badge.style.display = 'none';
+    }
+}
+// Função para zerar a bolinha de notificações ao abrir a página
+async function marcarTodasNotificacoesComoLidas() {
+    if (!auth.currentUser) return;
+    try {
+        // Busca todas as notificações que ainda estão como "lida: false"
+        const q = query(collection(db, 'notificacoes'), where('receptor', '==', auth.currentUser.email), where('lida', '==', false));
+        const snapshot = await getDocs(q);
+        
+        // Atualiza uma por uma para "lida: true"
+        snapshot.forEach((docSnap) => {
+            updateDoc(doc(db, 'notificacoes', docSnap.id), { lida: true });
+        });
+    } catch (e) {
+        console.error("Erro ao limpar notificações:", e);
     }
 }
 
