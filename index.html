@@ -2903,7 +2903,27 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
                 <!-- Os iframes dos embeds serão injetados aqui via JS -->
             </div>
         </section>
-<!-- ==================== ECOSSISTEMA DE CHAT (WHATSAPP STYLE) ==================== -->
+<!-- 👇 NOVA TELA DE NOTIFICAÇÕES 👇 -->
+        <section id="notifications-container" style="display: none; padding-bottom: 60px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #3e4042;">
+                <h2 style="margin: 0; font-size: 24px; color: white;">Notificações</h2>
+                <div style="display: flex; gap: 15px;">
+                    <div style="background: #3a3b3c; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
+                    </div>
+                    <div style="background: #3a3b3c; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <h3 style="margin: 15px; font-size: 16px; color: white;">Anteriores</h3>
+            <div id="notifications-list" style="display: flex; flex-direction: column;">
+                <!-- Notificações injetadas via JS -->
+            </div>
+        </section>
+        <!-- 👆 FIM DA TELA DE NOTIFICAÇÕES 👆 -->
+
+<!-- ==================== ECOSSISTEMA DE CHAT (WHATSAPP STYLE)
 
 <!-- 1. Tela de Lista de Conversas (WhatsApp Verde) -->
 <!-- Tela de Lista de Conversas (Sem a barra superior do WhatsApp) -->
@@ -4005,6 +4025,7 @@ if (btnCloseComments) btnCloseComments.addEventListener('click', fecharComentari
 if (commentsOverlay) commentsOverlay.addEventListener('click', fecharComentarios);
 
 // Salva o novo comentário na subcoleção do post no Firestore
+// Salva o novo comentário na subcoleção do post no Firestore
 async function enviarComentarioFirebase() {
     const text = inputNewComment.value.trim();
     if (!text || !activeCommentPostId) return;
@@ -4022,6 +4043,18 @@ async function enviarComentarioFirebase() {
             createdAt: Date.now()
         });
         
+        // 👇 DISPARA A NOTIFICAÇÃO DE COMENTÁRIO 👇
+        // Precisamos descobrir quem é o dono do post para notificar
+        const postRef = doc(db, 'posts', activeCommentPostId);
+        const postSnap = await getDoc(postRef);
+        if (postSnap.exists()) {
+            const donoDoPost = postSnap.data().autor;
+            // Envia notificação passando um trecho do comentário
+            const trechoComentario = text.length > 30 ? text.substring(0, 30) + '...' : text;
+            enviarNotificacao(donoDoPost, 'comment', activeCommentPostId, trechoComentario);
+        }
+        // 👆 FIM DA NOTIFICAÇÃO 👆
+
         inputNewComment.value = ''; // Limpa o campo de entrada de texto
     } catch (error) {
         console.error("Erro ao salvar comentário no Firebase:", error);
@@ -4391,11 +4424,27 @@ friendsIcon.addEventListener('click', () => alert('Abrindo página de Amigos e R
             drawerOverlay.classList.remove('active');
 
             // Aciona a busca dos links de embed no Firestore
-            loadReels();
-        });
+            // Aciona a busca dos links de embed no Firestore
+        loadReels();
+    });
 
-        notificationsIcon.addEventListener('click', () => alert('Abrindo página de Notificações'));
-        marketIcon.addEventListener('click', () => alert('Abrindo página de Mercado'));
+    // 👇 NAVEGAÇÃO PARA NOTIFICAÇÕES 👇
+    notificationsIcon.addEventListener('click', () => {
+        // Esconde tudo
+        appContainer.querySelector('.main-container').style.display = 'none';
+        if(document.getElementById('chat-list-container')) document.getElementById('chat-list-container').style.display = 'none';
+        if(document.getElementById('chat-container')) document.getElementById('chat-container').style.display = 'none';
+        if(document.getElementById('reels-container')) document.getElementById('reels-container').style.display = 'none';
+        if(document.getElementById('profile-container')) document.getElementById('profile-container').style.display = 'none';
+        if(document.getElementById('friends-screen-container')) document.getElementById('friends-screen-container').style.display = 'none';
+        
+        // Mostra notificações e carrega
+        document.getElementById('notifications-container').style.display = 'block';
+        carregarNotificacoes();
+    });
+    // 👆 FIM NAVEGAÇÃO NOTIFICAÇÕES 👆
+
+    marketIcon.addEventListener('click', () => alert('Abrindo página de Mercado'));
 // Lógica de clique para alternar as abas do Chat (CONVERSAS, ONLINE, GRUPOS)
 const abas = document.querySelectorAll('.tab-btn');
 const conteudos = document.querySelectorAll('.tab-content');
@@ -4898,6 +4947,10 @@ async function loadMorePosts() {
                 labelTexto.textContent = curtidasLocais.length;
                 
                 await updateDoc(postRef, { likedBy: arrayUnion(usuarioLogadoEmail) });
+                
+                // 👇 DISPARA A NOTIFICAÇÃO DE CURTIDA 👇
+                // A variável autorEmail já existe no escopo superior (Pág 111)
+                enviarNotificacao(autorEmail, 'like', postId);
             }
         });
 
@@ -6878,7 +6931,132 @@ async function gerenciarAcaoStory(acao, storyId) {
 
 // Vincula a função ao objeto window para os cliques inline funcionarem
 window.gerenciarAcaoStory = gerenciarAcaoStory;
+// ==========================================
+// SISTEMA DE NOTIFICAÇÕES
+// ==========================================
 
+// 1. Função para gravar a notificação no Firestore
+async function enviarNotificacao(receptorEmail, tipo, postId, textoExtra = "") {
+    if (!auth.currentUser) return;
+    const remetenteEmail = auth.currentUser.email;
+    
+    // Não notifica a si mesmo
+    if (remetenteEmail === receptorEmail) return;
+
+    try {
+        await addDoc(collection(db, 'notificacoes'), {
+            receptor: receptorEmail,
+            remetente: remetenteEmail,
+            tipo: tipo, // 'like', 'comment', 'reply'
+            postId: postId,
+            textoExtra: textoExtra,
+            lida: false,
+            createdAt: Date.now()
+        });
+    } catch (error) {
+        console.error("Erro ao enviar notificação:", error);
+    }
+}
+
+// 2. Função para formatar a data igual ao print (Ex: "15 de ago às 03:17")
+function formatarDataNotificacao(timestamp) {
+    const data = new Date(timestamp);
+    const meses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    const dia = data.getDate();
+    const mes = meses[data.getMonth()];
+    const horas = String(data.getHours()).padStart(2, '0');
+    const minutos = String(data.getMinutes()).padStart(2, '0');
+    return `${dia} de ${mes} às ${horas}:${minutos}`;
+}
+
+// 3. Função para ler e exibir as notificações
+async function carregarNotificacoes() {
+    const listContainer = document.getElementById('notifications-list');
+    listContainer.innerHTML = '<p style="text-align:center; color:#b0b3b8; padding: 20px;">Carregando...</p>';
+
+    if (!auth.currentUser) return;
+
+    try {
+        const q = query(
+            collection(db, 'notificacoes'), 
+            where('receptor', '==', auth.currentUser.email), 
+            orderBy('createdAt', 'desc'),
+            limit(20)
+        );
+
+        onSnapshot(q, async (snapshot) => {
+            listContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                listContainer.innerHTML = '<p style="text-align:center; color:#b0b3b8; padding: 20px;">Nenhuma notificação no momento.</p>';
+                return;
+            }
+
+            for (const docSnap of snapshot.docs) {
+                const notif = docSnap.data();
+                const remetenteBase = notif.remetente.split('@')[0];
+                
+                // Busca dados do remetente para pegar nome e foto real
+                let nomeRemetente = remetenteBase.charAt(0).toUpperCase() + remetenteBase.slice(1);
+                let fotoRemetente = `https://api.dicebear.com/7.x/bottts/svg?seed=${remetenteBase}`;
+                
+                const userRef = doc(db, 'usuarios', notif.remetente);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    const uData = userSnap.data();
+                    nomeRemetente = uData.nome || uData.nomeCompleto || nomeRemetente;
+                    fotoRemetente = uData.fotoPerfil || fotoRemetente;
+                }
+
+                // Define ícone, cor e texto baseado no tipo
+                let iconeBadge = '';
+                let corBadge = '';
+                let textoAcao = '';
+
+                if (notif.tipo === 'like') {
+                    corBadge = '#1877f2'; // Azul Facebook
+                    iconeBadge = '<svg viewBox="0 0 24 24" width="12" height="12" fill="white"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>';
+                    textoAcao = `curtiu sua publicação.`;
+                } else if (notif.tipo === 'comment') {
+                    corBadge = '#25d366'; // Verde
+                    iconeBadge = '<svg viewBox="0 0 24 24" width="12" height="12" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+                    textoAcao = `comentou na sua publicação: "${notif.textoExtra}"`;
+                }
+
+                const notifHTML = `
+                    <div style="display: flex; align-items: center; padding: 12px 15px; background-color: ${notif.lida ? 'transparent' : 'rgba(35, 116, 225, 0.1)'}; cursor: pointer; transition: background 0.2s;">
+                        
+                        <!-- Avatar com Badge -->
+                        <div style="position: relative; margin-right: 15px; flex-shrink: 0;">
+                            <img src="${fotoRemetente}" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover;">
+                            <div style="position: absolute; bottom: -2px; right: -2px; background-color: ${corBadge}; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #18191a;">
+                                ${iconeBadge}
+                            </div>
+                        </div>
+
+                        <!-- Textos -->
+                        <div style="flex-grow: 1; display: flex; flex-direction: column;">
+                            <span style="color: #e4e6eb; font-size: 15px; line-height: 1.3;">
+                                <strong style="color: white;">${nomeRemetente}</strong> ${textoAcao}
+                            </span>
+                            <span style="color: #b0b3b8; font-size: 13px; margin-top: 4px;">
+                                ${formatarDataNotificacao(notif.createdAt)}
+                            </span>
+                        </div>
+
+                        <!-- 3 Pontinhos -->
+                        <div style="padding: 8px; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="#b0b3b8"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        </div>
+                    </div>
+                `;
+                listContainer.insertAdjacentHTML('beforeend', notifHTML);
+            }
+        });
+    } catch (error) {
+        console.error("Erro ao carregar notificações:", error);
+    }
+}
             // sistema de backup pra evitar leitada (1)
 </script>
 </body>
