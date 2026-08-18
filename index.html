@@ -1983,6 +1983,23 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
     background-color: #ffffff;
     transition: width 0.1s linear;
 }
+/* Estilo global para as bolinhas de notificação do menu */
+            .nav-badge {
+                position: absolute;
+                top: -2px;
+                right: -4px;
+                background-color: #e41e3f;
+                color: white;
+                font-size: 11px;
+                font-weight: bold;
+                border-radius: 10px;
+                padding: 1px 5px;
+                border: 2px solid var(--bg-card);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10;
+            }
 </style>
 </head>
 
@@ -2359,25 +2376,6 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
 <div id="comments-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:4400;"></div>
 
         <!-- Main Navigation Bar -->
-        <style>
-            /* Estilo global para as bolinhas de notificação do menu */
-            .nav-badge {
-                position: absolute;
-                top: -2px;
-                right: -4px;
-                background-color: #e41e3f;
-                color: white;
-                font-size: 11px;
-                font-weight: bold;
-                border-radius: 10px;
-                padding: 1px 5px;
-                border: 2px solid var(--bg-card);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 10;
-            }
-        </style>
         <nav class="main-nav">
             <div class="main-nav-item" id="home-icon" style="position: relative;">
                 <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
