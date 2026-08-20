@@ -4912,9 +4912,11 @@ async function loadMorePosts() {
                                  linkLimpo.startsWith('data:image');
 
                 if (ehImagem) {
-                    // Injeta uma tag HTML de imagem estilizada para o Blueberry feed
-                    videoHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;"><img src="${videoUrl}" style="width:100%; height:auto; border-radius:8px; display:block;"></div>`;
-                } else {
+        // Injeta uma tag HTML de imagem estilizada para o Blueberry feed
+        // 👇 CORREÇÃO: Adicionada a classe 'post-image-dblclick' e o 'data-post-id'
+        videoHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;">
+<img src="${videoUrl}" class="post-image-dblclick" data-post-id="${postId}" style="width:100%; height:auto; border-radius:8px; display:block; cursor: pointer;"></div>`;
+    } else {
                     // Se não for imagem, roda a lógica padrão de vídeos que você já tinha
                     if ((videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) && !videoUrl.includes('embed')) {
                         let videoId = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
@@ -7248,7 +7250,7 @@ async function abrirPostTelaCheia(postId) {
     activeFullPostId = postId;
     
     // Esconde o app principal e mostra a tela cheia
-    esconderTodasAsTelas();
+    if (typeof esconderTodasAsTelas === 'function') esconderTodasAsTelas();
     fullPostView.style.display = 'flex';
     fullPostContentArea.innerHTML = '<p style="color:white; text-align:center; padding:20px;">Carregando post...</p>';
     fullPostCommentsList.innerHTML = '';
@@ -7304,7 +7306,7 @@ async function abrirPostTelaCheia(postId) {
             
             <!-- Barra de Ações -->
             <div style="display: flex; justify-content: space-around; padding: 10px 15px; border-top: 1px solid #3e4042; border-bottom: 1px solid #3e4042; margin-top: 10px;">
-                <div style="display: flex; align-items: center; gap: 5px; color: ${corBotaoCurtir}; font-weight: bold; font-size: 14px; cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 5px; color: ${corBotaoCurtir}; font-weight: bold; font-size: 14px; cursor: pointer;" onclick="curtirReel('${postId}', ${JSON.stringify(curtidasArray).replace(/"/g, '&quot;')})">
                     <svg viewBox="0 0 24 24" width="20" height="20" style="fill: ${preenchimentoIcone}; stroke: currentColor; stroke-width: 2px;"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
                     ${totalCurtidas > 0 ? totalCurtidas : 'Curtir'}
                 </div>
@@ -7383,8 +7385,9 @@ btnCloseFullPost.addEventListener('click', () => {
         activeFullPostListener();
         activeFullPostListener = null;
     }
-    // Volta para a home
-    homeIcon.click(); 
+    // Volta para a home simulando o clique no ícone da casinha
+    const homeIcon = document.getElementById('home-icon');
+    if (homeIcon) homeIcon.click(); 
 });
 
 // 5. Lógica de Enviar Comentário na Tela Cheia
@@ -7413,7 +7416,9 @@ btnSendFullComment.addEventListener('click', async () => {
         if (postSnap.exists()) {
             const donoDoPost = postSnap.data().autor;
             const trechoComentario = text.length > 30 ? text.substring(0, 30) + '...' : text;
-            enviarNotificacao(donoDoPost, 'comment', activeFullPostId, trechoComentario);
+            if (typeof enviarNotificacao === 'function') {
+                enviarNotificacao(donoDoPost, 'comment', activeFullPostId, trechoComentario);
+            }
         }
 
     } catch (error) {
@@ -7425,8 +7430,7 @@ fullPostCommentInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') btnSendFullComment.click();
 });
 
-    
-            // sistema de backup pra evitar leitada (1)
+    // sistema de backup pra evitar leitada (1)
 </script>
 </body>
     </html>
