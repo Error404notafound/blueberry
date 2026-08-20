@@ -3163,44 +3163,7 @@ text-overflow: ellipsis; max-width: 240px; } /* 🌟 Aproveitei e melhorei o cin
         </div>
     </div>
 </div>
-<!-- ==========================================
-     TELA CHEIA DO POST (IMAGEM + COMENTÁRIOS)
-     ========================================== -->
-<div id="full-post-view" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #18191a; z-index: 7000; flex-direction: column; overflow: hidden;">
-    
-    <!-- Cabeçalho -->
-    <div style="display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #3e4042; background-color: #242526; flex-shrink: 0;">
-        <div id="btn-close-full-post" style="cursor: pointer; padding: 5px; margin-right: 15px;">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        </div>
-        <h3 id="full-post-header-title" style="margin: 0; color: white; font-size: 16px; font-weight: normal;">Post de ...</h3>
-        <div style="margin-left: auto; cursor: pointer;">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-        </div>
-    </div>
 
-    <!-- Área Rolável (Post + Comentários) -->
-    <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;" id="full-post-scroll-area">
-        <!-- O Post será injetado aqui -->
-        <div id="full-post-content-area" style="background-color: #242526; padding-bottom: 10px;"></div>
-        
-        <!-- Lista de Comentários -->
-        <div id="full-post-comments-list" style="padding: 15px; display: flex; flex-direction: column; gap: 15px;">
-            <!-- Comentários injetados via JS -->
-        </div>
-    </div>
-
-    <!-- Rodapé Fixo para Comentar -->
-    <div style="display: flex; align-items: center; padding: 10px 15px; background-color: #242526; border-top: 1px solid #3e4042; flex-shrink: 0; gap: 10px;">
-        <div style="cursor: pointer;">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="#b0b3b8"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-        </div>
-        <input type="text" id="full-post-comment-input" placeholder="Comente como..." style="flex: 1; background-color: #3a3b3c; border: none; border-radius: 20px; padding: 10px 15px; color: white; outline: none; font-size: 14px;">
-        <div id="btn-send-full-comment" style="cursor: pointer; display: none; color: #2374e1; font-weight: bold; padding: 0 5px;">
-            Enviar
-        </div>
-    </div>
-</div>
             <!-- Scripts Firebase e Lógica da Aplicação -->
 <script type="module">
 
@@ -4912,11 +4875,9 @@ async function loadMorePosts() {
                                  linkLimpo.startsWith('data:image');
 
                 if (ehImagem) {
-        // Injeta uma tag HTML de imagem estilizada para o Blueberry feed
-        // 👇 CORREÇÃO: Adicionada a classe 'post-image-dblclick' e o 'data-post-id'
-        videoHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;">
-<img src="${videoUrl}" class="post-image-dblclick" data-post-id="${postId}" style="width:100%; height:auto; border-radius:8px; display:block; cursor: pointer;"></div>`;
-    } else {
+                    // Injeta uma tag HTML de imagem estilizada para o Blueberry feed
+                    videoHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;"><img src="${videoUrl}" style="width:100%; height:auto; border-radius:8px; display:block;"></div>`;
+                } else {
                     // Se não for imagem, roda a lógica padrão de vídeos que você já tinha
                     if ((videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) && !videoUrl.includes('embed')) {
                         let videoId = videoUrl.split('v=').pop() || videoUrl.split('/').pop();
@@ -5686,9 +5647,8 @@ if (post.video && post.video.trim() !== "") {
 
     if (ehImagem) {
         // Se for imagem, renderiza tag img
-        // 👇 CORREÇÃO: Adicionada a classe 'post-image-dblclick' e o 'data-post-id'
         mídiaHTML = `<div class="feed-video-wrapper" style="width:100%; margin-top:10px;">
-            <img src="${videoUrl}" class="post-image-dblclick" data-post-id="${postId}" style="width:100%; height:auto; border-radius:8px; display:block; cursor: pointer;">
+            <img src="${videoUrl}" style="width:100%; height:auto; border-radius:8px; display:block;">
         </div>`;
     } else {
         // Se for vídeo do YouTube (ajusta link para formato embed)
@@ -7222,215 +7182,8 @@ async function marcarTodasNotificacoesComoLidas() {
         console.error("Erro ao limpar notificações:", e);
     }
 }
-// ==========================================
-// SISTEMA DE TELA CHEIA DO POST (CLIQUE DUPLO)
-// ==========================================
 
-const fullPostView = document.getElementById('full-post-view');
-const btnCloseFullPost = document.getElementById('btn-close-full-post');
-const fullPostContentArea = document.getElementById('full-post-content-area');
-const fullPostCommentsList = document.getElementById('full-post-comments-list');
-const fullPostCommentInput = document.getElementById('full-post-comment-input');
-const btnSendFullComment = document.getElementById('btn-send-full-comment');
-const fullPostHeaderTitle = document.getElementById('full-post-header-title');
-
-let activeFullPostId = null;
-let activeFullPostListener = null;
-
-// 1. Escuta o CLIQUE DUPLO nas imagens do feed
-document.addEventListener('dblclick', (e) => {
-    if (e.target.classList.contains('post-image-dblclick')) {
-        const postId = e.target.getAttribute('data-post-id');
-        abrirPostTelaCheia(postId);
-    }
-});
-
-// 2. Função para abrir a tela e carregar os dados
-async function abrirPostTelaCheia(postId) {
-    activeFullPostId = postId;
-    
-    // Esconde o app principal e mostra a tela cheia
-    if (typeof esconderTodasAsTelas === 'function') esconderTodasAsTelas();
-    fullPostView.style.display = 'flex';
-    fullPostContentArea.innerHTML = '<p style="color:white; text-align:center; padding:20px;">Carregando post...</p>';
-    fullPostCommentsList.innerHTML = '';
-
-    // Ajusta o placeholder do input com o nome do usuário logado
-    if (auth.currentUser) {
-        const meuNome = auth.currentUser.email.split('@')[0];
-        const nomeFormatado = meuNome.charAt(0).toUpperCase() + meuNome.slice(1);
-        fullPostCommentInput.placeholder = `Comente como ${nomeFormatado}`;
-    }
-
-    try {
-        // Busca o post no Firestore
-        const postRef = doc(db, 'posts', postId);
-        const postSnap = await getDoc(postRef);
-        
-        if (!postSnap.exists()) {
-            fullPostContentArea.innerHTML = '<p style="color:red; text-align:center;">Post não encontrado.</p>';
-            return;
-        }
-
-        const post = postSnap.data();
-        const autorEmail = post.autor || 'Anônimo';
-        const nomeSemDominio = autorEmail.split('@')[0];
-        const nomeFormatado = nomeSemDominio.charAt(0).toUpperCase() + nomeSemDominio.slice(1);
-        
-        fullPostHeaderTitle.innerText = `Post de ${nomeFormatado}`;
-
-        // Pega a foto do autor (do cache ou gera uma)
-        let fotoDoAutor = cacheUsuarios[autorEmail] || `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeSemDominio}`;
-
-        // Calcula curtidas
-        const curtidasArray = post.likedBy || [];
-        const totalCurtidas = curtidasArray.length;
-        const jaCurtiu = auth.currentUser ? curtidasArray.includes(auth.currentUser.email) : false;
-        const corBotaoCurtir = jaCurtiu ? "#2374e1" : "#b0b3b8";
-        const preenchimentoIcone = jaCurtiu ? "#2374e1" : "none";
-
-        // Renderiza o Post no topo da tela (Igual ao print 1)
-        fullPostContentArea.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px;">
-                <div style="display: flex; align-items: center;">
-                    <img src="${fotoDoAutor}" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover;">
-                    <div style="display: flex; flex-direction: column;">
-                        <span style="color: white; font-weight: bold; font-size: 15px;">${nomeFormatado}</span>
-                        <span style="color: #b0b3b8; font-size: 12px;">${formatarDataFriendly(post.createdAt)} • 🌎</span>
-                    </div>
-                </div>
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="#b0b3b8"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-            </div>
-            <p style="color: white; font-size: 15px; padding: 0 15px; margin: 0 0 10px 0;">${post.text || ''}</p>
-            <img src="${post.video}" style="width: 100%; height: auto; display: block;">
-            
-            <!-- Barra de Ações -->
-            <div style="display: flex; justify-content: space-around; padding: 10px 15px; border-top: 1px solid #3e4042; border-bottom: 1px solid #3e4042; margin-top: 10px;">
-                <div style="display: flex; align-items: center; gap: 5px; color: ${corBotaoCurtir}; font-weight: bold; font-size: 14px; cursor: pointer;" onclick="curtirReel('${postId}', ${JSON.stringify(curtidasArray).replace(/"/g, '&quot;')})">
-                    <svg viewBox="0 0 24 24" width="20" height="20" style="fill: ${preenchimentoIcone}; stroke: currentColor; stroke-width: 2px;"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3z"/></svg>
-                    ${totalCurtidas > 0 ? totalCurtidas : 'Curtir'}
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px; color: #b0b3b8; font-weight: bold; font-size: 14px; cursor: pointer;">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    Comentar
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px; color: #b0b3b8; font-weight: bold; font-size: 14px; cursor: pointer;">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line><path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"></path></svg>
-                    Compartilhar
-                </div>
-            </div>
-        `;
-
-        // Carrega os comentários em tempo real (Igual ao print 2)
-        carregarComentariosTelaCheia(postId);
-
-    } catch (error) {
-        console.error("Erro ao abrir post:", error);
-    }
-}
-
-// 3. Escuta os comentários em tempo real
-function carregarComentariosTelaCheia(postId) {
-    if (activeFullPostListener) activeFullPostListener(); // Limpa listener anterior
-
-    const comentariosRef = collection(db, 'posts', postId, 'comentarios');
-    const q = query(comentariosRef, orderBy('createdAt', 'asc'));
-
-    activeFullPostListener = onSnapshot(q, (snapshot) => {
-        fullPostCommentsList.innerHTML = '';
-
-        if (snapshot.empty) {
-            fullPostCommentsList.innerHTML = '<p style="color: #b0b3b8; text-align: center;">Seja o primeiro a comentar!</p>';
-            return;
-        }
-
-        snapshot.forEach((docSnap) => {
-            const coment = docSnap.data();
-            const autorEmail = coment.autor || 'Anônimo';
-            const nomeSemDominio = autorEmail.split('@')[0];
-            const nomeFormatado = nomeSemDominio.charAt(0).toUpperCase() + nomeSemDominio.slice(1);
-            
-            let fotoDoComentador = cacheUsuarios[autorEmail] || `https://api.dicebear.com/7.x/bottts/svg?seed=${nomeSemDominio}`;
-
-            // Layout do comentário igual ao print 2 (Balão cinza escuro)
-            const commentHTML = `
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <img src="${fotoDoComentador}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
-                    <div style="display: flex; flex-direction: column; max-width: 80%;">
-                        <div style="background-color: #3a3b3c; padding: 10px 12px; border-radius: 18px; color: #e4e6eb;">
-                            <span style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 2px;">${nomeFormatado}</span>
-                            <span style="font-size: 15px; line-height: 1.3;">${coment.text}</span>
-                        </div>
-                        <div style="display: flex; gap: 15px; margin-top: 5px; margin-left: 10px; font-size: 12px; color: #b0b3b8; font-weight: bold;">
-                            <span>${formatarDataFriendly(coment.createdAt)}</span>
-                            <span style="cursor: pointer;">Curtir</span>
-                            <span style="cursor: pointer;">Responder</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            fullPostCommentsList.insertAdjacentHTML('beforeend', commentHTML);
-        });
-
-        // Rola para o final
-        const scrollArea = document.getElementById('full-post-scroll-area');
-        scrollArea.scrollTop = scrollArea.scrollHeight;
-    });
-}
-
-// 4. Fechar a tela cheia
-btnCloseFullPost.addEventListener('click', () => {
-    fullPostView.style.display = 'none';
-    if (activeFullPostListener) {
-        activeFullPostListener();
-        activeFullPostListener = null;
-    }
-    // Volta para a home simulando o clique no ícone da casinha
-    const homeIcon = document.getElementById('home-icon');
-    if (homeIcon) homeIcon.click(); 
-});
-
-// 5. Lógica de Enviar Comentário na Tela Cheia
-fullPostCommentInput.addEventListener('input', () => {
-    btnSendFullComment.style.display = fullPostCommentInput.value.trim().length > 0 ? 'block' : 'none';
-});
-
-btnSendFullComment.addEventListener('click', async () => {
-    const text = fullPostCommentInput.value.trim();
-    if (!text || !activeFullPostId || !auth.currentUser) return;
-
-    try {
-        const comentariosRef = collection(db, 'posts', activeFullPostId, 'comentarios');
-        await addDoc(comentariosRef, {
-            text: text,
-            autor: auth.currentUser.email,
-            createdAt: Date.now()
-        });
-        
-        fullPostCommentInput.value = '';
-        btnSendFullComment.style.display = 'none';
-
-        // Dispara notificação para o dono do post
-        const postRef = doc(db, 'posts', activeFullPostId);
-        const postSnap = await getDoc(postRef);
-        if (postSnap.exists()) {
-            const donoDoPost = postSnap.data().autor;
-            const trechoComentario = text.length > 30 ? text.substring(0, 30) + '...' : text;
-            if (typeof enviarNotificacao === 'function') {
-                enviarNotificacao(donoDoPost, 'comment', activeFullPostId, trechoComentario);
-            }
-        }
-
-    } catch (error) {
-        console.error("Erro ao enviar comentário:", error);
-    }
-});
-
-fullPostCommentInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') btnSendFullComment.click();
-});
-
-    // sistema de backup pra evitar leitada (1)
+            // sistema de backup pra evitar leitada (1)
 </script>
 </body>
     </html>
